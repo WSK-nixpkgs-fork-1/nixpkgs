@@ -45,6 +45,7 @@ buildPythonPackage rec {
     # Tests require network access
     "test_pickling"
     "test_password_manager"
+    "test_ftp"
   ];
 
   meta = with lib; {
