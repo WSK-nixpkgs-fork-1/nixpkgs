@@ -6456,6 +6456,12 @@
     githubId = 4246921;
     name = "Florian Beeres";
   };
+  fccapria = {
+    email = "francesco@capria.eu";
+    github = "fccapria";
+    githubId = 62179193;
+    name = "Francesco Carmelo Capria";
+  };
   fd = {
     email = "simon.menke@gmail.com";
     github = "fd";
@@ -14810,6 +14816,12 @@
     githubId = 127548;
     name = "Judson Lester";
   };
+  nyawox = {
+    name = "nyawox";
+    email = "nyawox.git@gmail.com";
+    github = "nyawox";
+    githubId = 93813719;
+  };
   nzbr = {
     email = "nixos@nzbr.de";
     github = "nzbr";
@@ -22456,6 +22468,12 @@
     github = "Zimmi48";
     githubId = 1108325;
     name = "Théo Zimmermann";
+  };
+  zlepper = {
+    name = "Rasmus Hansen";
+    github = "zlepper";
+    githubId = 1499810;
+    email = "hansen13579@gmail.com";
   };
   zmitchell = {
     name = "Zach Mitchell";
