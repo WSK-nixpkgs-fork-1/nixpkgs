@@ -20,6 +20,13 @@ permissions:
   # We need this permission to cancel the workflow run if there's a merge conflict
   actions: write
 
+# Create a check-by-name concurrency group based on the pull request number. if
+# an event triggers a run on the same PR while a previous run is still in
+# progress, the previous run will be canceled and the new one will start.
+concurrency:
+  group: check-by-name-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   check:
     # This needs to be x86_64-linux, because we depend on the tooling being pre-built in the GitHub releases
@@ -84,7 +91,7 @@ jobs:
             exit 1
           fi
           echo "mergedSha=$mergedSha" >> "$GITHUB_ENV"
-      - uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4.1.3
+      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
         with:
           # pull_request_target checks out the base branch by default
           ref: ${{ env.mergedSha }}
