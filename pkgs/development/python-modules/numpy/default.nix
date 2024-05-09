@@ -19,6 +19,9 @@
 , blas
 , lapack
 
+# Reverse dependency
+, sage
+
 # tests
 , hypothesis
 , pytest-xdist
@@ -88,6 +91,9 @@ in buildPythonPackage rec {
     # remove needless reference to full Python path stored in built wheel
     substituteInPlace numpy/meson.build \
       --replace 'py.full_path()' "'python'"
+
+    substituteInPlace pyproject.toml \
+      --replace-fail "meson-python>=0.15.0,<0.16.0" "meson-python"
   '';
 
   nativeBuildInputs = [
@@ -174,6 +180,7 @@ in buildPythonPackage rec {
     blas = blas.provider;
     blasImplementation = blas.implementation;
     inherit cfg;
+    tests = { inherit sage; };
   };
 
   # Disable test

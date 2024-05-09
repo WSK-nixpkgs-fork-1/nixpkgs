@@ -150,6 +150,7 @@ mapAliases ({
   factory_boy = factory-boy; # added 2023-10-08
   fake_factory = throw "fake_factory has been removed because it is unused and deprecated by upstream since 2016."; # added 2022-05-30
   fastnlo_toolkit = fastnlo-toolkit; # added 2024-01-03
+  fastpair = throw "fastpair is unmaintained upstream and has therefore been removed"; # added 2024-05-01
   faulthandler = throw "faulthandler is built into ${python.executable}"; # added 2021-07-12
   inherit (super.pkgs) fetchPypi; # added 2023-05-25
   filebrowser_safe = filebrowser-safe; # added 2024-01-03
@@ -342,7 +343,6 @@ mapAliases ({
   pyialarmxr = pyialarmxr-homeassistant; # added 2022-06-07
   pyialarmxr-homeassistant = throw "The package was removed together with the component support in home-assistant 2022.7.0"; # added 2022-07-07
   PyICU = pyicu; # Added 2022-12-22
-  pyjson5 = json5; # added 2022-08-28
   pyhs100 = throw "pyhs100 has been removed in favor of python-kasa."; # added 2024-01-05
   pylibgen = throw "pylibgen is unmaintained upstreamed, and removed from nixpkgs"; # added 2020-06-20
   PyLD = pyld; # added 2022-06-22

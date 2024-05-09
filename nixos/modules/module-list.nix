@@ -45,6 +45,7 @@
   ./config/xdg/portals/lxqt.nix
   ./config/xdg/portals/wlr.nix
   ./config/xdg/sounds.nix
+  ./config/xdg/terminal-exec.nix
   ./config/zram.nix
   ./hardware/acpilight.nix
   ./hardware/all-firmware.nix
@@ -106,6 +107,7 @@
   ./hardware/video/bumblebee.nix
   ./hardware/video/capture/mwprocapture.nix
   ./hardware/video/displaylink.nix
+  ./hardware/video/intel-gpu-tools.nix
   ./hardware/video/nvidia.nix
   ./hardware/video/switcheroo-control.nix
   ./hardware/video/uvcvideo/default.nix
@@ -664,6 +666,7 @@
   ./services/matrix/maubot.nix
   ./services/matrix/mautrix-facebook.nix
   ./services/matrix/mautrix-meta.nix
+  ./services/matrix/mautrix-signal.nix
   ./services/matrix/mautrix-telegram.nix
   ./services/matrix/mautrix-whatsapp.nix
   ./services/matrix/mjolnir.nix
@@ -946,6 +949,7 @@
   ./services/networking/charybdis.nix
   ./services/networking/chisel-server.nix
   ./services/networking/cjdns.nix
+  ./services/networking/clatd.nix
   ./services/networking/cloudflare-dyndns.nix
   ./services/networking/cloudflared.nix
   ./services/networking/cntlm.nix
@@ -1029,6 +1033,7 @@
   ./services/networking/jigasi.nix
   ./services/networking/jitsi-videobridge.nix
   ./services/networking/jool.nix
+  ./services/networking/jotta-cli.nix
   ./services/networking/kea.nix
   ./services/networking/keepalived/default.nix
   ./services/networking/keybase.nix
@@ -1256,8 +1261,8 @@
   ./services/security/kanidm.nix
   ./services/security/munge.nix
   ./services/security/nginx-sso.nix
-  ./services/security/oauth2_proxy.nix
-  ./services/security/oauth2_proxy_nginx.nix
+  ./services/security/oauth2-proxy.nix
+  ./services/security/oauth2-proxy-nginx.nix
   ./services/security/opensnitch.nix
   ./services/security/pass-secret-service.nix
   ./services/security/physlock.nix

@@ -131,6 +131,7 @@ mapAliases ({
   boost174 = throw "boost174 has been deprecated in favor of the latest version"; # Added 2023-06-08
   boost17x = throw "boost17x has been deprecated in favor of the latest version"; # Added 2023-07-13
   boost18x = throw "boost18x has been deprecated in favor of the latest version"; # Added 2023-07-13
+  bpb = throw "bpb has been removed as it is unmaintained and not compatible with recent Rust versions"; # Added 2024-04-30
   bpftool = bpftools; # Added 2021-05-03
   bpytop = throw "bpytop has been deprecated by btop"; # Added 2023-02-16
   bro = throw "'bro' has been renamed to/replaced by 'zeek'"; # Converted to throw 2023-09-10
@@ -180,6 +181,7 @@ mapAliases ({
   clang-ocl = throw "'clang-ocl' has been replaced with 'rocmPackages.clang-ocl'"; # Added 2023-10-08
   inherit (libsForQt5.mauiPackages) clip; # added 2022-05-17
   clpm = throw "'clpm' has been removed from nixpkgs"; # Added 2024-04-01
+  clwrapperFunction = throw "Lisp packages have been redesigned. See 'lisp-modules' in the nixpkgs manual."; # Added 2024-05-07
   collada-dom = opencollada; # added 2024-02-21
   composable_kernel = throw "'composable_kernel' has been replaced with 'rocmPackages.composable_kernel'"; # Added 2023-10-08
   cope = throw "'cope' has been removed, as it is broken in nixpkgs since it was added, and fixing it is not trivial"; # Added 2024-04-12
@@ -585,6 +587,7 @@ mapAliases ({
   kube3d = k3d; # Added 2022-0705
   kafkacat = kcat; # Added 2021-10-07
   kak-lsp = kakoune-lsp; # Added 2024-04-01
+  kdbplus = throw "'kdbplus' has been removed from nixpkgs"; # Added 2024-05-06
   kdeconnect = plasma5Packages.kdeconnect-kde; # Added 2020-10-28
   keepassx = throw "KeePassX is no longer actively developed. Please consider KeePassXC as a maintained alternative."; # Added 2023-02-17
   keepassx2 = throw "KeePassX is no longer actively developed. Please consider KeePassXC as a maintained alternative."; # Added 2023-02-17
@@ -655,6 +658,9 @@ mapAliases ({
   libxkbcommon_7 = throw "libxkbcommon_7 has been removed because it is impacted by security issues and not used in nixpkgs, move to 'libxkbcommon'"; # Added 2023-01-03
   lightdm_gtk_greeter = lightdm-gtk-greeter; # Added 2022-08-01
   lightstep-tracer-cpp = throw "lightstep-tracer-cpp is deprecated since 2022-08-29; the upstream recommends migration to opentelemetry projects.";
+  lispPackages_new = throw "Lisp packages have been redesigned. See 'lisp-modules' in the nixpkgs manual."; # Added 2024-05-07
+  lispPackages = throw "Lisp packages have been redesigned. See 'lisp-modules' in the nixpkgs manual."; # Added 2024-05-07
+  lispPackagesFor = throw "Lisp packages have been redesigned. See 'lisp-modules' in the nixpkgs manual."; # Added 2024-05-07
   llama = walk; # Added 2023-01-23
 
   # Linux kernels
@@ -838,16 +844,16 @@ mapAliases ({
   netbox_3_3 = throw "netbox 3.3 series has been removed as it was EOL"; # Added 2023-09-02
   netbox_3_5 = throw "netbox 3.5 series has been removed as it was EOL"; # Added 2024-01-22
   netease-music-tui = throw "netease-music-tui has been removed due to unmaintained by upstream and broken functionality"; # Added 2024-03-03
-  nextcloud25 = throw ''
-    Nextcloud v25 has been removed from `nixpkgs` as the support for is dropped
-    by upstream in 2023-10. Please upgrade to at least Nextcloud v26 by declaring
+  nextcloud26 = throw ''
+    Nextcloud v26 has been removed from `nixpkgs` as the support for is dropped
+    by upstream in 2024-04. Please upgrade to at least Nextcloud v27 by declaring
 
-        services.nextcloud.package = pkgs.nextcloud26;
+        services.nextcloud.package = pkgs.nextcloud27;
 
     in your NixOS config.
 
-    WARNING: if you were on Nextcloud 24 you have to upgrade to Nextcloud 25
-    first on 23.05 because Nextcloud doesn't support upgrades across multiple major versions!
+    WARNING: if you were on Nextcloud 25 you have to upgrade to Nextcloud 26
+    first on 23.11 because Nextcloud doesn't support upgrades across multiple major versions!
   ''; # Added 2023-10-13
   nextcloud25Packages = throw "Nextcloud25 is EOL!"; # Added 2023-10-13
   nagiosPluginsOfficial = monitoring-plugins;
@@ -1060,6 +1066,14 @@ mapAliases ({
   qtcurve = libsForQt5.qtcurve; # Added 2020-11-07
   qtile-unwrapped = python3.pkgs.qtile; # Added 2023-05-12
   quantum-espresso-mpi = quantum-espresso; # Added 2023-11-23
+  quicklispPackages = throw "Lisp packages have been redesigned. See 'lisp-modules' in the nixpkgs manual."; # Added 2024-05-07
+  quicklispPackagesABCL = throw "Lisp packages have been redesigned. See 'lisp-modules' in the nixpkgs manual."; # Added 2024-05-07
+  quicklispPackagesCCL = throw "Lisp packages have been redesigned. See 'lisp-modules' in the nixpkgs manual."; # Added 2024-05-07
+  quicklispPackagesClisp = throw "Lisp packages have been redesigned. See 'lisp-modules' in the nixpkgs manual."; # Added 2024-05-07
+  quicklispPackagesECL = throw "Lisp packages have been redesigned. See 'lisp-modules' in the nixpkgs manual."; # Added 2024-05-07
+  quicklispPackagesFor = throw "Lisp packages have been redesigned. See 'lisp-modules' in the nixpkgs manual."; # Added 2024-05-07
+  quicklispPackagesGCL = throw "Lisp packages have been redesigned. See 'lisp-modules' in the nixpkgs manual."; # Added 2024-05-07
+  quicklispPackagesSBCL = throw "Lisp packages have been redesigned. See 'lisp-modules' in the nixpkgs manual."; # Added 2024-05-07
   qutebrowser-qt6 = throw "'qutebrowser-qt6' has been replaced by 'qutebrowser', since the the qt5 version has been removed"; # Added 2023-08-19
   quvi = throw "'quvi' has been removed, as it was broken and unmaintained"; # Added 2023-11-25
 
@@ -1072,6 +1086,7 @@ mapAliases ({
   rccl = throw "'rccl' has been replaced with 'rocmPackages.rccl'"; # Added 2023-10-08
   rdc = throw "'rdc' has been replaced with 'rocmPackages.rdc'"; # Added 2023-10-08
   readline63 = throw "'readline63' has been replaced with 'readline'"; # Added 2024-02-10
+  redocly-cli = redocly; # Added 2024-04-14
   redpanda = redpanda-client; # Added 2023-10-14
   restya-board = throw "'restya-board' has been removed from nixpkgs, as it was broken and unmaintained"; # Added 2024-01-22
   retdec-full = throw "'retdec-full' is no longer needed, please use 'retdec'"; # Added 2024-02-05
@@ -1228,6 +1243,7 @@ mapAliases ({
   teleport_12 = throw "teleport 12 has been removed as it is EOL. Please upgrade to Teleport 13 or later"; # Added 2024-02-04
   teleprompter = throw "teleprompter has been removed. reason: upstream dead and does not work with recent electron versions"; # Added 2024-03-14
   tensile = throw "'tensile' has been replaced with 'rocmPackages.tensile'"; # Added 2023-10-08
+  tepl = libgedit-tepl; # Added 2024-04-29
   testVersion = testers.testVersion; # Added 2022-04-20
   tfplugindocs = terraform-plugin-docs; # Added 2023-11-01
   thrift-0_10 = throw "'thrift-0_10' has been removed because it is impacted by security issues and not used in nixpkgs, move to 'thrift'"; # Added 2024-03-17
@@ -1326,7 +1342,9 @@ mapAliases ({
   wordpress6_1 = throw "'wordpress6_1' has been removed in favor of the latest version"; # Added 2023-10-10
   wordpress6_2 = throw "'wordpress6_2' has been removed in favor of the latest version"; # Added 2023-10-10
   wormhole-rs = magic-wormhole-rs; # Added 2022-05-30. preserve, reason: Arch package name, main binary name
+  wrapLisp_old = throw "Lisp packages have been redesigned. See 'lisp-modules' in the nixpkgs manual."; # Added 2024-05-07
   wmii_hg = wmii;
+  wrapGAppsHook = wrapGAppsHook3; # Added 2024-03-26
   wxGTK30 = throw "wxGTK30 has been removed from nixpkgs as it has reached end of life"; # Added 2023-03-22
   wxGTK30-gtk2 = wxGTK30; # Added 2022-12-03
   wxGTK30-gtk3 = wxGTK30; # Added 2022-12-03
