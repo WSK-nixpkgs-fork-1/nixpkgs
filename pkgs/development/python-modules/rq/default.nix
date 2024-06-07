@@ -1,21 +1,22 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, buildPythonPackage
-, pythonOlder
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  buildPythonPackage,
+  pythonOlder,
 
-# build-system
-, hatchling
+  # build-system
+  hatchling,
 
-# dependencies
-, click
-, redis
+  # dependencies
+  click,
+  redis,
 
-# tests
-, psutil
-, pytestCheckHook
-, redis-server
-, sentry-sdk
+  # tests
+  psutil,
+  pytestCheckHook,
+  redis-server,
+  sentry-sdk,
 }:
 
 buildPythonPackage rec {
@@ -32,9 +33,7 @@ buildPythonPackage rec {
     hash = "sha256-8uhCV4aJNbY273jOa9D5OlgEG1w3hXVncClKQTO9Pyk=";
   };
 
-  build-system = [
-    hatchling
-  ];
+  build-system = [ hatchling ];
 
   dependencies = [
     click
@@ -47,24 +46,23 @@ buildPythonPackage rec {
     sentry-sdk
   ];
 
-  preCheck = lib.optionalString stdenv.isLinux ''
+  preCheck = ''
     PATH=$out/bin:$PATH
     ${redis-server}/bin/redis-server &
-    REDIS_PID=$!
   '';
 
-  postCheck = lib.optionalString stdenv.isLinux ''
-    kill $REDIS_PID
+  postCheck = ''
+    kill %%
   '';
+
+  __darwinAllowLocalNetworking = true;
 
   disabledTests = [
     # https://github.com/rq/rq/commit/fd261d5d8fc0fe604fa396ee6b9c9b7a7bb4142f
     "test_clean_large_registry"
   ];
 
-  pythonImportsCheck = [
-    "rq"
-  ];
+  pythonImportsCheck = [ "rq" ];
 
   meta = with lib; {
     description = "Library for creating background jobs and processing them";
@@ -74,4 +72,3 @@ buildPythonPackage rec {
     maintainers = with maintainers; [ mrmebelman ];
   };
 }
-

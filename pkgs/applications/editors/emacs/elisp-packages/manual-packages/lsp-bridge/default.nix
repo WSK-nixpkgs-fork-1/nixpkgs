@@ -16,7 +16,7 @@
 }:
 
 let
-  rev = "75b1431c1e0f6c221dbfdb0ecd0f62f183b02254";
+  rev = "f48de0896d3af80f5e15aef512b7485eb46df9f6";
   python = python3.withPackages (ps: with ps; [
     epc
     orjson
@@ -28,13 +28,13 @@ let
 in
 melpaBuild {
   pname = "lsp-bridge";
-  version = "20240502.2306";
+  version = "20240601.1149";
 
   src = fetchFromGitHub {
     owner = "manateelazycat";
     repo = "lsp-bridge";
     inherit rev;
-    hash = "sha256-8MqGwHVBE+87IQfsUA6b3ffrVWjypiH3shwELBCUBDQ=";
+    hash = "sha256-ocKNRSt5RVKGnxd0odI43jdr27oYrRLdnABh6x63CfM=";
   };
 
   commit = rev;
@@ -87,6 +87,8 @@ melpaBuild {
 
     runHook postCheck
   '';
+
+  __darwinAllowLocalNetworking = true;
 
   passthru.updateScript = writeScript "update.sh" ''
     #!/usr/bin/env nix-shell

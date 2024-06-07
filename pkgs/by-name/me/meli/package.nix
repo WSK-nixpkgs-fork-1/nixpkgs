@@ -17,12 +17,13 @@
 , sqlite
 
 # runtime deps
+, gpgme
 , gnum4
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "meli";
-  version = "0.8.4";
+  version = "0.8.5";
 
   src = fetchzip {
     urls = [
@@ -30,10 +31,10 @@ rustPlatform.buildRustPackage rec {
       "https://codeberg.org/meli/meli/archive/v${version}.tar.gz"
       "https://github.com/meli/meli/archive/refs/tags/v${version}.tar.gz"
     ];
-    hash = "sha256-wmIlYgXB17/i9Q+6C7pbcEjVlEuvhmqrSH+cDmaBKLs=";
+    hash = "sha256-xfc4DZGKQi/n87JcjTl+s2UFJ20v+6JmzSL36pZlSc0=";
   };
 
-  cargoHash = "sha256-gYS/dxNMz/HkCmRXH5AdHPXJ2giqpAHc4eVXJGOpMDM=";
+  cargoHash = "sha256-7ax3VQ+McmzxdG8TeKnMnD0uJmM0pi9Sskfdl2SZkz4=";
 
   # Needed to get openssl-sys to use pkg-config
   OPENSSL_NO_VENDOR=1;
@@ -60,6 +61,7 @@ rustPlatform.buildRustPackage rec {
     installManPage meli/docs/*.{1,5,7}
 
     wrapProgram $out/bin/meli \
+      --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ gpgme ]} \
       --prefix PATH : ${lib.makeBinPath [ gnum4 ]}
   '';
 

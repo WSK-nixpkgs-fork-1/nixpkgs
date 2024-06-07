@@ -7,7 +7,7 @@
   # to get rid of ${glibc} dependency.
 , purgeNixReferences ? false
 , coreCompression ? true
-, markRegionGC ? true
+, markRegionGC ? threadSupport
 , version
   # Set this to a lisp binary to use a custom bootstrap lisp compiler for SBCL.
   # Leave as null to use the default.  This is useful for local development of
@@ -19,11 +19,11 @@
 
 let
   versionMap = {
-    "2.4.3" = {
-      sha256 = "sha256-icmq35K4KtPHSj1PFYoDiJPeoOTzlNyvyWNYPDC3w/I=";
-    };
     "2.4.4" = {
       sha256 = "sha256-ipMmJ7Px2OlhjxzcIl7csAJFaARpfiyH0UBoN2ShBtU=";
+    };
+    "2.4.5" = {
+      sha256 = "sha256-TfaOkMkDGAdkK0t2GYjetb9qG9FSxHI0goNO+nNae9E=";
     };
   };
   # Collection of pre-built SBCL binaries for platforms that need them for
@@ -113,6 +113,15 @@ stdenv.mkDerivation (self: rec {
     # have it block a release.
     "futex-wait.test.sh"
   ];
+  patches = [
+    # Support the NIX_SBCL_DYNAMIC_SPACE_SIZE envvar. Upstream SBCL didn’t want
+    # to include this (see
+    # "https://sourceforge.net/p/sbcl/mailman/sbcl-devel/thread/2cf20df7-01d0-44f2-8551-0df01fe55f1a%400brg.net/"),
+    # but for Nix envvars are sufficiently useful that it’s worth maintaining
+    # this functionality downstream.
+    ./dynamic-space-size-envvar-feature.patch
+    ./dynamic-space-size-envvar-tests.patch
+  ];
   postPatch = lib.optionalString (self.disabledTestFiles != [ ]) ''
     (cd tests ; rm -f ${lib.concatStringsSep " " self.disabledTestFiles})
   ''
@@ -148,6 +157,7 @@ stdenv.mkDerivation (self: rec {
   '';
 
   enableFeatures = with lib;
+    assert assertMsg (markRegionGC -> threadSupport) "SBCL mark region GC requires thread support";
     optional threadSupport "sb-thread" ++
     optional linkableRuntime "sb-linkable-runtime" ++
     optional coreCompression "sb-core-compression" ++

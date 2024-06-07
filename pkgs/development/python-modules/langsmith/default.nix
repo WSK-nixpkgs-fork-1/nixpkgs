@@ -22,7 +22,7 @@
 
 buildPythonPackage rec {
   pname = "langsmith";
-  version = "0.1.54";
+  version = "0.1.64";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -31,7 +31,7 @@ buildPythonPackage rec {
     owner = "langchain-ai";
     repo = "langsmith-sdk";
     rev = "refs/tags/v${version}";
-    hash = "sha256-hg1xfqptjeJHxbiGfuGeka7lpClrb9nxP/RSUYr2/0k=";
+    hash = "sha256-oAAbki0Mo4qmjIFpD4girpRuSKr9eLPU6Da6muG0NNk=";
   };
 
   sourceRoot = "${src.name}/python";
@@ -58,9 +58,7 @@ buildPythonPackage rec {
     pytest-asyncio
     pytestCheckHook
     uvicorn
-  ] ++ lib.optionals stdenv.isLinux [
-    attr
-  ];
+  ] ++ lib.optionals stdenv.isLinux [ attr ];
 
   disabledTests = [
     # These tests require network access
