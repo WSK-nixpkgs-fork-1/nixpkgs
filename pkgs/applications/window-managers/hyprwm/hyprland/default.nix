@@ -8,29 +8,27 @@
 , ninja
 , binutils
 , cairo
-, epoll-shim
 , git
 , hyprcursor
 , hyprland-protocols
 , hyprlang
-, hyprwayland-scanner
 , jq
 , libGL
 , libdrm
 , libexecinfo
 , libinput
-, libuuid
+, libxcb
 , libxkbcommon
 , mesa
 , pango
 , pciutils
-, pkgconf
 , python3
 , systemd
 , tomlplusplus
 , wayland
 , wayland-protocols
 , wayland-scanner
+, xcbutilwm
 , xwayland
 , hwdata
 , seatd
@@ -53,27 +51,29 @@ assert lib.assertMsg (!hidpiXWayland) "The option `hidpiXWayland` has been remov
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "hyprland" + lib.optionalString debug "-debug";
-  version = "0.40.0-unstable-2024-05-12";
-
+  version = "0.39.1";
   src = fetchFromGitHub {
     owner = "hyprwm";
     repo = finalAttrs.pname;
     fetchSubmodules = true;
-    rev = "2ccd45a84475fab46c6fecd2fe226d3173104743";
-    hash = "sha256-nBCQuRl4sS/G/OUS+txeelFShBEgSk2OrN6kBYMHuOg=";
+    rev = "v${finalAttrs.version}";
+    hash = "sha256-7L5rqQRYH2iyyP5g3IdXJSlATfgnKhuYMf65E48MVKw=";
   };
 
   postPatch = ''
     # Fix hardcoded paths to /usr installation
     sed -i "s#/usr#$out#" src/render/OpenGL.cpp
 
-    # Remove extra @PREFIX@ to fix pkg-config paths
-    sed -i "s#@PREFIX@/##g" hyprland.pc.in
+    # Generate version.h
+    cp src/version.h.in src/version.h
+    substituteInPlace src/version.h \
+      --replace-fail "@HASH@" '${finalAttrs.src.rev}' \
+      --replace-fail "@BRANCH@" "" \
+      --replace-fail "@MESSAGE@" "" \
+      --replace-fail "@DATE@" "2024-04-16" \
+      --replace-fail "@TAG@" "" \
+      --replace-fail "@DIRTY@" ""
   '';
-
-  # used by version.sh
-  DATE = "2024-05-12";
-  HASH = finalAttrs.src.rev;
 
   depsBuildBuild = [
     # to find wayland-scanner when cross-compiling
@@ -82,15 +82,14 @@ stdenv.mkDerivation (finalAttrs: {
 
   nativeBuildInputs = [
     hwdata
-    hyprwayland-scanner
     jq
     makeWrapper
-    cmake
-    meson # for wlroots
+    meson
     ninja
     pkg-config
     wayland-scanner
-    python3 # for udis86
+    cmake # for subproject udis86
+    python3
   ];
 
   outputs = [
@@ -108,7 +107,6 @@ stdenv.mkDerivation (finalAttrs: {
     libGL
     libdrm
     libinput
-    libuuid
     libxkbcommon
     mesa
     wayland
@@ -123,33 +121,27 @@ stdenv.mkDerivation (finalAttrs: {
     xorg.xcbutilerrors
     xorg.xcbutilrenderutil
   ]
-  ++ lib.optionals stdenv.hostPlatform.isBSD [ epoll-shim ]
   ++ lib.optionals stdenv.hostPlatform.isMusl [ libexecinfo ]
-  ++ lib.optionals enableXWayland [
-    xorg.libxcb
-    xorg.libXdmcp
-    xorg.xcbutil
-    xorg.xcbutilwm
-    xwayland
-  ]
+  ++ lib.optionals enableXWayland [ libxcb xcbutilwm xwayland ]
   ++ lib.optionals withSystemd [ systemd ];
 
-  cmakeBuildType =
+  mesonBuildType =
     if debug
-    then "Debug"
-    else "RelWithDebInfo";
+    then "debug"
+    else "release";
 
+  mesonAutoFeatures = "enabled";
 
-  cmakeFlags = [
-    (lib.cmakeBool "NO_XWAYLAND" (!enableXWayland))
-    (lib.cmakeBool "LEGACY_RENDERER" legacyRenderer)
-    (lib.cmakeBool "NO_SYSTEMD" (!withSystemd))
+  mesonFlags = [
+    (lib.mesonEnable "xwayland" enableXWayland)
+    (lib.mesonEnable "legacy_renderer" legacyRenderer)
+    (lib.mesonEnable "systemd" withSystemd)
   ];
 
   postInstall = ''
     ${lib.optionalString wrapRuntimeDeps ''
       wrapProgram $out/bin/Hyprland \
-        --suffix PATH : ${lib.makeBinPath [binutils pciutils pkgconf]}
+        --suffix PATH : ${lib.makeBinPath [binutils pciutils stdenv.cc]}
     ''}
   '';
 
