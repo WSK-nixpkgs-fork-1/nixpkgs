@@ -136,6 +136,7 @@ stdenv.mkDerivation (finalAttrs: {
     (lib.mesonEnable "xwayland" enableXWayland)
     (lib.mesonEnable "legacy_renderer" legacyRenderer)
     (lib.mesonEnable "systemd" withSystemd)
+    (lib.mesonOption "wlroots-hyprland:renderers" "auto")
   ];
 
   postInstall = ''
