@@ -20,6 +20,7 @@
 , libxcb
 , libxkbcommon
 , mesa
+, vulkan-loader
 , pango
 , pciutils
 , python3
@@ -115,6 +116,7 @@ stdenv.mkDerivation (finalAttrs: {
     pciutils
     tomlplusplus
     # for subproject wlroots-hyprland
+    vulkan-loader
     seatd
     libliftoff
     libdisplay-info
