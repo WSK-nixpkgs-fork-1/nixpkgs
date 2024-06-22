@@ -21,6 +21,11 @@
 , libxkbcommon
 , mesa
 , vulkan-loader
+, glslang
+, vulkan-headers
+, vulkan-extension-layer
+, vulkan-validation-layers
+, vulkan-utility-libraries
 , pango
 , pciutils
 , python3
@@ -117,6 +122,11 @@ stdenv.mkDerivation (finalAttrs: {
     tomlplusplus
     # for subproject wlroots-hyprland
     vulkan-loader
+    glslang
+    vulkan-headers
+    vulkan-extension-layer
+    vulkan-validation-layers
+    vulkan-utility-libraries
     seatd
     libliftoff
     libdisplay-info
