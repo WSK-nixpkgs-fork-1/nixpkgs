@@ -60,7 +60,7 @@ stdenv.mkDerivation (finalAttrs: {
   version = "0.39.1";
   src = fetchFromGitHub {
     owner = "hyprwm";
-    repo = finalAttrs.pname;
+    repo = "hyprland";
     fetchSubmodules = true;
     rev = "v${finalAttrs.version}";
     hash = "sha256-7L5rqQRYH2iyyP5g3IdXJSlATfgnKhuYMf65E48MVKw=";

@@ -59,7 +59,6 @@
   ./hardware/cpu/intel-microcode.nix
   ./hardware/cpu/intel-sgx.nix
   ./hardware/cpu/x86-msr.nix
-  ./hardware/decklink.nix
   ./hardware/device-tree.nix
   ./hardware/digitalbitbox.nix
   ./hardware/flipperzero.nix
@@ -181,6 +180,7 @@
   ./programs/dublin-traceroute.nix
   ./programs/ecryptfs.nix
   ./programs/environment.nix
+  ./programs/envision.nix
   ./programs/evince.nix
   ./programs/extra-container.nix
   ./programs/fcast-receiver.nix
@@ -205,6 +205,7 @@
   ./programs/goldwarden.nix
   ./programs/gpaste.nix
   ./programs/gphoto2.nix
+  ./programs/gpu-screen-recorder.nix
   ./programs/haguichi.nix
   ./programs/hamster.nix
   ./programs/htop.nix
@@ -258,6 +259,7 @@
   ./programs/projecteur.nix
   ./programs/proxychains.nix
   ./programs/qdmr.nix
+  ./programs/qgroundcontrol.nix
   ./programs/qt5ct.nix
   ./programs/quark-goldleaf.nix
   ./programs/regreet.nix
@@ -972,6 +974,7 @@
   ./services/networking/clatd.nix
   ./services/networking/cloudflare-dyndns.nix
   ./services/networking/cloudflared.nix
+  ./services/networking/cloudflare-warp.nix
   ./services/networking/cntlm.nix
   ./services/networking/connman.nix
   ./services/networking/consul.nix
@@ -1085,7 +1088,6 @@
   ./services/networking/mullvad-vpn.nix
   ./services/networking/multipath.nix
   ./services/networking/murmur.nix
-  ./services/networking/mxisd.nix
   ./services/networking/mycelium.nix
   ./services/networking/namecoind.nix
   ./services/networking/nar-serve.nix
@@ -1149,6 +1151,7 @@
   ./services/networking/radicale.nix
   ./services/networking/radvd.nix
   ./services/networking/rdnssd.nix
+  ./services/networking/realm.nix
   ./services/networking/redsocks.nix
   ./services/networking/resilio.nix
   ./services/networking/robustirc-bridge.nix
@@ -1370,6 +1373,7 @@
   ./services/web-apps/documize.nix
   ./services/web-apps/dokuwiki.nix
   ./services/web-apps/dolibarr.nix
+  ./services/web-apps/eintopf.nix
   ./services/web-apps/engelsystem.nix
   ./services/web-apps/ethercalc.nix
   ./services/web-apps/filesender.nix
@@ -1379,6 +1383,7 @@
   ./services/web-apps/freshrss.nix
   ./services/web-apps/galene.nix
   ./services/web-apps/gerrit.nix
+  ./services/web-apps/glance.nix
   ./services/web-apps/gotify-server.nix
   ./services/web-apps/gotosocial.nix
   ./services/web-apps/grocy.nix

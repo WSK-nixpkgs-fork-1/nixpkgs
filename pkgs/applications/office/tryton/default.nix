@@ -7,7 +7,7 @@
 , atk
 , gtk3
 , gtkspell3
-, gnome
+, adwaita-icon-theme
 , glib
 , goocanvas2
 , gdk-pixbuf
@@ -27,7 +27,7 @@ python3Packages.buildPythonApplication rec {
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "sha256-XIPzpVIttTgP34rbA705vFoRZE9dj8Of3BR23DbpQPk=";
+    hash = "sha256-XIPzpVIttTgP34rbA705vFoRZE9dj8Of3BR23DbpQPk=";
   };
 
   nativeBuildInputs = [
@@ -47,7 +47,7 @@ python3Packages.buildPythonApplication rec {
     atk
     gdk-pixbuf
     glib
-    gnome.adwaita-icon-theme
+    adwaita-icon-theme
     goocanvas2
     fontconfig
     freetype

@@ -3,12 +3,13 @@
 , fetchFromGitHub
 , nodejs_18
 , installShellFiles
+, stdenv
 }:
 
 buildNpmPackage rec {
   pname = "clever-tools";
 
-  version = "3.7.0";
+  version = "3.8.1";
 
   nodejs = nodejs_18;
 
@@ -16,19 +17,19 @@ buildNpmPackage rec {
     owner = "CleverCloud";
     repo = "clever-tools";
     rev = version;
-    hash = "sha256-Ce7lk+zTbyj3HmtIFui9ZA1FThZEytovrPCrmjMyX38=";
+    hash = "sha256-8dxV57uivjcXz6JHttFNvivcIbNRAwZKSvGv/SST81E=";
   };
 
-  npmDepsHash = "sha256-VQXljlIHAE2o10cXQlsyhTvBSp3/ycQOJydQGNMiWuk=";
+  npmDepsHash = "sha256-2lROdsq3tR4SYxMoTJYY6EyHxudS7p7wOJq+RxE2btk=";
 
   dontNpmBuild = true;
 
   nativeBuildInputs = [ installShellFiles ];
 
-  postInstall = ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     installShellCompletion --cmd clever \
-      --bash <($out/bin/clever --bash-autocomplete-script) \
-      --zsh <($out/bin/clever --zsh-autocomplete-script)
+      --bash <($out/bin/clever --bash-autocomplete-script $out/bin/clever) \
+      --zsh <($out/bin/clever --zsh-autocomplete-script $out/bin/clever)
     rm $out/bin/install-clever-completion
     rm $out/bin/uninstall-clever-completion
   '';
