@@ -2,6 +2,7 @@
   lib,
   buildPythonPackage,
   fetchPypi,
+  mesa,
 }:
 
 buildPythonPackage rec {
@@ -21,9 +22,9 @@ buildPythonPackage rec {
 
   meta = with lib; {
     description = "Python bindings for Qt5";
-    homepage = "https://www.riverbankcomputing.com/software/sip/";
+    homepage = "https://github.com/Python-SIP/sip";
     license = licenses.gpl3Only;
-    platforms = platforms.mesaPlatforms;
+    inherit (mesa.meta) platforms;
     maintainers = with maintainers; [ sander ];
   };
 }

@@ -3,7 +3,6 @@
   buildPythonPackage,
   fetchFromGitHub,
   lib,
-  nix-update-script,
   pydantic,
   pytest-asyncio,
   pytestCheckHook,
@@ -13,7 +12,7 @@
 
 buildPythonPackage rec {
   pname = "pytouchlinesl";
-  version = "0.1.1";
+  version = "0.1.5";
   pyproject = true;
 
   disabled = pythonOlder "3.10";
@@ -22,7 +21,7 @@ buildPythonPackage rec {
     owner = "jnsgruk";
     repo = "pytouchlinesl";
     rev = "refs/tags/${version}";
-    hash = "sha256-xyAy5QtNox1ZeXGQEYXWiEIQKSNQSnRTqr0kgQRmdcg=";
+    hash = "sha256-kdLMuxA1Ig85mH7s9rlmVjEsItXxRlDA1JTFasnJogg=";
   };
 
   build-system = [ setuptools ];
@@ -39,12 +38,10 @@ buildPythonPackage rec {
 
   pythonImportsCheck = [ "pytouchlinesl" ];
 
-  passthru.updateScript = nix-update-script { };
-
   meta = {
     description = "A Python API client for Roth's TouchlineSL API";
     homepage = "https://github.com/jnsgruk/pytouchlinesl";
-    changelog = "https://github.com/jnsgruk/pytouchlinesl/releases/tag/${src.rev}";
+    changelog = "https://github.com/jnsgruk/pytouchlinesl/releases/tag/${lib.removePrefix "refs/tags/" src.rev}";
     license = lib.licenses.asl20;
     maintainers = with lib.maintainers; [ jnsgruk ];
   };
