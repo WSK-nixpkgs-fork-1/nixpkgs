@@ -1,0 +1,13 @@
+diff --git a/subprojects/wlroots-hyprland/backend/drm/libliftoff.c b/subprojects/wlroots-hyprland/backend/drm/libliftoff.c
+index c88e1bce..42e21e76 100644
+--- a/subprojects/wlroots-hyprland/backend/drm/libliftoff.c
++++ b/subprojects/wlroots-hyprland/backend/drm/libliftoff.c
+@@ -407,7 +407,7 @@ static bool commit(struct wlr_drm_backend *drm,
+ 		struct wlr_drm_connector *conn = state->connectors[i].connector;
+ 		struct wlr_drm_crtc *crtc = conn->crtc;
+ 
+-		int ret = liftoff_output_apply(crtc->liftoff, req, flags);
++		int ret = liftoff_output_apply(crtc->liftoff, req, flags, NULL);
+ 		if (ret != 0) {
+ 			wlr_drm_conn_log(conn, test_only ? WLR_DEBUG : WLR_ERROR,
+ 				"liftoff_output_apply failed: %s", strerror(-ret));

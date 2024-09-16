@@ -66,6 +66,8 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-7L5rqQRYH2iyyP5g3IdXJSlATfgnKhuYMf65E48MVKw=";
   };
 
+  patches = [ ./diff.patch ];
+
   postPatch = ''
     # Fix hardcoded paths to /usr installation
     sed -i "s#/usr#$out#" src/render/OpenGL.cpp
