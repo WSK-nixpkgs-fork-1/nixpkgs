@@ -183,6 +183,16 @@ with lib.maintainers;
     githubTeams = [ "cuda-maintainers" ];
   };
 
+  cyberus = {
+    # Verify additions by approval of an already existing member of the team.
+    members = [
+      xanderio
+      blitz
+    ];
+    scope = "Team for Cyberus Technology employees who collectively maintain packages.";
+    shortName = "Cyberus Technology employees";
+  };
+
   darwin = {
     members = [ toonn ];
     githubTeams = [ "darwin-maintainers" ];
@@ -268,7 +278,11 @@ with lib.maintainers;
   };
 
   emacs = {
-    members = [ adisbladis ];
+    members = [
+      AndersonTorres
+      adisbladis
+      linj
+    ];
     scope = "Maintain the Emacs editor and packages.";
     shortName = "Emacs";
   };
@@ -555,6 +569,7 @@ with lib.maintainers;
   linux-kernel = {
     members = [
       TredwellGit
+      k900
       ma27
       nequissimus
       qyliss
@@ -1009,6 +1024,19 @@ with lib.maintainers;
     ];
     scope = "Group registration for WDZ GmbH team members who collectively maintain packages.";
     shortName = "WDZ GmbH";
+  };
+
+  xen = {
+    members = [
+      hehongbo
+      lach
+      rane
+      sigmasquadron
+    ];
+    scope = "Maintain the Xen Project Hypervisor and the related tooling ecosystem.";
+    shortName = "Xen Project Hypervisor";
+    enableFeatureFreezePing = true;
+    githubTeams = [ "xen-project" ];
   };
 
   xfce = {

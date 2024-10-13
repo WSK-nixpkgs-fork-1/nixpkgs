@@ -22,7 +22,7 @@ stdenv.mkDerivation (finalAttrs: {
     owner = "raspberrypi";
     repo = "rpi-imager";
     rev = "refs/tags/v${finalAttrs.version}";
-    sha256 = "sha256-JrotKMyAgQO3Y5RsFAar9N5/wDpWiBcy8RfvBWDiJMs=";
+    hash = "sha256-JrotKMyAgQO3Y5RsFAar9N5/wDpWiBcy8RfvBWDiJMs=";
   };
 
   sourceRoot = "${finalAttrs.src.name}/src";
@@ -51,7 +51,7 @@ stdenv.mkDerivation (finalAttrs: {
       qt5.qttools
       xz
     ]
-    ++ lib.optionals stdenv.isLinux [
+    ++ lib.optionals stdenv.hostPlatform.isLinux [
       qt5.qtwayland
     ];
 
@@ -81,6 +81,6 @@ stdenv.mkDerivation (finalAttrs: {
     ];
     platforms = platforms.all;
     # does not build on darwin
-    broken = stdenv.isDarwin;
+    broken = stdenv.hostPlatform.isDarwin;
   };
 })

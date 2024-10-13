@@ -32,8 +32,6 @@ let
   atLeast10 = lib.versionAtLeast version "10";
   atLeast9  = lib.versionAtLeast version  "9";
   atLeast8  = lib.versionAtLeast version  "8";
-  atLeast7  = lib.versionAtLeast version  "7";
-  atLeast6  = lib.versionAtLeast version  "6";
   is14 = majorVersion == "14";
   is13 = majorVersion == "13";
   is12 = majorVersion == "12";
@@ -42,7 +40,6 @@ let
   is9  = majorVersion == "9";
   is8  = majorVersion == "8";
   is7  = majorVersion == "7";
-  is6  = majorVersion == "6";
   inherit (lib) optionals optional;
 in
 
@@ -57,7 +54,7 @@ in
 ## 1. Patches relevant to gcc>=12 on every platform ####################################
 
 []
-++ optional (atLeast6 && !atLeast12) ./fix-bug-80431.patch
+++ optional (!atLeast12) ./fix-bug-80431.patch
 ++ optional (targetPlatform != hostPlatform) ./libstdc++-target.patch
 ++ optionals (noSysDirs) (
   [(if atLeast12 then ./gcc-12-no-sys-dirs.patch else ./no-sys-dirs.patch)] ++
@@ -72,7 +69,7 @@ in
 )
 ++ optional (atLeast12 && langAda) ./gnat-cflags-11.patch
 ++ optional langFortran (if atLeast12 then ./gcc-12-gfortran-driving.patch else ./gfortran-driving.patch)
-++ optional atLeast7 ./ppc-musl.patch
+++ [ ./ppc-musl.patch ]
 ++ optional (atLeast9 && langD) ./libphobos.patch
 
 
@@ -123,16 +120,16 @@ in
 ## Darwin
 
 # Fixes detection of Darwin on x86_64-darwin. Otherwise, GCC uses a deployment target of 10.5, which crashes ld64.
-++ optional (atLeast14 && stdenv.isDarwin && stdenv.isx86_64) ../patches/14/libgcc-darwin-detection.patch
+++ optional (atLeast14 && stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isx86_64) ../patches/14/libgcc-darwin-detection.patch
 
 # Fix detection of bootstrap compiler Ada support (cctools as) on Nix Darwin
-++ optional (atLeast12 && stdenv.isDarwin && langAda) ./ada-cctools-as-detection-configure.patch
+++ optional (atLeast12 && stdenv.hostPlatform.isDarwin && langAda) ./ada-cctools-as-detection-configure.patch
 
 # Remove CoreServices on Darwin, as it is only needed for macOS SDK 14+
-++ optional (atLeast14 && stdenv.isDarwin && langAda) ../patches/14/gcc-darwin-remove-coreservices.patch
+++ optional (atLeast14 && stdenv.hostPlatform.isDarwin && langAda) ../patches/14/gcc-darwin-remove-coreservices.patch
 
 # Use absolute path in GNAT dylib install names on Darwin
-++ optionals (stdenv.isDarwin && langAda) ({
+++ optionals (stdenv.hostPlatform.isDarwin && langAda) ({
   "14" = [ ../patches/14/gnat-darwin-dylib-install-name-14.patch ];
   "13" = [ ./gnat-darwin-dylib-install-name-13.patch ];
   "12" = [ ./gnat-darwin-dylib-install-name.patch ];
@@ -140,7 +137,7 @@ in
 
 # We only apply this patch when building a native toolchain for aarch64-darwin, as it breaks building
 # a foreign one: https://github.com/iains/gcc-12-branch/issues/18
-++ optionals (stdenv.isDarwin && stdenv.isAarch64 && buildPlatform == hostPlatform && hostPlatform == targetPlatform) ({
+++ optionals (stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isAarch64 && buildPlatform == hostPlatform && hostPlatform == targetPlatform) ({
   "14" = [ (fetchpatch {
     # There are no upstream release tags in https://github.com/iains/gcc-14-branch.
     # 04696df09633baf97cdbbdd6e9929b9d472161d3 is the commit from https://github.com/gcc-mirror/gcc/releases/tag/releases%2Fgcc-14.2.0
@@ -160,9 +157,9 @@ in
   }) ];
   "11" = [ (fetchpatch {
     # There are no upstream release tags in https://github.com/iains/gcc-11-branch.
-    # ff4bf32 is the commit from https://github.com/gcc-mirror/gcc/releases/tag/releases%2Fgcc-11.4.0
-    url = "https://github.com/iains/gcc-11-branch/compare/ff4bf326d03e750a8d4905ea49425fe7d15a04b8..gcc-11.4-darwin-r0.diff";
-    hash = "sha256-6prPgR2eGVJs7vKd6iM1eZsEPCD1ShzLns2Z+29vlt4=";
+    # 5cc4c42a0d4de08715c2eef8715ad5b2e92a23b6 is the commit from https://github.com/gcc-mirror/gcc/releases/tag/releases%2Fgcc-11.5.0
+    url = "https://github.com/iains/gcc-11-branch/compare/5cc4c42a0d4de08715c2eef8715ad5b2e92a23b6..gcc-11.5-darwin-r0.diff";
+    hash = "sha256-7lH+GkgkrE6nOp9PMdIoqlQNWK31s6oW+lDt1LIkadE=";
   }) ];
   "10" = [ (fetchpatch {
     # There are no upstream release tags in https://github.com/iains/gcc-10-branch.
@@ -173,18 +170,17 @@ in
 }.${majorVersion} or [])
 
 # Work around newer AvailabilityInternal.h when building older versions of GCC.
-++ optionals (stdenv.isDarwin) ({
+++ optionals (stdenv.hostPlatform.isDarwin) ({
   "9" = [ ../patches/9/AvailabilityInternal.h-fixincludes.patch ];
   "8" = [ ../patches/8/AvailabilityInternal.h-fixincludes.patch ];
   "7" = [ ../patches/7/AvailabilityInternal.h-fixincludes.patch ];
-  "6" = [ ../patches/6/AvailabilityInternal.h-fixincludes.patch ];
 }.${majorVersion} or [])
 
 
 ## Windows
 
 # Obtain latest patch with ../update-mcfgthread-patches.sh
-++ optional (atLeast6 && !atLeast13 && !withoutTargetLibc && targetPlatform.isMinGW && threadsCross.model == "mcf")
+++ optional (!atLeast13 && !withoutTargetLibc && targetPlatform.isMinGW && threadsCross.model == "mcf")
   (./. + "/${majorVersion}/Added-mcf-thread-model-support-from-mcfgthread.patch")
 
 
@@ -204,9 +200,6 @@ in
 
 
 ## gcc 11.0 and older ##############################################################################
-
-# libgcc’s `configure` script misdetects aarch64-darwin, resulting in an invalid deployment target.
-++ optional (is11 && stdenv.isDarwin && stdenv.isAarch64) ./11/libgcc-aarch64-darwin-detection.patch
 
 # openjdk build fails without this on -march=opteron; is upstream in gcc12
 ++ optionals (is11) [ ./11/gcc-issue-103910.patch ]
@@ -228,7 +221,7 @@ in
 ## gcc 9.0 and older ##############################################################################
 
 ++ optional (majorVersion == "9") ./9/fix-struct-redefinition-on-glibc-2.36.patch
-++ optional (atLeast7 && !atLeast10 && targetPlatform.isNetBSD) ./libstdc++-netbsd-ctypes.patch
+++ optional (!atLeast10 && targetPlatform.isNetBSD) ./libstdc++-netbsd-ctypes.patch
 
 # Make Darwin bootstrap respect whether the assembler supports `--gstabs`,
 # which is not supported by the clang integrated assembler used by default on Darwin.
@@ -266,35 +259,8 @@ in
   (./. + "/${majorVersion}/gcc8-asan-glibc-2.34.patch")
   (./. + "/${majorVersion}/0001-Fix-build-for-glibc-2.31.patch")
 ]
-++ optional ((is6 || is7) && targetPlatform.libc == "musl" && targetPlatform.isx86_32) (fetchpatch {
+++ optional (is7 && targetPlatform.libc == "musl" && targetPlatform.isx86_32) (fetchpatch {
   url = "https://git.alpinelinux.org/aports/plain/main/gcc/gcc-6.1-musl-libssp.patch?id=5e4b96e23871ee28ef593b439f8c07ca7c7eb5bb";
   sha256 = "1jf1ciz4gr49lwyh8knfhw6l5gvfkwzjy90m7qiwkcbsf4a3fqn2";
 })
-++ optional ((is6 || is7 || is8) && !atLeast9 && targetPlatform.libc == "musl") ./libgomp-dont-force-initial-exec.patch
-
-
-
-## gcc 6.0 and older ##############################################################################
-
-++ optional (is6 && langGo) ./gogcc-workaround-glibc-2.36.patch
-++ optional is6 ./9/fix-struct-redefinition-on-glibc-2.36.patch
-++ optional (is6 && !stdenv.targetPlatform.isRedox) ./use-source-date-epoch.patch
-++ optional (is6 && !stdenv.targetPlatform.isRedox) ./6/0001-Fix-build-for-glibc-2.31.patch
-++ optionals (is6 && langAda) [
-  ./gnat-cflags.patch
-  ./6/gnat-glibc234.patch
-]
-
-# The clang-based assembler used in darwin.binutils (LLVM >11) does not support piping input.
-# Fortunately, it does not exhibit the problem GCC has with the cctools assembler.
-# This patch can be dropped should darwin.binutils ever implement support.
-++ optional (!atLeast7 && hostPlatform.isDarwin && lib.versionAtLeast (lib.getVersion stdenv.cc) "12") ./4.9/darwin-clang-as.patch
-
-# Building libstdc++ with flat namespaces results in trying to link CoreFoundation, which
-# defaults to the impure, system location and causes the build to fail.
-++ optional (is6 && hostPlatform.isDarwin) ./6/libstdc++-disable-flat_namespace.patch
-
-## gcc 5.0 and older ##############################################################################
-
-++ optional (!atLeast6) ./parallel-bconfig.patch
-
+++ optional ((is7 || is8) && !atLeast9 && targetPlatform.libc == "musl") ./libgomp-dont-force-initial-exec.patch
