@@ -36,3 +36,5 @@ update-git-commits.txt
 
 # JetBrains IDEA module declaration file
 /nixpkgs.iml
+
+.git-credentails
