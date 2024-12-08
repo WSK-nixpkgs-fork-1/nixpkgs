@@ -7,13 +7,13 @@
 
 let
   pname = "mendeley";
-  version = "2.120.0";
+  version = "2.127.1";
 
   executableName = "${pname}-reference-manager";
 
   src = fetchurl {
     url = "https://static.mendeley.com/bin/desktop/mendeley-reference-manager-${version}-x86_64.AppImage";
-    hash = "sha256-yKHrTcIiNhsLMfwNQNSLE2mAQLsDFxhTYdper3a8oM8=";
+    hash = "sha256-VtGtv9orfOn/DLIrnUdV/fGZeP1ZpC6b5h/IG8RzaOg=";
   };
 
   appimageContents = appimageTools.extractType2 {

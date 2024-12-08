@@ -9,16 +9,16 @@
 }:
 buildNpmPackage rec {
   pname = "krohnkite";
-  version = "0.9.7";
+  version = "0.9.8.4";
 
   src = fetchFromGitHub {
     owner = "anametologin";
     repo = "krohnkite";
     rev = "refs/tags/${version}";
-    hash = "sha256-8A3zW5tK8jK9fSxYx28b8uXGsvxEoUYybU0GaMD2LNw=";
+    hash = "sha256-VVHusFuQ/awfFV4izId7VPYCrS8riTavhpB2KpJ9084=";
   };
 
-  npmDepsHash = "sha256-My1goFEoZW9kFA3zb8xKPxAPXm6bypyq+ajPM8zVOHQ=";
+  npmDepsHash = "sha256-k44SltKLR/Y8qWFCLW2jBWElk9JGn+0azQn0G1f0vuY=";
 
   dontWrapQtApps = true;
 
@@ -40,8 +40,8 @@ buildNpmPackage rec {
     runHook preInstall
 
     substituteInPlace Makefile --replace-fail '7z a -tzip' 'zip -r'
-    make krohnkite-${version}.kwinscript
-    kpackagetool6 --type=KWin/Script --install=krohnkite-${version}.kwinscript --packageroot=$out/share/kwin/scripts
+    make KWINPKG_FILE=krohnkite.kwinscript krohnkite.kwinscript
+    kpackagetool6 --type=KWin/Script --install=krohnkite.kwinscript --packageroot=$out/share/kwin/scripts
 
     runHook postInstall
   '';

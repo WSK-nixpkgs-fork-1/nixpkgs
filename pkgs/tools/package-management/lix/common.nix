@@ -169,7 +169,7 @@ stdenv.mkDerivation {
       rm -f $out/lib/*.a
       ${lib.optionalString stdenv.hostPlatform.isLinux ''
         chmod u+w $out/lib/*.so.*
-        patchelf --set-rpath $out/lib:${stdenv.cc.cc.lib}/lib $out/lib/libboost_thread.so.*
+        patchelf --set-rpath $out/lib:${lib.getLib stdenv.cc.cc}/lib $out/lib/libboost_thread.so.*
       ''}
       ${lib.optionalString stdenv.hostPlatform.isDarwin ''
         for LIB in $out/lib/*.dylib; do
@@ -190,7 +190,7 @@ stdenv.mkDerivation {
     [
       # Enable LTO, since it improves eval performance a fair amount
       # LTO is disabled on static due to strange linking errors
-      (lib.mesonBool "b_lto" (!stdenv.hostPlatform.isStatic))
+      (lib.mesonBool "b_lto" (!stdenv.hostPlatform.isStatic && stdenv.cc.isGNU))
       (lib.mesonEnable "gc" true)
       (lib.mesonBool "enable-tests" true)
       (lib.mesonBool "enable-docs" enableDocumentation)

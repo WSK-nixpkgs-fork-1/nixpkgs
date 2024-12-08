@@ -2,7 +2,7 @@
 # Darwin inputs
 , AudioToolbox, AudioUnit
 # Inputs
-, curl, libmms, libnfs, liburing, samba
+, curl, libcdio, libcdio-paranoia, libmms, libnfs, liburing, samba
 # Archive support
 , bzip2, zziplib
 # Codecs
@@ -37,6 +37,7 @@ let
     udisks        = [ dbus ];
     webdav        = [ curl expat ];
     # Input plugins
+    cdio_paranoia = [ libcdio libcdio-paranoia ];
     curl          = [ curl ];
     io_uring      = [ liburing ];
     mms           = [ libmms ];
@@ -117,13 +118,13 @@ let
 
     in stdenv.mkDerivation rec {
       pname = "mpd";
-      version = "0.23.15";
+      version = "0.23.16";
 
       src = fetchFromGitHub {
         owner  = "MusicPlayerDaemon";
         repo   = "MPD";
         rev    = "v${version}";
-        sha256 = "sha256-QURq7ysSsxmBOtoBlPTPWiloXQpjEdxnM0L1fLwXfpw=";
+        sha256 = "sha256-0To+V+4xLjymGpRSpsyE/Une5uUpCEiAg+d041guPA0=";
       };
 
       buildInputs = [

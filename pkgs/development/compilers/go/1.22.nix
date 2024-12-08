@@ -4,8 +4,7 @@
 , tzdata
 , substituteAll
 , iana-etc
-, Security
-, Foundation
+, apple-sdk_11
 , xcbuild
 , mailcap
 , buildPackages
@@ -47,11 +46,11 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "go";
-  version = "1.22.7";
+  version = "1.22.10";
 
   src = fetchurl {
     url = "https://go.dev/dl/go${finalAttrs.version}.src.tar.gz";
-    hash = "sha256-ZkMth9heDPrD7f/mN9WTD8Td9XkzE/4R5KDzMwI8h58=";
+    hash = "sha256-HpT9SL51DR+vtNmztt0xpunSc10zm/JGK8l7ZMpMEDc=";
   };
 
   strictDeps = true;
@@ -59,7 +58,7 @@ stdenv.mkDerivation (finalAttrs: {
     ++ lib.optionals stdenv.hostPlatform.isLinux [ stdenv.cc.libc.out ]
     ++ lib.optionals (stdenv.hostPlatform.libc == "glibc") [ stdenv.cc.libc.static ];
 
-  depsTargetTargetPropagated = lib.optionals stdenv.targetPlatform.isDarwin [ Foundation Security xcbuild ];
+  depsTargetTargetPropagated = lib.optionals stdenv.targetPlatform.isDarwin [ apple-sdk_11 xcbuild ];
 
   depsBuildTarget = lib.optional isCross targetCC;
 
@@ -180,7 +179,7 @@ stdenv.mkDerivation (finalAttrs: {
   };
 
   meta = with lib; {
-    changelog = "https://go.dev/doc/devel/release#go${lib.versions.majorMinor finalAttrs.version}";
+    changelog = "https://go.dev/doc/devel/release#go${finalAttrs.version}";
     description = "Go Programming language";
     homepage = "https://go.dev/";
     license = licenses.bsd3;

@@ -7,14 +7,17 @@
   nix,
   cacert,
   nuget-to-nix,
+  nixfmt-rfc-style,
   dotnetCorePackages,
   xmlstarlet,
   patchNupkgs,
   symlinkJoin,
 
+  baseName ? "dotnet",
   releaseManifestFile,
   tarballHash,
   depsFile,
+  fallbackTargetPackages,
   bootstrapSdk,
 }:
 
@@ -34,7 +37,12 @@ let
 
   vmr =
     (mkVMR {
-      inherit releaseManifestFile tarballHash bootstrapSdk;
+      inherit
+        baseName
+        releaseManifestFile
+        tarballHash
+        bootstrapSdk
+        ;
     }).overrideAttrs
       (old: rec {
         prebuiltPackages = mkNugetDeps {
@@ -88,6 +96,7 @@ let
                   nix
                   cacert
                   nuget-to-nix
+                  nixfmt-rfc-style
                 ];
                 postPatch =
                   old.postPatch or ""
@@ -132,10 +141,13 @@ let
                 --arg list "[ ''${depsFiles[*]} ]" \
                 --argstr baseRid ${targetRid} \
                 --arg otherRids '${lib.generators.toPretty { multiline = false; } otherRids}' \
-                ) > "${toString prebuiltPackages.sourceFile}"
+                ) > deps.nix
+              nixfmt deps.nix
+
+              mv deps.nix "${toString prebuiltPackages.sourceFile}"
               EOF
             '';
         };
       });
 in
-mkPackages { inherit vmr; }
+mkPackages { inherit baseName vmr; }

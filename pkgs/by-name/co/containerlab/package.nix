@@ -1,23 +1,24 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, installShellFiles
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
 }:
 
 buildGoModule rec {
   pname = "containerlab";
-  version = "0.57.5";
+  version = "0.60.0";
 
   src = fetchFromGitHub {
     owner = "srl-labs";
     repo = "containerlab";
     rev = "v${version}";
-    hash = "sha256-mMxC+Oe+O89PU3dgAbJvcHJ9ZQs1vmfF3B8w27JBPv4=";
+    hash = "sha256-+Xq4/cRtTYqbexajHtILAZvy0NWLn9UMxR1ksg0/JuY=";
   };
 
   nativeBuildInputs = [ installShellFiles ];
 
-  vendorHash = "sha256-L/6t5vHhUog684YEOg9WYvAKCtad1MmDmasqtdwSyio=";
+  vendorHash = "sha256-YX2JDDZ1jx32zfFj/2fY61zqxPIzmwntN+7kiGDxxV4=";
 
   ldflags = [
     "-s"

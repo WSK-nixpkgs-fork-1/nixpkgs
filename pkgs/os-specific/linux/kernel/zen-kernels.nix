@@ -5,16 +5,16 @@ let
   variants = {
     # ./update-zen.py zen
     zen = {
-      version = "6.10.9"; #zen
+      version = "6.12.2"; #zen
       suffix = "zen1"; #zen
-      sha256 = "199362jd1waqri6arb8sdfqrzjkdki5vis2z03cpp2blnbqva10b"; #zen
+      sha256 = "0a6anmfm6495j6lwlywr62ghpwdvbdn54bl5baya5jz7vfqc1ghj"; #zen
       isLqx = false;
     };
     # ./update-zen.py lqx
     lqx = {
-      version = "6.10.9"; #lqx
-      suffix = "lqx1"; #lqx
-      sha256 = "0y7r55iy7ylddv7yrlwkz7ps82j447a6m3khq2w4sfh8f0xy86p7"; #lqx
+      version = "6.12.2"; #lqx
+      suffix = "lqx3"; #lqx
+      sha256 = "18ibc0dz70vxb61mzdhbhbjg0kfxgcsrl3zdki0cqlhcvfxwk19h"; #lqx
       isLqx = true;
     };
   };
@@ -83,8 +83,6 @@ let
       HZ = freeform "1000";
       HZ_1000 = yes;
 
-      # Alternative zpool for zswap
-      Z3FOLD = yes;
     } // lib.optionalAttrs (isLqx) {
       # Google's BBRv3 TCP congestion Control
       TCP_CONG_BBR = yes;
@@ -101,7 +99,6 @@ let
       # Swap storage is compressed with LZ4 using zswap
       ZSWAP_COMPRESSOR_DEFAULT_LZ4  = lib.mkOptionDefault yes;
       ZSWAP_COMPRESSOR_DEFAULT_ZSTD = lib.mkDefault no;
-      ZSWAP_ZPOOL_DEFAULT_Z3FOLD = yes;
 
       # Fix error: unused option: XXX.
       CFS_BANDWIDTH = lib.mkForce (option no);

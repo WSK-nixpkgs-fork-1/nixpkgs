@@ -24,22 +24,16 @@ let
   ];
 in
 stdenv.mkDerivation (finalAttrs: {
-  version = "6.2.2";
+  version = "6.3.0";
   pname = "staruml";
 
   src = fetchurl {
       url = "https://files.staruml.io/releases-v6/StarUML_${finalAttrs.version}_amd64.deb";
-      sha256 = "sha256-1zxrT7phXeQYNbWHWMyPuHiUglrPSMPP0bfAcfvt8dM=";
+      sha256 = "sha256-G63MxjefAJ0J40HzrI9j/sRkHLIdUzBf0GSbw6fAFoI=";
     };
 
   nativeBuildInputs = [ wrapGAppsHook3 dpkg ];
   buildInputs = [ glib hicolor-icon-theme ];
-
-  unpackPhase = ''
-    mkdir pkg
-    dpkg-deb -x $src pkg
-    sourceRoot=pkg
-  '';
 
   installPhase = ''
     mkdir -p $out/bin
@@ -52,7 +46,7 @@ stdenv.mkDerivation (finalAttrs: {
       --replace "/opt/StarUML/staruml" "$out/bin/staruml"
 
     mkdir -p $out/lib
-    ln -s ${stdenv.cc.cc.lib}/lib/libstdc++.so.6 $out/lib/
+    ln -s ${lib.getLib stdenv.cc.cc}/lib/libstdc++.so.6 $out/lib/
     ln -s ${lib.getLib systemd}/lib/libudev.so.1 $out/lib/libudev.so.0
 
     patchelf \

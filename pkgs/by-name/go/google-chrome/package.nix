@@ -166,11 +166,11 @@ let
 
   linux = stdenv.mkDerivation (finalAttrs: {
     inherit pname meta passthru;
-    version = "129.0.6668.100";
+    version = "131.0.6778.108";
 
     src = fetchurl {
       url = "https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_${finalAttrs.version}-1_amd64.deb";
-      hash = "sha256-5NITOnDEVd5PeyWT9rPVgFv5W5bP2h+bLM30hjmpgzs=";
+      hash = "sha256-DU9qaMnn7gM/8VR4lsetWlkYu/Gs5+i/9JPYY2sbCi0=";
     };
 
     # With strictDeps on, some shebangs were not being patched correctly
@@ -248,7 +248,7 @@ let
         --suffix PATH            : "${lib.makeBinPath [ xdg-utils ]}" \
         --prefix XDG_DATA_DIRS   : "$XDG_ICON_DIRS:$GSETTINGS_SCHEMAS_PATH:${addDriverRunpath.driverLink}/share" \
         --set CHROME_WRAPPER  "google-chrome-$dist" \
-        --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations}}" \
+        --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --enable-wayland-ime=true}}" \
         --add-flags "--simulate-outdated-no-au='Tue, 31 Dec 2099 23:59:59 GMT'" \
         --add-flags ${lib.escapeShellArg commandLineArgs}
 
@@ -266,11 +266,11 @@ let
 
   darwin = stdenvNoCC.mkDerivation (finalAttrs: {
     inherit pname meta passthru;
-    version = "129.0.6668.101";
+    version = "131.0.6778.109";
 
     src = fetchurl {
-      url = "http://dl.google.com/release2/chrome/j4koa2lwvw3lho34hvastakhfi_129.0.6668.101/GoogleChrome-129.0.6668.101.dmg";
-      hash = "sha256-rwH7BqOyszmybadZ4gtJHoVxxjcjZLHcOku+YxZH88w=";
+      url = "http://dl.google.com/release2/chrome/adhpt2otqvd2vrh5vbgwgtydt7gq_131.0.6778.109/GoogleChrome-131.0.6778.109.dmg";
+      hash = "sha256-9pKGJa7UiDx1QPnWk0ONDQukUdRAPGz1PeYd7UoReoQ=";
     };
 
     dontPatch = true;

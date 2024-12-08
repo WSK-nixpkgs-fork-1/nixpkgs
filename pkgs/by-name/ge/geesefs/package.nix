@@ -3,7 +3,7 @@
 , fetchFromGitHub
 }:
 
-let version = "0.41.3";
+let version = "0.42.3";
 in buildGoModule {
   pname = "geesefs";
   inherit version;
@@ -12,12 +12,12 @@ in buildGoModule {
     owner = "yandex-cloud";
     repo = "geesefs";
     rev = "v${version}";
-    hash = "sha256-KdxqOkz8U8ts/pU/sTMuDIBLxwvdtrkkGptYboh06Qo=";
+    hash = "sha256-keF6KrkHI5sIm5XCIpWAvKD1qu5XvWx3uR70eKhOZk8=";
   };
 
   # hashes differ per architecture otherwise.
   proxyVendor = true;
-  vendorHash = "sha256-pO6ZngGw9vp47cstOTpQ/lBpBQRXIUuSuhsldZPR5Sk=";
+  vendorHash = "sha256-SQgYB6nLSnqKUntWGJL+dQD+cAPQ69Rjdq1GXIt21xg=";
 
   subPackages = [ "." ];
 

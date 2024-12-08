@@ -17,7 +17,7 @@
       substitutions = {
         dynamicLinker = "${stdenv.cc}/nix-support/dynamic-linker";
         libPath = lib.makeLibraryPath [
-          stdenv.cc.cc.lib
+          stdenv.cc.cc
           stdenv.cc.libc
           dotnet-sdk.passthru.icu
           zlib
@@ -52,7 +52,7 @@
     {
       name = "dotnet-fixup-hook";
       substitutions = {
-        dotnetRuntime = dotnet-runtime;
+        dotnetRuntime = if (dotnet-runtime != null) then dotnet-runtime else null;
         wrapperPath = lib.makeBinPath [ which coreutils ];
       };
     }

@@ -11,6 +11,7 @@
 
 # Configuration
 { lib, stdenv, version
+, rustAvailable
 
 , features ? {}
 }:
@@ -32,8 +33,9 @@ let
   forceRust = features.rust or false;
   kernelSupportsRust = lib.versionAtLeast version "6.7";
 
-  # Currently not enabling Rust by default, as upstream requires rustc 1.81
-  defaultRust = false;
+  # Currently only enabling Rust by default on kernel 6.12+,
+  # which actually has features that use Rust that we want.
+  defaultRust = lib.versionAtLeast version "6.12" && rustAvailable;
   withRust =
     assert lib.assertMsg (!(forceRust && !kernelSupportsRust)) ''
       Kernels below 6.7 (the kernel being built is ${version}) don't support Rust.
@@ -43,8 +45,8 @@ let
   options = {
 
     debug = {
-      # Necessary for BTF
-      DEBUG_INFO                = whenOlder "5.18" yes;
+      # Necessary for BTF and crashkernel
+      DEBUG_INFO                = yes;
       DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT = whenAtLeast "5.18" yes;
       # Reduced debug info conflict with BTF and have been enabled in
       # aarch64 defconfig since 5.13
@@ -62,7 +64,7 @@ let
       RCU_TORTURE_TEST          = no;
       SCHEDSTATS                = yes;
       DETECT_HUNG_TASK          = yes;
-      CRASH_DUMP                = option no;
+      CRASH_DUMP                = yes;
       # Easier debugging of NFS issues.
       SUNRPC_DEBUG              = yes;
       # Provide access to tunables like sched_migration_cost_ns
@@ -83,6 +85,9 @@ let
 
       # Export known printks in debugfs
       PRINTK_INDEX              = whenAtLeast "5.15" yes;
+
+      # Enable crashkernel support
+      PROC_VMCORE               = yes;
     };
 
     power-management = {
@@ -767,6 +772,10 @@ let
       # Shadow stacks
       X86_USER_SHADOW_STACK = whenAtLeast "6.6" yes;
 
+      # Enable support for Intel Trust Domain Extensions (TDX)
+      INTEL_TDX_GUEST = whenAtLeast "5.19" yes;
+      TDX_GUEST_DRIVER = whenAtLeast "6.2" module;
+
       # Mitigate straight line speculation at the cost of some file size
       SLS = whenBetween "5.17" "6.9" yes;
       MITIGATION_SLS = whenAtLeast "6.9" yes;
@@ -988,6 +997,7 @@ let
       JOYSTICK_PSXPAD_SPI_FF = yes;
       LOGIG940_FF        = yes;
       NINTENDO_FF        = whenAtLeast "5.16" yes;
+      NVIDIA_SHIELD_FF   = whenAtLeast "6.5" yes;
       PLAYSTATION_FF     = whenAtLeast "5.12" yes;
       SONY_FF            = yes;
       SMARTJOYPLUS_FF    = yes;
@@ -1294,6 +1304,13 @@ let
       #  differently when run under aarch64 kernels compared to when
       #  it is run under an aarch32 kernel.
       COMPAT_ALIGNMENT_FIXUPS = lib.mkIf (stdenv.hostPlatform.system == "aarch64-linux") (whenAtLeast "6.1" yes);
+
+      # requirement for CP15_BARRIER_EMULATION
+      ARMV8_DEPRECATED = lib.mkIf (stdenv.hostPlatform.system == "aarch64-linux") yes;
+      # emulate a specific armv7 instruction that was removed from armv8
+      # this instruction is required to build a native armv7 nodejs on an
+      # aarch64-linux builder, for example
+      CP15_BARRIER_EMULATION  = lib.mkIf (stdenv.hostPlatform.system == "aarch64-linux") yes;
     } // lib.optionalAttrs (stdenv.hostPlatform.system == "x86_64-linux" || stdenv.hostPlatform.system == "aarch64-linux") {
       # Required for various hardware features on Chrome OS devices
       CHROME_PLATFORMS = yes;

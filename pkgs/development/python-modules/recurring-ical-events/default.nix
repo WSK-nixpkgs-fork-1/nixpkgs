@@ -16,7 +16,7 @@
 
 buildPythonPackage rec {
   pname = "recurring-ical-events";
-  version = "3.3.0";
+  version = "3.3.4";
 
   disabled = pythonOlder "3.8";
 
@@ -25,13 +25,11 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "niccokunzmann";
     repo = "python-recurring-ical-events";
-    rev = "v${version}";
-    hash = "sha256-1Ggxi61epge6Rxc/vJ7OuuNjjeaQYReEPeOZV8DLghk=";
+    rev = "refs/tags/v${version}";
+    hash = "sha256-3KlmJJmak3X9adUlcmclnCv9D1Ddr+woFokrinZBYoE=";
   };
 
   build-system = [ setuptools ];
-
-  pythonRelaxDeps = [ "icalendar" ];
 
   dependencies = [
     icalendar
@@ -45,12 +43,6 @@ buildPythonPackage rec {
     pytz
     restructuredtext-lint
     pygments
-  ];
-
-  disabledTests = lib.optionals (lib.versionOlder icalendar.version "6") [
-    # ModuleNotFoundError: No module named 'icalendar.timezone'
-    "test_can_import_zoneinfo"
-    "test_documentation_file"
   ];
 
   pythonImportsCheck = [ "recurring_ical_events" ];

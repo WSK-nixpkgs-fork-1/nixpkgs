@@ -39,6 +39,7 @@ let
     composeManyExtensions
     concatLines
     concatMapAttrs
+    concatMapAttrsStringSep
     concatMapStrings
     concatStrings
     concatStringsSep
@@ -47,6 +48,7 @@ let
     evalModules
     extends
     filter
+    filterAttrs
     fix
     fold
     foldAttrs
@@ -325,6 +327,11 @@ runTests {
   testConcatStringsSep = {
     expr = concatStringsSep "," ["a" "b" "c"];
     expected = "a,b,c";
+  };
+
+  testConcatMapAttrsStringSepExamples = {
+    expr = concatMapAttrsStringSep "\n" (name: value: "${name}: foo-${value}") { a = "0.1.0"; b = "0.2.0"; };
+    expected = "a: foo-0.1.0\nb: foo-0.2.0";
   };
 
   testConcatLines = {
@@ -1099,6 +1106,25 @@ runTests {
       foo = "bar";
       foobar = "baz";
       foobarbaz = "baz";
+    };
+  };
+
+  testFilterAttrs = {
+    expr = filterAttrs (n: v: n != "a" && (v.hello or false) == true) {
+      a.hello = true;
+      b.hello = true;
+      c = {
+        hello = true;
+        world = false;
+      };
+      d.hello = false;
+    };
+    expected = {
+      b.hello = true;
+      c = {
+        hello = true;
+        world = false;
+      };
     };
   };
 
