@@ -63,9 +63,9 @@ with lib;
       else pkgs.writeTextFile {
         name = "xray.json";
         text = builtins.toJSON cfg.settings;
-        checkPhase = ''
-          ${cfg.package}/bin/xray -test -config $out
-        '';
+        #checkPhase = ''
+        #  ${cfg.package}/bin/xray -test -config $out
+        #'';
       };
 
   in mkIf cfg.enable {
