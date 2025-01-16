@@ -1,14 +1,20 @@
-{ lib, buildGoModule, fetchFromGitHub, installShellFiles, stdenv }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
+  stdenv,
+}:
 
 buildGoModule rec {
   pname = "argocd";
-  version = "2.13.1";
+  version = "2.13.3";
 
   src = fetchFromGitHub {
     owner = "argoproj";
     repo = "argo-cd";
     rev = "v${version}";
-    hash = "sha256-0qL9CnEwEp7sJK7u6EKHVFY/hH8lTb182HZ3r+9nIyQ=";
+    hash = "sha256-1z3tTXHVJ3e3g+DAoEGb8P6e4iEe1tiaM+7IPyuQp7U=";
   };
 
   proxyVendor = true; # darwin/linux hash mismatch
@@ -19,9 +25,12 @@ buildGoModule rec {
   subPackages = [ "cmd" ];
 
   ldflags =
-    let package_url = "github.com/argoproj/argo-cd/v2/common"; in
+    let
+      package_url = "github.com/argoproj/argo-cd/v2/common";
+    in
     [
-      "-s" "-w"
+      "-s"
+      "-w"
       "-X ${package_url}.version=${version}"
       "-X ${package_url}.buildDate=unknown"
       "-X ${package_url}.gitCommit=${src.rev}"
@@ -61,6 +70,10 @@ buildGoModule rec {
     downloadPage = "https://github.com/argoproj/argo-cd";
     homepage = "https://argo-cd.readthedocs.io/en/stable/";
     license = licenses.asl20;
-    maintainers = with maintainers; [ shahrukh330 bryanasdev000 qjoly ];
+    maintainers = with maintainers; [
+      shahrukh330
+      bryanasdev000
+      qjoly
+    ];
   };
 }

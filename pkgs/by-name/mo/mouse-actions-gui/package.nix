@@ -14,7 +14,7 @@
   libXtst,
   libevdev,
   gtk3,
-  libsoup,
+  libsoup_2_4,
   webkitgtk_4_0,
 }:
 
@@ -25,7 +25,7 @@ rustPlatform.buildRustPackage rec {
   src = fetchFromGitHub {
     owner = "jersou";
     repo = "mouse-actions";
-    rev = "refs/tags/v${version}";
+    tag = "v${version}";
     hash = "sha256-44F4CdsDHuN2FuijnpfmoFy4a/eAbYOoBYijl9mOctg=";
   };
 
@@ -46,7 +46,7 @@ rustPlatform.buildRustPackage rec {
 
     # Tauri deps
     gtk3
-    libsoup
+    libsoup_2_4
     webkitgtk_4_0
   ];
 

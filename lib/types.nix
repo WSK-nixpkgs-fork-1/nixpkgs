@@ -71,6 +71,26 @@ let
     let pos = builtins.unsafeGetAttrPos name v; in
     if pos == null then "" else " at ${pos.file}:${toString pos.line}:${toString pos.column}";
 
+  # Internal functor to help for migrating functor.wrapped to functor.payload.elemType
+  # Note that individual attributes can be overriden if needed.
+  elemTypeFunctor = name: { elemType, ... }@payload: {
+    inherit name payload;
+    type    = outer_types.types.${name};
+    binOp   = a: b:
+      let
+        merged = a.elemType.typeMerge b.elemType.functor;
+      in
+        if merged == null
+        then
+          null
+        else
+          { elemType = merged; };
+    wrappedDeprecationMessage = { loc }: lib.warn ''
+      The deprecated `type.functor.wrapped` attribute of the option `${showOption loc}` is accessed, use `type.nestedTypes.elemType` instead.
+    '' payload.elemType;
+  };
+
+
   outer_types =
 rec {
   isType = type: x: (x._type or "") == type;
@@ -461,6 +481,11 @@ rec {
       descriptionClass = "noun";
       check = x: str.check x && builtins.match pattern x != null;
       inherit (str) merge;
+      functor = defaultFunctor "strMatching" // {
+        type = payload: strMatching payload.pattern;
+        payload = { inherit pattern; };
+        binOp = lhs: rhs: if lhs == rhs then lhs else null;
+      };
     };
 
     # Merge multiple definitions by concatenating them (with the given
@@ -475,9 +500,10 @@ rec {
       check = isString;
       merge = loc: defs: concatStringsSep sep (getValues defs);
       functor = (defaultFunctor name) // {
-        payload = sep;
-        binOp = sepLhs: sepRhs:
-          if sepLhs == sepRhs then sepLhs
+        payload = { inherit sep; };
+        type = payload: types.separatedString payload.sep;
+        binOp = lhs: rhs:
+          if lhs.sep == rhs.sep then { inherit (lhs) sep; }
           else null;
       };
     };
@@ -574,7 +600,9 @@ rec {
       getSubOptions = prefix: elemType.getSubOptions (prefix ++ ["*"]);
       getSubModules = elemType.getSubModules;
       substSubModules = m: listOf (elemType.substSubModules m);
-      functor = (defaultFunctor name) // { wrapped = elemType; };
+      functor = (elemTypeFunctor name { inherit elemType; }) // {
+        type = payload: types.listOf payload.elemType;
+      };
       nestedTypes.elemType = elemType;
     };
 
@@ -608,17 +636,27 @@ rec {
               lhs.lazy
             else
               null;
+          placeholder =
+            if lhs.placeholder == rhs.placeholder then
+              lhs.placeholder
+            else if lhs.placeholder == "name" then
+              rhs.placeholder
+            else if rhs.placeholder == "name" then
+              lhs.placeholder
+            else
+              null;
         in
-        if elemType == null || lazy == null then
+        if elemType == null || lazy == null || placeholder == null then
           null
         else
           {
-            inherit elemType lazy;
+            inherit elemType lazy placeholder;
           };
     in
     {
       elemType,
       lazy ? false,
+      placeholder ? "name",
     }:
     mkOptionType {
       name = if lazy then "lazyAttrsOf" else "attrsOf";
@@ -645,17 +683,13 @@ rec {
           (pushPositions defs)))
       );
       emptyValue = { value = {}; };
-      getSubOptions = prefix: elemType.getSubOptions (prefix ++ ["<name>"]);
+      getSubOptions = prefix: elemType.getSubOptions (prefix ++ ["<${placeholder}>"]);
       getSubModules = elemType.getSubModules;
-      substSubModules = m: attrsWith { elemType = elemType.substSubModules m; inherit lazy; };
-      functor = defaultFunctor "attrsWith" // {
-        wrappedDeprecationMessage = { loc }: lib.warn ''
-          The deprecated `type.functor.wrapped` attribute of the option `${showOption loc}` is accessed, use `type.nestedTypes.elemType` instead.
-        '' elemType;
-        payload = {
-          # Important!: Add new function attributes here in case of future changes
-          inherit elemType lazy;
-        };
+      substSubModules = m: attrsWith { elemType = elemType.substSubModules m; inherit lazy placeholder; };
+      functor = (elemTypeFunctor "attrsWith" {
+          inherit elemType lazy placeholder;
+      }) // {
+        # Custom type merging required because of the "placeholder" attribute
         inherit binOp;
       };
       nestedTypes.elemType = elemType;
@@ -1014,7 +1048,11 @@ rec {
           else "conjunction";
         check = flip elem values;
         merge = mergeEqualOption;
-        functor = (defaultFunctor name) // { payload = values; binOp = a: b: unique (a ++ b); };
+        functor = (defaultFunctor name) // {
+          payload = { inherit values; };
+          type = payload: types.enum payload.values;
+          binOp = a: b: { values = unique (a.values ++ b.values); };
+        };
       };
 
     # Either value of type `t1` or `t2`.

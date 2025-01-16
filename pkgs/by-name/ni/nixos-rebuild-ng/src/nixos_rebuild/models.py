@@ -8,6 +8,8 @@ from typing import Any, Callable, ClassVar, Self, TypedDict, override
 
 from .process import Remote, run_wrapper
 
+type ImageVariants = dict[str, str]
+
 
 class NRError(Exception):
     "nixos-rebuild general error."
@@ -30,6 +32,7 @@ class Action(Enum):
     DRY_BUILD = "dry-build"
     DRY_RUN = "dry-run"
     DRY_ACTIVATE = "dry-activate"
+    BUILD_IMAGE = "build-image"
     BUILD_VM = "build-vm"
     BUILD_VM_WITH_BOOTLOADER = "build-vm-with-bootloader"
     LIST_GENERATIONS = "list-generations"
@@ -60,7 +63,7 @@ class BuildAttr:
 
 @dataclass(frozen=True)
 class Flake:
-    path: Path
+    path: Path | str
     attr: str
     _re: ClassVar = re.compile(r"^(?P<path>[^\#]*)\#?(?P<attr>[^\#\"]*)$")
 
@@ -81,7 +84,11 @@ class Flake:
         assert m is not None, f"got no matches for {flake_str}"
         attr = m.group("attr")
         nixos_attr = f"nixosConfigurations.{attr or hostname_fn() or "default"}"
-        return cls(Path(m.group("path")), nixos_attr)
+        path = m.group("path")
+        if ":" in path:
+            return cls(path, nixos_attr)
+        else:
+            return cls(Path(path), nixos_attr)
 
     @classmethod
     def from_arg(cls, flake_arg: Any, target_host: Remote | None) -> Self | None:
@@ -90,7 +97,7 @@ class Flake:
                 try:
                     return run_wrapper(
                         ["uname", "-n"],
-                        capture_output=True,
+                        stdout=subprocess.PIPE,
                         remote=target_host,
                     ).stdout.strip()
                 except (AttributeError, subprocess.CalledProcessError):

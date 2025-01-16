@@ -1,23 +1,24 @@
-{ lib
-, rustPlatform
-, fetchFromGitHub
-, pkg-config
-, openssl
-, nix-update-script
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
+  pkg-config,
+  openssl,
+  nix-update-script,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "reindeer";
-  version = "2024.10.28.00";
+  version = "2025.01.06.00";
 
   src = fetchFromGitHub {
     owner = "facebookincubator";
     repo = "reindeer";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-1wbw92dZT5SVXgfWMgXd3asHhilVzH4lvqW60hTznVc=";
+    tag = "v${version}";
+    hash = "sha256-3Wa10eLlvOXw8DZAwQiCTGFOcUEsHvYhl6OTEYsCdZ8=";
   };
 
-  cargoHash = "sha256-OjA0OKotAdRLGRkl8n3Gn2+Z8JVcGjQYHtOszWnnFdM=";
+  cargoHash = "sha256-UI70YLTR/+fKh+4wD2hZJyuzN4ZNUCkrhyf9CRepetA=";
 
   nativeBuildInputs = [ pkg-config ];
 
@@ -33,4 +34,3 @@ rustPlatform.buildRustPackage rec {
     maintainers = with maintainers; [ nickgerace ];
   };
 }
-

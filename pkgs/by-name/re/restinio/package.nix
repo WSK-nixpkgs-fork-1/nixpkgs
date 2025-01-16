@@ -34,25 +34,33 @@ stdenv.mkDerivation (finalAttrs: {
 
   nativeBuildInputs = [ cmake ];
 
-  propagatedBuildInputs = [
-    expected-lite
-    fmt
-    llhttp
-    openssl
-    pcre2
-    zlib
-  ] ++ (if with_boost_asio then [
-    boost
-  ] else [
-    asio
-  ]);
+  propagatedBuildInputs =
+    [
+      expected-lite
+      fmt
+      llhttp
+      openssl
+      pcre2
+      zlib
+    ]
+    ++ (
+      if with_boost_asio then
+        [
+          boost
+        ]
+      else
+        [
+          asio
+        ]
+    );
 
-  checkInputs = [
+  buildInputs = [
     catch2_3
   ];
 
   cmakeDir = "../dev";
   cmakeFlags = [
+    "-DCMAKE_CATCH_DISCOVER_TESTS_DISCOVERY_MODE=PRE_TEST"
     "-DRESTINIO_TEST=ON"
     "-DRESTINIO_SAMPLE=OFF"
     "-DRESTINIO_BENCHMARK=OFF"

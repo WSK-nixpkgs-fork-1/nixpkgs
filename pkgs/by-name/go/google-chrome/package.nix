@@ -39,7 +39,7 @@
   libXScrnSaver,
   libxshmfence,
   libXtst,
-  mesa,
+  libgbm,
   nspr,
   nss,
   pango,
@@ -142,7 +142,7 @@ let
       libXScrnSaver
       libxshmfence
       libXtst
-      mesa
+      libgbm
       nspr
       nss
       opusWithCustomModes
@@ -166,11 +166,11 @@ let
 
   linux = stdenv.mkDerivation (finalAttrs: {
     inherit pname meta passthru;
-    version = "131.0.6778.108";
+    version = "131.0.6778.264";
 
     src = fetchurl {
       url = "https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_${finalAttrs.version}-1_amd64.deb";
-      hash = "sha256-DU9qaMnn7gM/8VR4lsetWlkYu/Gs5+i/9JPYY2sbCi0=";
+      hash = "sha256-zfPXkfjnvVGO09X4eqTii7rPwieMEsQMy9p9tXb5fDU=";
     };
 
     # With strictDeps on, some shebangs were not being patched correctly
@@ -266,11 +266,11 @@ let
 
   darwin = stdenvNoCC.mkDerivation (finalAttrs: {
     inherit pname meta passthru;
-    version = "131.0.6778.109";
+    version = "131.0.6778.265";
 
     src = fetchurl {
-      url = "http://dl.google.com/release2/chrome/adhpt2otqvd2vrh5vbgwgtydt7gq_131.0.6778.109/GoogleChrome-131.0.6778.109.dmg";
-      hash = "sha256-9pKGJa7UiDx1QPnWk0ONDQukUdRAPGz1PeYd7UoReoQ=";
+      url = "http://dl.google.com/release2/chrome/accjagybvz5mf6voljw3khsklaaa_131.0.6778.265/GoogleChrome-131.0.6778.265.dmg";
+      hash = "sha256-mHfBmBJVlUYQf8UnCBBTbgizTuV/IucXg2H+i4zhnPU=";
     };
 
     dontPatch = true;

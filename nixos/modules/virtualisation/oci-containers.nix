@@ -14,7 +14,7 @@ let
   defaultBackend = options.virtualisation.oci-containers.backend.default;
 
   containerOptions =
-    { ... }:
+    { name, ... }:
     {
 
       options = {
@@ -57,6 +57,13 @@ let
             the previous image.
           '';
           example = literalExpression "pkgs.dockerTools.streamLayeredImage {...};";
+        };
+
+        serviceName = mkOption {
+          type = types.str;
+          default = "${cfg.backend}-${name}";
+          defaultText = "<backend>-<name>";
+          description = "Systemd service name that manages the container";
         };
 
         login = {
@@ -295,28 +302,19 @@ let
           '';
         };
 
-        capAdd = mkOption {
+        capabilities = mkOption {
           type = with types; lazyAttrsOf (nullOr bool);
           default = { };
           description = ''
-            Capabilities to add to container
+            Capabilities to configure for the container.
+            When set to true, capability is added to the container.
+            When set to false, capability is dropped from the container.
+            When null, default runtime settings apply.
           '';
           example = literalExpression ''
             {
               SYS_ADMIN = true;
-            {
-          '';
-        };
-
-        capDrop = mkOption {
-          type = with types; lazyAttrsOf (nullOr bool);
-          default = { };
-          description = ''
-            Capabilities to drop from container
-          '';
-          example = literalExpression ''
-            {
-              SYS_ADMIN = true;
+              SYS_WRITE = false;
             {
           '';
         };
@@ -441,10 +439,10 @@ let
         ++ optional (container.workdir != null) "-w ${escapeShellArg container.workdir}"
         ++ optional (container.privileged) "--privileged"
         ++ mapAttrsToList (k: _: "--cap-add=${escapeShellArg k}") (
-          filterAttrs (_: v: v == true) container.capAdd
+          filterAttrs (_: v: v == true) container.capabilities
         )
         ++ mapAttrsToList (k: _: "--cap-drop=${escapeShellArg k}") (
-          filterAttrs (_: v: v == true) container.capDrop
+          filterAttrs (_: v: v == false) container.capabilities
         )
         ++ map (d: "--device=${escapeShellArg d}") container.devices
         ++ map (n: "--network=${escapeShellArg n}") container.networks
@@ -534,9 +532,7 @@ in
   config = lib.mkIf (cfg.containers != { }) (
     lib.mkMerge [
       {
-        systemd.services = mapAttrs' (
-          n: v: nameValuePair "${cfg.backend}-${n}" (mkService n v)
-        ) cfg.containers;
+        systemd.services = mapAttrs' (n: v: nameValuePair v.serviceName (mkService n v)) cfg.containers;
 
         assertions =
           let

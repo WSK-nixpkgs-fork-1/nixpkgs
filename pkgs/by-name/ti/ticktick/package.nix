@@ -1,25 +1,26 @@
-{ lib
-, fetchurl
-, stdenv
-, wrapGAppsHook3
-, dpkg
-, autoPatchelfHook
-, glibc
-, gcc-unwrapped
-, nss
-, libdrm
-, mesa
-, alsa-lib
-, xdg-utils
-, systemd
+{
+  lib,
+  fetchurl,
+  stdenv,
+  wrapGAppsHook3,
+  dpkg,
+  autoPatchelfHook,
+  glibc,
+  gcc-unwrapped,
+  nss,
+  libdrm,
+  libgbm,
+  alsa-lib,
+  xdg-utils,
+  systemd,
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "ticktick";
-  version = "6.0.10";
+  version = "6.0.20";
 
   src = fetchurl {
     url = "https://d2atcrkye2ik4e.cloudfront.net/download/linux/linux_deb_x64/ticktick-${finalAttrs.version}-amd64.deb";
-    hash = "sha256-/SaQJFaz8quuFk4bLmRrvfYpqyDNTV/dJBrAJpOT4S4=";
+    hash = "sha256-aKUK0/9Y/ac9ISYJnWDUdwmvN8UYKzTY0f94nd8ofGw=";
   };
 
   nativeBuildInputs = [
@@ -33,7 +34,7 @@ stdenv.mkDerivation (finalAttrs: {
     glibc
     libdrm
     gcc-unwrapped
-    mesa
+    libgbm
     alsa-lib
     xdg-utils
   ];

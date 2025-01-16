@@ -1,23 +1,24 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
-, ninja
-, wrapGAppsHook3
-, makeWrapper
-, wxGTK32
-, unstableGitUpdater
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  ninja,
+  wrapGAppsHook3,
+  makeWrapper,
+  wxGTK32,
+  unstableGitUpdater,
 }:
 
 stdenv.mkDerivation rec {
   pname = "treesheets";
-  version = "0-unstable-2024-11-24";
+  version = "0-unstable-2025-01-13";
 
   src = fetchFromGitHub {
     owner = "aardappel";
     repo = "treesheets";
-    rev = "4b27fa43bbd5db0c2a5db2a942002f71d6fdc752";
-    hash = "sha256-uKFh4sdcp6CsgJQrX6H9NQhPvOQ3U2PeS+xyDTqwkvo=";
+    rev = "89b40de858f598975098a0436637bca8357a4a86";
+    hash = "sha256-kduZ+1EYxwuKAIVNBg9u32UD463gpBIjcxSj1FgvIIg=";
   };
 
   nativeBuildInputs = [
@@ -31,7 +32,9 @@ stdenv.mkDerivation rec {
     wxGTK32
   ];
 
-  env.NIX_CFLAGS_COMPILE = "-DPACKAGE_VERSION=\"${builtins.replaceStrings [ "unstable-" ] [ "" ] version}\"";
+  env.NIX_CFLAGS_COMPILE = "-DPACKAGE_VERSION=\"${
+    builtins.replaceStrings [ "unstable-" ] [ "" ] version
+  }\"";
 
   postInstall = lib.optionalString stdenv.hostPlatform.isDarwin ''
     mkdir -p $out/{Applications,bin}

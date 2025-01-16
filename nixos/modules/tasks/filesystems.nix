@@ -32,6 +32,10 @@ let
   coreFileSystemOpts = { name, config, ... }: {
 
     options = {
+      enable = mkEnableOption "the filesystem mount" // {
+        default = true;
+      };
+
       mountPoint = mkOption {
         example = "/mnt/usb";
         type = nonEmptyWithoutTrailingSlash;
@@ -138,7 +142,7 @@ let
 
     };
 
-    config.device = lib.mkIf (config.label != null) "/dev/disk/by-label/${escape config.label}";
+    config.device = lib.mkIf (config.label != null) (lib.mkDefault "/dev/disk/by-label/${escape config.label}");
 
     config.options = let
       inInitrd = utils.fsNeededForBoot config;
@@ -234,6 +238,7 @@ in
         }
       '';
       type = types.attrsOf (types.submodule [coreFileSystemOpts fileSystemOpts]);
+      apply = lib.filterAttrs (_: fs: fs.enable);
       description = ''
         The file systems to be mounted.  It must include an entry for
         the root directory (`mountPoint = "/"`).  Each
@@ -280,6 +285,7 @@ in
     boot.specialFileSystems = mkOption {
       default = {};
       type = types.attrsOf (types.submodule coreFileSystemOpts);
+      apply = lib.filterAttrs (_: fs: fs.enable);
       internal = true;
       description = ''
         Special filesystems that are mounted very early during boot.
@@ -354,7 +360,15 @@ in
           options.
         '';
       }
-    ];
+    ] ++ lib.map (fs: {
+      assertion = fs.label != null -> fs.device == "/dev/disk/by-label/${escape fs.label}";
+      message = ''
+        The filesystem with mount point ${fs.mountPoint} has its label and device set to inconsistent values:
+          label: ${toString fs.label}
+          device: ${toString fs.device}
+        'filesystems.<name>.label' and 'filesystems.<name>.device' are mutually exclusive. Please set only one.
+      '';
+    }) fileSystems;
 
     # Export for use in other modules
     system.build.fileSystems = fileSystems;
