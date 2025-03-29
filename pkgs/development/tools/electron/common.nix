@@ -3,7 +3,6 @@
   stdenv,
   chromium,
   nodejs,
-  fetchpatch,
   fetchYarnDeps,
   fetchNpmDeps,
   fixup-yarn-lock,
@@ -65,42 +64,26 @@ in
     hash = info.chromium_npm_hash;
   };
 
+  env =
+    base.env
+    // {
+      # Hydra can fail to build electron due to clang spamming deprecation
+      # warnings mid-build, causing the build log to grow beyond the limit
+      # of 64mb and then getting killed by Hydra.
+      # For some reason, the log size limit appears to only be enforced on
+      # aarch64-linux. x86_64-linux happily succeeds to build with ~180mb. To
+      # unbreak the build on h.n.o, we simply disable those warnings for now.
+      # https://hydra.nixos.org/build/283952243
+      NIX_CFLAGS_COMPILE = base.env.NIX_CFLAGS_COMPILE + " -Wno-deprecated";
+    }
+    // lib.optionalAttrs (lib.versionAtLeast info.version "35") {
+      # Needed for header generation in electron 35 and above
+      ELECTRON_OUT_DIR = "Release";
+    };
+
   src = null;
 
-  patches =
-    base.patches
-    ++ lib.optionals (lib.versionOlder info.version "32") [
-      # Backport a few fixes for -Wmissing-template-arg-list-after-template-kw
-      # which only effects the soon-to-be-EOLed electron 31 (chromium M126).
-      # https://issues.chromium.org/issues/344680447
-
-      # https://chromium-review.googlesource.com/c/chromium/src/+/5604664
-      (fetchpatch {
-        url = "https://github.com/chromium/chromium/commit/b0088fa60970412160535c367e2ff53b25b8538e.patch";
-        hash = "sha256-eEYO+IN1062iCqVr6eO3UZlGLN376lMXc6UQunJGpdQ=";
-      })
-
-      # https://android-review.googlesource.com/c/platform/external/perfetto/+/3114454
-      (fetchpatch {
-        name = "perfetto-e2f661907a717551235563389977b7468da6d45e.patch";
-        url = "https://android.googlesource.com/platform/external/perfetto/+/e2f661907a717551235563389977b7468da6d45e^!?format=TEXT";
-        decode = "base64 -d";
-        stripLen = 1;
-        extraPrefix = "third_party/perfetto/";
-        hash = "sha256-5zSAZZI1tR7O4Aui22T/6uyk0RpuIy7XqDD0nwlDySQ=";
-      })
-
-      ./electron-31-perfetto-missing-template-arg-list.patch
-
-      # And a finally fix for -Winvalid-constexpr that is happening within the electron patchset.
-      # https://github.com/electron/electron/pull/42413/commits/394a26f94a3fbce91e15e80e8e73b9a3ec1f04d1
-      (fetchpatch {
-        url = "https://github.com/electron/electron/commit/394a26f94a3fbce91e15e80e8e73b9a3ec1f04d1.patch";
-        stripLen = 1;
-        extraPrefix = "electron/";
-        hash = "sha256-lllUUDm1thnC+rH8hBtPBVLRx6Pis5TPEUeQli9z1Mk=";
-      })
-    ];
+  patches = base.patches;
 
   unpackPhase =
     ''
@@ -202,51 +185,45 @@ in
     ''
     + (base.preConfigure or "");
 
-  gnFlags =
-    rec {
-      # build/args/release.gn
-      is_component_build = false;
-      is_official_build = true;
-      rtc_use_h264 = proprietary_codecs;
-      is_component_ffmpeg = true;
+  gnFlags = rec {
+    # build/args/release.gn
+    is_component_build = false;
+    is_official_build = true;
+    rtc_use_h264 = proprietary_codecs;
+    is_component_ffmpeg = true;
 
-      # build/args/all.gn
-      is_electron_build = true;
-      root_extra_deps = [ "//electron" ];
-      node_module_version = info.modules;
-      v8_promise_internal_field_count = 1;
-      v8_embedder_string = "-electron.0";
-      v8_enable_snapshot_native_code_counters = false;
-      v8_enable_javascript_promise_hooks = true;
-      enable_cdm_host_verification = false;
-      proprietary_codecs = true;
-      ffmpeg_branding = "Chrome";
-      enable_printing = true;
-      angle_enable_vulkan_validation_layers = false;
-      dawn_enable_vulkan_validation_layers = false;
-      enable_pseudolocales = false;
-      allow_runtime_configurable_key_storage = true;
-      enable_cet_shadow_stack = false;
-      is_cfi = false;
-      use_qt = false;
-      v8_builtins_profiling_log_file = "";
-      enable_dangling_raw_ptr_checks = false;
-      dawn_use_built_dxc = false;
-      v8_enable_private_mapping_fork_optimization = true;
-      v8_expose_public_symbols = true;
-      enable_dangling_raw_ptr_feature_flag = false;
-      clang_unsafe_buffers_paths = "";
-      enterprise_cloud_content_analysis = false;
-    }
-    // lib.optionalAttrs (lib.versionAtLeast info.version "33") {
-      content_enable_legacy_ipc = true;
-    }
-    // {
+    # build/args/all.gn
+    is_electron_build = true;
+    root_extra_deps = [ "//electron" ];
+    node_module_version = lib.toInt info.modules;
+    v8_promise_internal_field_count = 1;
+    v8_embedder_string = "-electron.0";
+    v8_enable_snapshot_native_code_counters = false;
+    v8_enable_javascript_promise_hooks = true;
+    enable_cdm_host_verification = false;
+    proprietary_codecs = true;
+    ffmpeg_branding = "Chrome";
+    enable_printing = true;
+    angle_enable_vulkan_validation_layers = false;
+    dawn_enable_vulkan_validation_layers = false;
+    enable_pseudolocales = false;
+    allow_runtime_configurable_key_storage = true;
+    enable_cet_shadow_stack = false;
+    is_cfi = false;
+    v8_builtins_profiling_log_file = "";
+    enable_dangling_raw_ptr_checks = false;
+    dawn_use_built_dxc = false;
+    v8_enable_private_mapping_fork_optimization = true;
+    v8_expose_public_symbols = true;
+    enable_dangling_raw_ptr_feature_flag = false;
+    clang_unsafe_buffers_paths = "";
+    enterprise_cloud_content_analysis = false;
+    content_enable_legacy_ipc = true;
 
-      # other
-      enable_widevine = false;
-      override_electron_version = info.version;
-    };
+    # other
+    enable_widevine = false;
+    override_electron_version = info.version;
+  };
 
   installPhase = ''
     runHook preInstall
@@ -295,6 +272,7 @@ in
     maintainers = with maintainers; [
       yayayayaka
       teutat3s
+      tomasajt
     ];
     mainProgram = "electron";
     hydraPlatforms =

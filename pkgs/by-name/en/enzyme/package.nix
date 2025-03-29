@@ -20,15 +20,22 @@ llvmPackages.stdenv.mkDerivation rec {
     patchShebangs enzyme
   '';
 
-  nativeBuildInputs = [
+  llvm = llvmPackages.llvm;
+  clang = llvmPackages.clang-unwrapped;
+
+  buildInputs = [
     cmake
     git
-    llvmPackages.llvm
+    llvm
+    clang
   ];
 
   cmakeDir = "../enzyme";
 
-  cmakeFlags = [ "-DLLVM_DIR=${llvmPackages.llvm.dev}" ];
+  cmakeFlags = [
+    "-DLLVM_DIR=${llvm.dev}"
+    "-DClang_DIR=${clang.dev}"
+  ];
 
   enableParallelBuilding = true;
 
@@ -37,6 +44,9 @@ llvmPackages.stdenv.mkDerivation rec {
     description = "High-performance automatic differentiation of LLVM and MLIR";
     maintainers = with lib.maintainers; [ kiranshila ];
     platforms = lib.platforms.all;
-    license = lib.licenses.asl20-llvm;
+    license = with lib.licenses; [
+      asl20
+      llvm-exception
+    ];
   };
 }

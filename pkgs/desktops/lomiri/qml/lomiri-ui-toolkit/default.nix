@@ -3,7 +3,7 @@
   lib,
   fetchFromGitLab,
   gitUpdater,
-  substituteAll,
+  replaceVars,
   testers,
   dbus-test-runner,
   dpkg,
@@ -61,9 +61,9 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   patches = [
-    (substituteAll {
-      src = ./2002-Nixpkgs-versioned-QML-path.patch.in;
-      name = "2002-Nixpkgs-versioned-QML-path.patch";
+    ./2001-Mark-problematic-tests.patch
+
+    (replaceVars ./2002-Nixpkgs-versioned-QML-path.patch.in {
       qtVersion = lib.versions.major qtbase.version;
     })
   ];
