@@ -20,6 +20,8 @@
 , libxcb
 , libxkbcommon
 , mesa
+, libgbm
+, lcms
 , vulkan-loader
 , glslang
 #, vulkan-headers
@@ -117,6 +119,8 @@ stdenv.mkDerivation (finalAttrs: {
     libinput
     libxkbcommon
     mesa
+    libgbm
+    lcms
     wayland
     wayland-protocols
     pango
