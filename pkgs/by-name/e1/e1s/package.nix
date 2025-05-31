@@ -5,7 +5,7 @@
 }:
 let
   pname = "e1s";
-  version = "1.0.45";
+  version = "1.0.48";
 in
 buildGoModule {
   inherit pname version;
@@ -14,10 +14,10 @@ buildGoModule {
     owner = "keidarcy";
     repo = "e1s";
     tag = "v${version}";
-    hash = "sha256-1dbdIShEyQ9/1kXx0w4SiEu6c53WUj5+RtmIcwuhSRA=";
+    hash = "sha256-pURUTWlj0iOfHpc4BheprfgAuK05sZDGLbCF/T3LN9w=";
   };
 
-  vendorHash = "sha256-bBl4D7HNIiAym6BWSJ0x4LZnIEUMfECj6dDDVZIFrHA=";
+  vendorHash = "sha256-1lise/u40Q8W9STsuyrWIbhf2HY+SFCytUL1PTSWvfY=";
 
   meta = with lib; {
     description = "Easily Manage AWS ECS Resources in Terminal 🐱";
@@ -25,6 +25,9 @@ buildGoModule {
     changelog = "https://github.com/keidarcy/e1s/releases/tag/v${version}";
     license = licenses.mit;
     mainProgram = "e1s";
-    maintainers = with maintainers; [ zelkourban ];
+    maintainers = with maintainers; [
+      zelkourban
+      carlossless
+    ];
   };
 }

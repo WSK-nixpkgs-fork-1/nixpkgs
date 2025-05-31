@@ -7,13 +7,13 @@
   lib,
 }:
 let
-  version = "0.10.2";
+  version = "0.10.6";
 
   src = fetchFromGitHub {
     repo = "gose";
     owner = "stv0g";
     tag = "v${version}";
-    hash = "sha256-xyAOag2/GaIVttTLnx/6ljkpWbJmsOfyYyWzOAHOQ2I=";
+    hash = "sha256-H+15d0wCfL+jd+xjKSOrimLIAG1Mh8vO+5MaHaVocJg=";
   };
 
   frontend = buildNpmPackage {
@@ -37,7 +37,7 @@ buildGoModule {
   inherit version;
   inherit src;
 
-  vendorHash = "sha256-/Drb5Mxz37rNYfHdydl3z+xvFtjGwuzSsG4gkbx/h1o=";
+  vendorHash = "sha256-HsYF4v7RUzGDJvZEoq0qTo9iPGJoqK4YqTsXSv8SwKQ=";
 
   env.CGO_ENABLED = 0;
 

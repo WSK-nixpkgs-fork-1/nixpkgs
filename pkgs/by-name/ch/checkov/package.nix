@@ -25,17 +25,18 @@ with py.pkgs;
 
 python3.pkgs.buildPythonApplication rec {
   pname = "checkov";
-  version = "3.2.393";
+  version = "3.2.435";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "bridgecrewio";
     repo = "checkov";
     tag = version;
-    hash = "sha256-0yq5jBUXfQUeE+9SlzT9v2j0ldBpA9qWulYRsvzXuR8=";
+    hash = "sha256-zV430pGFkfyf0oznXe69lTsMkGUrrA5TTyGobE4AK9I=";
   };
 
   pythonRelaxDeps = [
+    "asteval"
     "bc-detect-secrets"
     "bc-python-hcl2"
     "boto3"
@@ -69,6 +70,7 @@ python3.pkgs.buildPythonApplication rec {
     aiohttp
     aiomultiprocess
     argcomplete
+    asteval
     bc-detect-secrets
     bc-jsonpath-ng
     bc-python-hcl2

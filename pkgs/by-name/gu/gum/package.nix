@@ -12,7 +12,7 @@ buildGoModule rec {
 
   src = fetchFromGitHub {
     owner = "charmbracelet";
-    repo = pname;
+    repo = "gum";
     rev = "v${version}";
     hash = "sha256-77102I7pOGfpPBSGelsA/9GJYos05akF0kdmr522RC0=";
   };
@@ -23,11 +23,17 @@ buildGoModule rec {
     installShellFiles
   ];
 
-  ldflags = [
-    "-s"
-    "-w"
-    "-X=main.Version=${version}"
-  ];
+  ldflags =
+    [
+      "-s"
+      "-w"
+      "-X=main.Version=${version}"
+    ]
+    ++ lib.optionals (stdenv.hostPlatform.isLinux && stdenv.hostPlatform.isStatic) [
+      "-linkmode=external"
+      "-extldflags"
+      "-static"
+    ];
 
   postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     $out/bin/gum man > gum.1

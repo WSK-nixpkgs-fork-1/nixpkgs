@@ -185,7 +185,9 @@ let
 
   finalJson =
     if cfg.provision.extraJsonFile != null then
-      "<(${lib.getExe pkgs.jq} -s '.[0] * .[1]' ${provisionStateJson} ${cfg.provision.extraJsonFile})"
+      ''
+        <(${lib.getExe pkgs.yq-go} '. *+ load("${cfg.provision.extraJsonFile}") | (.. | select(type == "!!seq")) |= unique' ${provisionStateJson})
+      ''
     else
       provisionStateJson;
 
@@ -442,10 +444,8 @@ in
         description = ''
           A JSON file for provisioning persons, groups & systems.
           Options set in this file take precedence over values set using the other options.
-          In the case of duplicates, `jq` will remove all but the last one
-          when merging this file with the options.
+          The files get deeply merged, and deduplicated.
           The accepted JSON schema can be found at <https://github.com/oddlama/kanidm-provision#json-schema>.
-          Note: theoretically `jq` cannot merge nested types, but this does not pose an issue as kanidm-provision's JSON scheme does not use nested types.
         '';
         type = types.nullOr types.path;
         default = null;
@@ -560,6 +560,16 @@ in
                 '';
                 type = types.nullOr types.path;
                 example = "/run/secrets/some-oauth2-basic-secret";
+                default = null;
+              };
+
+              imageFile = mkOption {
+                description = ''
+                  Application image to display in the WebUI.
+                  Kanidm supports "image/jpeg", "image/png", "image/gif", "image/svg+xml", and "image/webp".
+                  The image will be uploaded each time kanidm-provision is run.
+                '';
+                type = types.nullOr types.path;
                 default = null;
               };
 
@@ -908,7 +918,6 @@ in
           TemporaryFileSystem = "/:ro";
         }
       ];
-      environment.RUST_LOG = "info";
     };
 
     systemd.services.kanidm-unixd = mkIf cfg.enablePam {

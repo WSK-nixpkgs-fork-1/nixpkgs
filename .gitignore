@@ -39,3 +39,5 @@ update-git-commits.txt
 /nixpkgs.iml
 
 .git-credentails
+# Usually used for manual backports
+.worktree/

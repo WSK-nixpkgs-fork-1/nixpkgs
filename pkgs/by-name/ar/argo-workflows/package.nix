@@ -1,9 +1,10 @@
-{ lib
-, stdenv
-, buildGoModule
-, fetchFromGitHub
-, installShellFiles
-, pkgsBuildBuild
+{
+  lib,
+  stdenv,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
+  pkgsBuildBuild,
 }:
 
 let
@@ -29,21 +30,24 @@ let
       cp ${./staticfiles.go.mod} go.mod
     '';
 
-    ldflags = [ "-s" "-w" ];
+    ldflags = [
+      "-s"
+      "-w"
+    ];
   };
 in
 buildGoModule rec {
   pname = "argo-workflows";
-  version = "3.6.5";
+  version = "3.6.7";
 
   src = fetchFromGitHub {
     owner = "argoproj";
     repo = "argo";
     tag = "v${version}";
-    hash = "sha256-LvFpYVylVwWhoVtMDldalSHa5KGdbKVB6yFnP5ha4gg=";
+    hash = "sha256-LV6Pg+RFVFNwh6rmlHgqwcu99tse9wW3nBHpj4zYdrU=";
   };
 
-  vendorHash = "sha256-hMegxeUFSBf32dnXmD7QagkvWgWDeB4Fu4nlKNoePWY=";
+  vendorHash = "sha256-jYVwIHqArsF3pHKnCuyO2OMhEhutAsiq91iBh+KqerA=";
 
   doCheck = false;
 
@@ -74,9 +78,11 @@ buildGoModule rec {
 
   postInstall = ''
     for shell in bash zsh; do
-      ${if (stdenv.buildPlatform == stdenv.hostPlatform)
-        then "$out/bin/argo"
-        else "${pkgsBuildBuild.argo}/bin/argo"
+      ${
+        if (stdenv.buildPlatform == stdenv.hostPlatform) then
+          "$out/bin/argo"
+        else
+          "${pkgsBuildBuild.argo}/bin/argo"
       } completion $shell > argo.$shell
       installShellCompletion argo.$shell
     done

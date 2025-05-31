@@ -6,6 +6,8 @@
   cacert,
   unicode-emoji,
   unicode-character-database,
+  unicode-idna,
+  publicsuffix-list,
   cmake,
   ninja,
   pkg-config,
@@ -27,36 +29,30 @@
   nixosTests,
   unstableGitUpdater,
   apple-sdk_14,
+  libtommath,
 }:
 
 let
-  unicode-idna = fetchurl {
-    url = "https://www.unicode.org/Public/idna/${unicode-character-database.version}/IdnaMappingTable.txt";
-    hash = "sha256-QCy9KF8flS/NCDS2NUHVT2nT2PG4+Fmb9xoaFJNfgsQ=";
-  };
-  adobe-icc-profiles = fetchurl {
-    url = "https://download.adobe.com/pub/adobe/iccprofiles/win/AdobeICCProfilesCS4Win_end-user.zip";
-    hash = "sha256-kgQ7fDyloloPaXXQzcV9tgpn3Lnr37FbFiZzEb61j5Q=";
-    name = "adobe-icc-profiles.zip";
-  };
-  public_suffix_commit = "9094af5c6cb260e69137c043c01be18fee01a540";
-  public-suffix-list = fetchurl {
-    url = "https://raw.githubusercontent.com/publicsuffix/list/${public_suffix_commit}/public_suffix_list.dat";
-    hash = "sha256-0szHUz1T0MXOQ9tcXoKY2F/bI3s7hsYCjURqywZsf1w=";
-  };
   # Note: The cacert version is synthetic and must match the version in the package's CMake
   cacert_version = "2023-12-12";
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "ladybird";
-  version = "0-unstable-2025-03-16";
+  version = "0-unstable-2025-05-24";
 
   src = fetchFromGitHub {
     owner = "LadybirdWebBrowser";
     repo = "ladybird";
-    rev = "7a2cc28932a7b0f85e7bde6bae273fba8155f573";
-    hash = "sha256-yJ51v30Mh9S93ZInafm9kxr0c9hg7LoBufmwyevX/FY=";
+    rev = "fbd1f771613fc6f13fcc20dcad04c7065633a2c2";
+    hash = "sha256-Gtfnq46JrzfpcapMr6Ez+5BNQ59H/Djsgp7n6QvMSUM=";
   };
+
+  patches = [
+    # Revert https://github.com/LadybirdBrowser/ladybird/commit/51d189198d3fc61141fc367dc315c7f50492a57e
+    # This commit doesn't update the skia used by ladybird vcpkg, but it does update the skia that
+    # that cmake wants.
+    ./001-revert-fake-skia-update.patch
+  ];
 
   postPatch = ''
     sed -i '/iconutil/d' UI/CMakeLists.txt
@@ -80,7 +76,7 @@ stdenv.mkDerivation (finalAttrs: {
     cp -r ${unicode-character-database}/share/unicode build/Caches/UCD
     chmod +w build/Caches/UCD
     cp ${unicode-emoji}/share/unicode/emoji/emoji-test.txt build/Caches/UCD
-    cp ${unicode-idna} build/Caches/UCD/IdnaMappingTable.txt
+    cp ${unicode-idna}/share/unicode/idna/IdnaMappingTable.txt build/Caches/UCD
     echo -n ${unicode-character-database.version} > build/Caches/UCD/version.txt
     chmod -w build/Caches/UCD
 
@@ -89,11 +85,7 @@ stdenv.mkDerivation (finalAttrs: {
     echo -n ${cacert_version} > build/Caches/CACERT/version.txt
 
     mkdir build/Caches/PublicSuffix
-    cp ${public-suffix-list} build/Caches/PublicSuffix/public_suffix_list.dat
-
-    mkdir build/Caches/AdobeICCProfiles
-    cp ${adobe-icc-profiles} build/Caches/AdobeICCProfiles/adobe-icc-profiles.zip
-    chmod +w build/Caches/AdobeICCProfiles
+    cp ${publicsuffix-list}/share/publicsuffix/public_suffix_list.dat build/Caches/PublicSuffix
   '';
 
   nativeBuildInputs = [
@@ -102,6 +94,7 @@ stdenv.mkDerivation (finalAttrs: {
     pkg-config
     python3
     qt6Packages.wrapQtAppsHook
+    libtommath
   ];
 
   buildInputs =
@@ -138,6 +131,8 @@ stdenv.mkDerivation (finalAttrs: {
 
   cmakeFlags =
     [
+      # Takes an enormous amount of resources, even with mold
+      (lib.cmakeBool "ENABLE_LTO_FOR_RELEASE" false)
       # Disable network operations
       "-DSERENITY_CACHE_DIR=Caches"
       "-DENABLE_NETWORK_DOWNLOADS=OFF"

@@ -4,27 +4,25 @@
   lib,
 
   installShellFiles,
-  stdenv,
-  Foundation,
   rust-jemalloc-sys,
 }:
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "yazi";
-  version = "25.3.2";
+  version = "25.5.28";
 
   srcs = builtins.attrValues finalAttrs.passthru.srcs;
 
   sourceRoot = finalAttrs.passthru.srcs.code_src.name;
 
   useFetchCargoVendor = true;
-  cargoHash = "sha256-3uQ+DDEzi4mo8yTv21ftoSjjFqjQfWMzjUczP6dasO4=";
+  cargoHash = "sha256-g+6RawDZsgYnXiybhaiosOfz/k4LHe5iX+VqHikfPzM=";
 
   env.YAZI_GEN_COMPLETIONS = true;
   env.VERGEN_GIT_SHA = "Nixpkgs";
-  env.VERGEN_BUILD_DATE = "2025-03-02";
+  env.VERGEN_BUILD_DATE = "2025-05-28";
 
   nativeBuildInputs = [ installShellFiles ];
-  buildInputs = [ rust-jemalloc-sys ] ++ lib.optionals stdenv.hostPlatform.isDarwin [ Foundation ];
+  buildInputs = [ rust-jemalloc-sys ];
 
   postInstall = ''
     installShellCompletion --cmd yazi \
@@ -44,7 +42,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
       owner = "sxyazi";
       repo = "yazi";
       tag = "v${finalAttrs.version}";
-      hash = "sha256-xx/SGINyvbXZh0J8LgG2/jjFT1l6krNOzM5JAsRtxGE=";
+      hash = "sha256-z+dh1lO6lvStlv58mi5T/cxYdewo2+5bRSO7naVcHMs=";
     };
 
     man_src = fetchFromGitHub {

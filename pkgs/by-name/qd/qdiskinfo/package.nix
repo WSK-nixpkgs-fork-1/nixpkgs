@@ -8,6 +8,7 @@
   qt6,
   qdiskinfo,
   themeBundle ? null,
+  unstableGitUpdater,
 }:
 
 let
@@ -33,15 +34,15 @@ assert
     && themeBundle' ? rightCharacter
   );
 
-stdenv.mkDerivation (finalAttrs: {
+stdenv.mkDerivation {
   pname = "qdiskinfo";
-  version = "0.3";
+  version = "0.3-unstable-2025-05-22";
 
   src = fetchFromGitHub {
     owner = "edisionnano";
     repo = "QDiskInfo";
-    tag = finalAttrs.version;
-    hash = "sha256-0zF3Nc5K8+K68HOSy30ieYvYP9/oSkTe0+cp0hVo9Gs=";
+    rev = "9b7f4fb44e888dde7c9d0e82300d275e8671769d";
+    hash = "sha256-GqHDTEeZ+dEmCeyFehaNKB8af5PN8ZTSKxm00mkqouk=";
   };
 
   nativeBuildInputs = [
@@ -103,14 +104,18 @@ stdenv.mkDerivation (finalAttrs: {
         themeName: themeBundle:
         (qdiskinfo.override { inherit themeBundle; }).overrideAttrs { pname = "qdiskinfo-${themeName}"; }
       );
+      updateScript = unstableGitUpdater { };
     };
 
   meta = {
     description = "CrystalDiskInfo alternative for Linux";
     homepage = "https://github.com/edisionnano/QDiskInfo";
     license = lib.licenses.gpl3Plus;
-    maintainers = with lib.maintainers; [ roydubnium ];
+    maintainers = with lib.maintainers; [
+      roydubnium
+      ryand56
+    ];
     platforms = lib.platforms.linux;
     mainProgram = "QDiskInfo";
   };
-})
+}

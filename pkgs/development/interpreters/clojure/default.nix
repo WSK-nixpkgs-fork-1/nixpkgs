@@ -1,4 +1,14 @@
-{ lib, stdenv, fetchurl, installShellFiles, jdk, rlwrap, makeWrapper, writeScript }:
+{
+  lib,
+  stdenv,
+  bashNonInteractive,
+  fetchurl,
+  installShellFiles,
+  jdk,
+  rlwrap,
+  makeWrapper,
+  writeScript,
+}:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "clojure";
@@ -15,10 +25,19 @@ stdenv.mkDerivation (finalAttrs: {
     makeWrapper
   ];
 
+  buildInputs = [
+    bashNonInteractive
+  ];
+
+  strictDeps = true;
+
   # See https://github.com/clojure/brew-install/blob/1.10.3/src/main/resources/clojure/install/linux-install.sh
   installPhase =
     let
-      binPath = lib.makeBinPath [ rlwrap jdk ];
+      binPath = lib.makeBinPath [
+        rlwrap
+        jdk
+      ];
     in
     ''
       runHook preInstall

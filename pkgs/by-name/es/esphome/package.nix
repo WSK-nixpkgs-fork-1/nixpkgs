@@ -17,19 +17,30 @@ let
     self = python;
     packageOverrides = self: super: {
       esphome-dashboard = self.callPackage ./dashboard.nix { };
+
+      paho-mqtt = super.paho-mqtt.overridePythonAttrs (oldAttrs: rec {
+        version = "1.6.1";
+        src = fetchFromGitHub {
+          inherit (oldAttrs.src) owner repo;
+          tag = "v${version}";
+          hash = "sha256-9nH6xROVpmI+iTKXfwv2Ar1PAmWbEunI3HO0pZyK6Rg=";
+        };
+        build-system = with self; [ setuptools ];
+        doCheck = false;
+      });
     };
   };
 in
 python.pkgs.buildPythonApplication rec {
   pname = "esphome";
-  version = "2025.3.2";
+  version = "2025.5.1";
   pyproject = true;
 
   src = fetchFromGitHub {
-    owner = pname;
-    repo = pname;
+    owner = "esphome";
+    repo = "esphome";
     tag = version;
-    hash = "sha256-Wioi1k/Eo3rlh8qMnDDDIvRNQXWoxlmRRvjHLs01skY=";
+    hash = "sha256-z4FwymWFjyqNx95r2o7LLCmytRQYkogfCKiUFNyGOuA=";
   };
 
   build-systems = with python.pkgs; [
@@ -50,11 +61,7 @@ python.pkgs.buildPythonApplication rec {
 
   postPatch = ''
     substituteInPlace pyproject.toml \
-      --replace-fail "setuptools==" "setuptools>=" \
-      --replace-fail "wheel~=" "wheel>="
-
-    # ensure component dependencies are available
-    cat requirements_optional.txt >> requirements.txt
+      --replace-fail "setuptools==80.4.0" "setuptools"
   '';
 
   # Remove esptool and platformio from requirements
@@ -161,7 +168,6 @@ python.pkgs.buildPythonApplication rec {
       gpl3Only # The python codebase and all other parts of this codebase
     ];
     maintainers = with maintainers; [
-      globin
       hexa
     ];
     mainProgram = "esphome";

@@ -17,6 +17,7 @@
   typing-extensions,
 
   # tests
+  blockbuster,
   freezegun,
   grandalf,
   httpx,
@@ -35,30 +36,21 @@
 
 buildPythonPackage rec {
   pname = "langchain-core";
-  version = "0.3.47";
+  version = "0.3.60";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "langchain-ai";
     repo = "langchain";
     tag = "langchain-core==${version}";
-    hash = "sha256-UUsT8RvBK4TJNrAwXjv/LPzHrgTEoSewUb+8pHG6Xa8=";
+    hash = "sha256-K/dQb1+mwcN6drp8pKy8Qt9aFxffJSgHJ2cvEw6Mx8s=";
   };
 
   sourceRoot = "${src.name}/libs/core";
 
-  patches = [
-    # Remove dependency on blockbuster (not available in nixpkgs due to dependency on forbiddenfruit)
-    ./rm-blockbuster.patch
-  ];
-
   build-system = [ pdm-backend ];
 
   pythonRelaxDeps = [ "tenacity" ];
-
-  pythonRemoveDependencies = [
-    "blockbuster"
-  ];
 
   dependencies = [
     jsonpatch
@@ -76,6 +68,7 @@ buildPythonPackage rec {
   doCheck = false;
 
   nativeCheckInputs = [
+    blockbuster
     freezegun
     grandalf
     httpx
@@ -98,7 +91,7 @@ buildPythonPackage rec {
     updateScript = nix-update-script {
       extraArgs = [
         "--version-regex"
-        "^langchain-core==([0-9.]+)$"
+        "langchain-core==([0-9.]+)"
       ];
     };
   };
