@@ -1,117 +1,87 @@
-{
-  lib,
-  stdenv,
-  stdenvAdapters,
-  fetchFromGitHub,
-  pkg-config,
-  makeWrapper,
-  cmake,
-  meson,
-  ninja,
-  aquamarine,
-  binutils,
-  cairo,
-  epoll-shim,
-  git,
-  glaze,
-  hyprcursor,
-  hyprgraphics,
-  hyprland-qtutils,
-  hyprlang,
-  hyprutils,
-  hyprwayland-scanner,
-  libGL,
-  libdrm,
-  libexecinfo,
-  libinput,
-  libuuid,
-  libxkbcommon,
-  libgbm,
-  pango,
-  pciutils,
-  pkgconf,
-  python3,
-  re2,
-  systemd,
-  tomlplusplus,
-  wayland,
-  wayland-protocols,
-  wayland-scanner,
-  xorg,
-  xwayland,
-  debug ? false,
-  enableXWayland ? true,
-  legacyRenderer ? false,
-  withSystemd ? lib.meta.availableOn stdenv.hostPlatform systemd,
-  wrapRuntimeDeps ? true,
+{ lib
+, stdenv
+, fetchFromGitHub
+, pkg-config
+, makeWrapper
+, meson
+, cmake
+, ninja
+, binutils
+, cairo
+, git
+, hyprcursor
+, hyprland-protocols
+, hyprlang
+, jq
+, libGL
+, libdrm
+, libexecinfo
+, libinput
+, libxcb
+, libxkbcommon
+, mesa
+, vulkan-loader
+, glslang
+#, vulkan-headers
+#, vulkan-extension-layer
+#, vulkan-validation-layers
+#, vulkan-utility-libraries
+, pango
+, pciutils
+, python3
+, systemd
+, tomlplusplus
+, wayland
+, wayland-protocols
+, wayland-scanner
+, xcbutilwm
+, xwayland
+, hwdata
+, seatd
+, libdisplay-info
+, libliftoff
+, xorg
+, debug ? false
+, enableXWayland ? true
+, legacyRenderer ? false
+, withSystemd ? lib.meta.availableOn stdenv.hostPlatform systemd
+, wrapRuntimeDeps ? true
   # deprecated flags
-  nvidiaPatches ? false,
-  hidpiXWayland ? false,
-  enableNvidiaPatches ? false,
+, nvidiaPatches ? false
+, hidpiXWayland ? false
+, enableNvidiaPatches ? false
 }:
-let
-  inherit (builtins)
-    foldl'
-    ;
-  inherit (lib.asserts) assertMsg;
-  inherit (lib.attrsets) mapAttrsToList;
-  inherit (lib.lists)
-    concatLists
-    optionals
-    ;
-  inherit (lib.strings)
-    makeBinPath
-    optionalString
-    mesonBool
-    mesonEnable
-    ;
-  inherit (lib.trivial)
-    importJSON
-    ;
+assert lib.assertMsg (!nvidiaPatches) "The option `nvidiaPatches` has been removed.";
+assert lib.assertMsg (!enableNvidiaPatches) "The option `enableNvidiaPatches` has been removed.";
+assert lib.assertMsg (!hidpiXWayland) "The option `hidpiXWayland` has been removed. Please refer https://wiki.hyprland.org/Configuring/XWayland";
 
-  info = importJSON ./info.json;
-
-  # possibility to add more adapters in the future, such as keepDebugInfo,
-  # which would be controlled by the `debug` flag
-  adapters = [
-    stdenvAdapters.useMoldLinker
-  ];
-
-  customStdenv = foldl' (acc: adapter: adapter acc) stdenv adapters;
-in
-assert assertMsg (!nvidiaPatches) "The option `nvidiaPatches` has been removed.";
-assert assertMsg (!enableNvidiaPatches) "The option `enableNvidiaPatches` has been removed.";
-assert assertMsg (!hidpiXWayland)
-  "The option `hidpiXWayland` has been removed. Please refer https://wiki.hyprland.org/Configuring/XWayland";
-
-customStdenv.mkDerivation (finalAttrs: {
-  pname = "hyprland" + optionalString debug "-debug";
-  version = "0.49.0";
-
+stdenv.mkDerivation (finalAttrs: {
+  pname = "hyprland" + lib.optionalString debug "-debug";
+  version = "0.39.1";
   src = fetchFromGitHub {
     owner = "hyprwm";
     repo = "hyprland";
     fetchSubmodules = true;
-    tag = "v${finalAttrs.version}";
-    hash = "sha256-3RVRQr+2WKBflZSsoLym9RwyqHWPk/J5WRtuJ0hgA+g=";
+    rev = "v${finalAttrs.version}";
+    hash = "sha256-7L5rqQRYH2iyyP5g3IdXJSlATfgnKhuYMf65E48MVKw=";
   };
+
+  patches = [ ./diff.patch ];
 
   postPatch = ''
     # Fix hardcoded paths to /usr installation
     sed -i "s#/usr#$out#" src/render/OpenGL.cpp
 
-    # Remove extra @PREFIX@ to fix pkg-config paths
-    sed -i "s#@PREFIX@/##g" hyprland.pc.in
+    # Generate version.h
+    cp src/version.h.in src/version.h
+    substituteInPlace src/version.h \
+      --replace-fail "@HASH@" '${finalAttrs.src.rev}' \
+      --replace-fail "@BRANCH@" "" \
+      --replace-fail "@MESSAGE@" "" \
+      --replace-fail "@DATE@" "2024-04-16" \
+      --replace-fail "@TAG@" "" \
+      --replace-fail "@DIRTY@" ""
   '';
-
-  # variables used by generateVersion.sh script, and shown in `hyprctl version`
-  BRANCH = info.branch;
-  COMMITS = info.commit_hash;
-  DATE = info.date;
-  DIRTY = "";
-  HASH = info.commit_hash;
-  MESSAGE = info.commit_message;
-  TAG = info.tag;
 
   depsBuildBuild = [
     # to find wayland-scanner when cross-compiling
@@ -119,14 +89,14 @@ customStdenv.mkDerivation (finalAttrs: {
   ];
 
   nativeBuildInputs = [
-    hyprwayland-scanner
+    hwdata
+    jq
     makeWrapper
     meson
     ninja
     pkg-config
     wayland-scanner
-    # for udis86
-    cmake
+    cmake # for subproject udis86
     python3
   ];
 
@@ -136,87 +106,68 @@ customStdenv.mkDerivation (finalAttrs: {
     "dev"
   ];
 
-  buildInputs = concatLists [
-    [
-      aquamarine
-      cairo
-      glaze
-      git
-      hyprcursor.dev
-      hyprgraphics
-      hyprlang
-      hyprutils
-      libGL
-      libdrm
-      libinput
-      libuuid
-      libxkbcommon
-      libgbm
-      pango
-      pciutils
-      re2
-      tomlplusplus
-      wayland
-      wayland-protocols
-      xorg.libXcursor
-    ]
-    (optionals customStdenv.hostPlatform.isBSD [ epoll-shim ])
-    (optionals customStdenv.hostPlatform.isMusl [ libexecinfo ])
-    (optionals enableXWayland [
-      xorg.libxcb
-      xorg.libXdmcp
-      xorg.xcbutilerrors
-      xorg.xcbutilwm
-      xwayland
-    ])
-    (optionals withSystemd [ systemd ])
-  ];
+  buildInputs = [
+    cairo
+    git
+    hyprcursor
+    hyprland-protocols
+    hyprlang
+    libGL
+    libdrm
+    libinput
+    libxkbcommon
+    mesa
+    wayland
+    wayland-protocols
+    pango
+    pciutils
+    tomlplusplus
+    # for subproject wlroots-hyprland
+    vulkan-loader
+    glslang
+    #vulkan-headers
+    #vulkan-extension-layer
+    #vulkan-validation-layers
+    #vulkan-utility-libraries
+    seatd
+    libliftoff
+    libdisplay-info
+    xorg.xcbutilerrors
+    xorg.xcbutilrenderutil
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isMusl [ libexecinfo ]
+  ++ lib.optionals enableXWayland [ libxcb xcbutilwm xwayland ]
+  ++ lib.optionals withSystemd [ systemd ];
 
-  mesonBuildType = if debug then "debug" else "release";
+  mesonBuildType =
+    if debug
+    then "debug"
+    else "release";
 
-  dontStrip = debug;
-  strictDeps = true;
+  mesonAutoFeatures = "enabled";
 
-  mesonFlags = concatLists [
-    (mapAttrsToList mesonEnable {
-      "xwayland" = enableXWayland;
-      "legacy_renderer" = legacyRenderer;
-      "systemd" = withSystemd;
-      "uwsm" = false;
-      "hyprpm" = false;
-    })
-    (mapAttrsToList mesonBool {
-      # PCH provides no benefits when building with Nix
-      "b_pch" = false;
-      "tracy_enable" = false;
-    })
+  mesonFlags = [
+    (lib.mesonEnable "xwayland" enableXWayland)
+    (lib.mesonEnable "legacy_renderer" legacyRenderer)
+    (lib.mesonEnable "systemd" withSystemd)
+    (lib.mesonOption "wlroots-hyprland:renderers" "auto")
   ];
 
   postInstall = ''
-    ${optionalString wrapRuntimeDeps ''
+    ${lib.optionalString wrapRuntimeDeps ''
       wrapProgram $out/bin/Hyprland \
-        --suffix PATH : ${
-          makeBinPath [
-            binutils
-            hyprland-qtutils
-            pciutils
-            pkgconf
-          ]
-        }
+        --suffix PATH : ${lib.makeBinPath [binutils pciutils stdenv.cc]}
     ''}
   '';
 
-  passthru = {
-    providedSessions = [ "hyprland" ];
-    updateScript = ./update.sh;
-  };
+  passthru.providedSessions = [ "hyprland" ];
 
-  meta = {
+  meta = with lib; {
     homepage = "https://github.com/hyprwm/Hyprland";
-    description = "Dynamic tiling Wayland compositor that doesn't sacrifice on its looks";
-    license = lib.licenses.bsd3;
-    teams = [ lib.teams.hyprland ];
+    description = "A dynamic tiling Wayland compositor that doesn't sacrifice on its looks";
+    license = licenses.bsd3;
+    maintainers = with maintainers; [ wozeparrot fufexan ];
     mainProgram = "Hyprland";
-    platforms = lib.platforms.linux ++ lib.platforms.freebsd;
+    platforms = lib.platforms.linux;
   };
 })
