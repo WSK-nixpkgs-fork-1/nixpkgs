@@ -114,7 +114,8 @@
       ];
     "airos" =
       ps: with ps; [
-      ]; # missing inputs: airos
+        airos
+      ];
     "airq" =
       ps: with ps; [
         aioairq
@@ -2835,7 +2836,8 @@
       ];
     "itach" =
       ps: with ps; [
-      ]; # missing inputs: pyitachip2ir
+        pyitachip2ir
+      ];
     "itunes" =
       ps: with ps; [
       ];
@@ -3693,7 +3695,8 @@
       ];
     "moehlenhoff_alpha2" =
       ps: with ps; [
-      ]; # missing inputs: moehlenhoff-alpha2
+        moehlenhoff-alpha2
+      ];
     "mold_indicator" =
       ps: with ps; [
       ];
@@ -4153,8 +4156,9 @@
       ];
     "onkyo" =
       ps: with ps; [
+        aioonkyo
         ifaddr
-      ]; # missing inputs: aioonkyo
+      ];
     "onvif" =
       ps: with ps; [
         ha-ffmpeg
@@ -4174,7 +4178,8 @@
         openai
         pymicro-vad
         pyspeex-noise
-      ]; # missing inputs: python-open-router
+        python-open-router
+      ];
     "openai_conversation" =
       ps: with ps; [
         ha-ffmpeg
@@ -4461,7 +4466,8 @@
       ];
     "pjlink" =
       ps: with ps; [
-      ]; # missing inputs: pypjlink2
+        pypjlink2
+      ];
     "plaato" =
       ps: with ps; [
         aiohasupervisor
@@ -5774,7 +5780,8 @@
       ];
     "synology_srm" =
       ps: with ps; [
-      ]; # missing inputs: synology-srm
+        synology-srm
+      ];
     "syslog" =
       ps: with ps; [
       ];
@@ -5813,7 +5820,8 @@
       ];
     "tami4" =
       ps: with ps; [
-      ]; # missing inputs: Tami4EdgeAPI
+        tami4edgeapi
+      ];
     "tank_utility" =
       ps: with ps; [
         tank-utility
@@ -5975,7 +5983,8 @@
       ];
     "thingspeak" =
       ps: with ps; [
-      ]; # missing inputs: thingspeak
+        thingspeak
+      ];
     "thinkingcleaner" =
       ps: with ps; [
       ]; # missing inputs: pythinkingcleaner
@@ -6289,7 +6298,8 @@
       ];
     "uptime_kuma" =
       ps: with ps; [
-      ]; # missing inputs: pythonkuma
+        pythonkuma
+      ];
     "uptimerobot" =
       ps: with ps; [
         pyuptimerobot
@@ -6425,7 +6435,8 @@
       ];
     "volvo" =
       ps: with ps; [
-      ]; # missing inputs: volvocarsapi
+        volvocarsapi
+      ];
     "volvooncall" =
       ps: with ps; [
         volvooncall
@@ -6569,7 +6580,8 @@
       ];
     "wmspro" =
       ps: with ps; [
-      ]; # missing inputs: pywmspro
+        pywmspro
+      ];
     "wolflink" =
       ps: with ps; [
         wolf-comm
@@ -6862,6 +6874,7 @@
     "airgradient"
     "airly"
     "airnow"
+    "airos"
     "airq"
     "airthings"
     "airthings_ble"
@@ -7357,6 +7370,7 @@
     "modbus"
     "modem_callerid"
     "modern_forms"
+    "moehlenhoff_alpha2"
     "mold_indicator"
     "monarch_money"
     "monoprice"
@@ -7431,8 +7445,10 @@
     "ondilo_ico"
     "onedrive"
     "onewire"
+    "onkyo"
     "onvif"
     "open_meteo"
+    "open_router"
     "openai_conversation"
     "openalpr_cloud"
     "openerz"
@@ -7471,6 +7487,7 @@
     "pi_hole"
     "picnic"
     "ping"
+    "pjlink"
     "plaato"
     "plant"
     "playstation_network"
@@ -7663,6 +7680,7 @@
     "tag"
     "tailscale"
     "tailwind"
+    "tami4"
     "tankerkoenig"
     "tasmota"
     "tautulli"
@@ -7731,6 +7749,7 @@
     "update"
     "upnp"
     "uptime"
+    "uptime_kuma"
     "uptimerobot"
     "usb"
     "usgs_earthquakes_feed"
@@ -7756,6 +7775,7 @@
     "voicerss"
     "voip"
     "volumio"
+    "volvo"
     "volvooncall"
     "vulcan"
     "vultr"
@@ -7785,6 +7805,7 @@
     "withings"
     "wiz"
     "wled"
+    "wmspro"
     "wolflink"
     "workday"
     "worldclock"

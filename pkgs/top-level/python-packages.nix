@@ -396,6 +396,8 @@ self: super: with self; {
 
   aiooncue = callPackage ../development/python-modules/aiooncue { };
 
+  aioonkyo = callPackage ../development/python-modules/aioonkyo { };
+
   aioopenexchangerates = callPackage ../development/python-modules/aioopenexchangerates { };
 
   aioopenssl = callPackage ../development/python-modules/aioopenssl { };
@@ -551,6 +553,8 @@ self: super: with self; {
   airium = callPackage ../development/python-modules/airium { };
 
   airly = callPackage ../development/python-modules/airly { };
+
+  airos = callPackage ../development/python-modules/airos { };
 
   airportsdata = callPackage ../development/python-modules/airportsdata { };
 
@@ -9441,6 +9445,8 @@ self: super: with self; {
 
   moderngl-window = callPackage ../development/python-modules/moderngl-window { };
 
+  moehlenhoff-alpha2 = callPackage ../development/python-modules/moehlenhoff-alpha2 { };
+
   mohawk = callPackage ../development/python-modules/mohawk { };
 
   molbar = callPackage ../development/python-modules/molbar { };
@@ -13038,6 +13044,8 @@ self: super: with self; {
 
   pyisy = callPackage ../development/python-modules/pyisy { };
 
+  pyitachip2ir = callPackage ../development/python-modules/pyitachip2ir { };
+
   pyituran = callPackage ../development/python-modules/pyituran { };
 
   pyixapi = callPackage ../development/python-modules/pyixapi { };
@@ -13450,6 +13458,8 @@ self: super: with self; {
 
   pyopengltk = callPackage ../development/python-modules/pyopengltk { };
 
+  pyopensprinkler = callPackage ../development/python-modules/pyopensprinkler { };
+
   pyopenssl = callPackage ../development/python-modules/pyopenssl { };
 
   pyopenuv = callPackage ../development/python-modules/pyopenuv { };
@@ -13511,6 +13521,8 @@ self: super: with self; {
 
   pypass = callPackage ../development/python-modules/pypass { };
 
+  pypasser = callPackage ../development/python-modules/pypasser { };
+
   pypblib = callPackage ../development/python-modules/pypblib { };
 
   pypca = callPackage ../development/python-modules/pypca { };
@@ -13552,6 +13564,8 @@ self: super: with self; {
   pypiserver = callPackage ../development/python-modules/pypiserver { };
 
   pypitoken = callPackage ../development/python-modules/pypitoken { };
+
+  pypjlink2 = callPackage ../development/python-modules/pypjlink2 { };
 
   pyplaato = callPackage ../development/python-modules/pyplaato { };
 
@@ -14735,6 +14749,8 @@ self: super: with self; {
 
   python-on-whales = callPackage ../development/python-modules/python-on-whales { };
 
+  python-open-router = callPackage ../development/python-modules/python-open-router { };
+
   python-opendata-transport = callPackage ../development/python-modules/python-opendata-transport { };
 
   python-openems = callPackage ../development/python-modules/python-openems { };
@@ -14927,6 +14943,8 @@ self: super: with self; {
     nix = pkgs.nixVersions.nix_2_3;
     meson = pkgs.meson.override { python3 = self.python; };
   };
+
+  pythonkuma = callPackage ../development/python-modules/pythonkuma { };
 
   pythonnet = callPackage ../development/python-modules/pythonnet { };
 
@@ -15141,6 +15159,8 @@ self: super: with self; {
   pywizlight = callPackage ../development/python-modules/pywizlight { };
 
   pywlroots = callPackage ../development/python-modules/pywlroots { wlroots = pkgs.wlroots_0_17; };
+
+  pywmspro = callPackage ../development/python-modules/pywmspro { };
 
   pyworld = callPackage ../development/python-modules/pyworld { };
 
@@ -17595,6 +17615,8 @@ self: super: with self; {
 
   synergy = callPackage ../development/python-modules/synergy { };
 
+  synology-srm = callPackage ../development/python-modules/synology-srm { };
+
   syrupy = callPackage ../development/python-modules/syrupy { };
 
   syslog-rfc5424-formatter = callPackage ../development/python-modules/syslog-rfc5424-formatter { };
@@ -17655,6 +17677,8 @@ self: super: with self; {
   tailscale = callPackage ../development/python-modules/tailscale { };
 
   takethetime = callPackage ../development/python-modules/takethetime { };
+
+  tami4edgeapi = callPackage ../development/python-modules/tami4edgeapi { };
 
   tank-utility = callPackage ../development/python-modules/tank-utility { };
 
@@ -17968,6 +17992,8 @@ self: super: with self; {
   thespian = callPackage ../development/python-modules/thespian { };
 
   thinc = callPackage ../development/python-modules/thinc { };
+
+  thingspeak = callPackage ../development/python-modules/thingspeak { };
 
   thinqconnect = callPackage ../development/python-modules/thinqconnect { };
 
@@ -19431,6 +19457,8 @@ self: super: with self; {
   voluptuous-serialize = callPackage ../development/python-modules/voluptuous-serialize { };
 
   voluptuous-stubs = callPackage ../development/python-modules/voluptuous-stubs { };
+
+  volvocarsapi = callPackage ../development/python-modules/volvocarsapi { };
 
   volvooncall = callPackage ../development/python-modules/volvooncall { };
 
