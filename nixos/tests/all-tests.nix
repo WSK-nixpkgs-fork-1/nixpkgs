@@ -333,7 +333,14 @@ in
   cinnamon-wayland = runTest ./cinnamon-wayland.nix;
   cjdns = runTest ./cjdns.nix;
   clatd = runTest ./clatd.nix;
-  clickhouse = import ./clickhouse { inherit runTest; };
+  clickhouse = import ./clickhouse {
+    inherit runTest;
+    package = pkgs.clickhouse;
+  };
+  clickhouse-lts = import ./clickhouse {
+    inherit runTest;
+    package = pkgs.clickhouse-lts;
+  };
   cloud-init = runTest ./cloud-init.nix;
   cloud-init-hostname = runTest ./cloud-init-hostname.nix;
   cloudlog = runTest ./cloudlog.nix;
@@ -712,6 +719,7 @@ in
   };
   oku = runTest ./oku.nix;
   oncall = runTest ./web-apps/oncall.nix;
+  overseerr = runTest ./overseerr.nix;
   # 9pnet_virtio used to mount /nix partition doesn't support
   # hibernation. This test happens to work on x86_64-linux but
   # not on other platforms.
@@ -1123,6 +1131,7 @@ in
   osquery = handleTestOn [ "x86_64-linux" ] ./osquery.nix { };
   osrm-backend = runTest ./osrm-backend.nix;
   overlayfs = runTest ./overlayfs.nix;
+  oxidized = handleTest ./oxidized.nix { };
   pacemaker = runTest ./pacemaker.nix;
   packagekit = runTest ./packagekit.nix;
   paisa = runTest ./paisa.nix;
@@ -1394,6 +1403,7 @@ in
   syncthing-folders = runTest ./syncthing-folders.nix;
   syncthing-relay = runTest ./syncthing-relay.nix;
   sysinit-reactivation = runTest ./sysinit-reactivation.nix;
+  sysfs = runTest ./sysfs.nix;
   systemd = runTest ./systemd.nix;
   systemd-analyze = runTest ./systemd-analyze.nix;
   systemd-binfmt = handleTestOn [ "x86_64-linux" ] ./systemd-binfmt.nix { };
@@ -1482,7 +1492,7 @@ in
   teleports = runTest ./teleports.nix;
   thelounge = handleTest ./thelounge.nix { };
   terminal-emulators = handleTest ./terminal-emulators.nix { };
-  thanos = handleTest ./thanos.nix { };
+  thanos = runTest ./thanos.nix;
   tiddlywiki = runTest ./tiddlywiki.nix;
   tigervnc = handleTest ./tigervnc.nix { };
   tika = runTest ./tika.nix;
@@ -1564,7 +1574,7 @@ in
   vector = import ./vector { inherit runTest; };
   velocity = runTest ./velocity.nix;
   vengi-tools = runTest ./vengi-tools.nix;
-  victorialogs = runTest ./victorialogs.nix;
+  victorialogs = import ./victorialogs { inherit runTest; };
   victoriametrics = import ./victoriametrics { inherit runTest; };
   vikunja = runTest ./vikunja.nix;
   virtualbox = handleTestOn [ "x86_64-linux" ] ./virtualbox.nix { };
@@ -1622,14 +1632,7 @@ in
   zenohd = runTest ./zenohd.nix;
   zeronet-conservancy = runTest ./zeronet-conservancy.nix;
   zfs = handleTest ./zfs.nix { };
-  zigbee2mqtt_1 = runTest {
-    imports = [ ./zigbee2mqtt.nix ];
-    _module.args.package = pkgs.zigbee2mqtt_1;
-  };
-  zigbee2mqtt_2 = runTest {
-    imports = [ ./zigbee2mqtt.nix ];
-    _module.args.package = pkgs.zigbee2mqtt_2;
-  };
+  zigbee2mqtt = runTest ./zigbee2mqtt.nix;
   zipline = runTest ./zipline.nix;
   zoneminder = runTest ./zoneminder.nix;
   zookeeper = runTest ./zookeeper.nix;

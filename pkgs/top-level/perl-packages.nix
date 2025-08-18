@@ -3307,6 +3307,13 @@ with self;
       url = "mirror://cpan/authors/id/E/ET/ETHER/Catalyst-Authentication-Credential-HTTP-1.018.tar.gz";
       hash = "sha256-b6GBbe5kSw216gzBXF5xHcLO0gg2JavOcJZSHx1lpSk=";
     };
+    patches = [
+      (fetchpatch {
+        name = "CVE-2025-40920.patch";
+        url = "https://github.com/perl-catalyst/Catalyst-Authentication-Credential-HTTP/commit/ad2c03aad95406db4ce35dfb670664ebde004c18.patch";
+        hash = "sha256-WI6JwvY6i3KkQO9HbbSvHPX8mgM8I2cF0UTjF1D14T4=";
+      })
+    ];
     buildInputs = [
       ModuleBuildTiny
       TestException
@@ -3316,6 +3323,7 @@ with self;
     propagatedBuildInputs = [
       CatalystPluginAuthentication
       ClassAccessor
+      CryptSysRandom
       DataUUID
       StringEscape
     ];
@@ -7473,6 +7481,22 @@ with self;
         gpl1Plus
       ];
       maintainers = [ maintainers.sgo ];
+    };
+  };
+
+  CryptSysRandom = buildPerlPackage {
+    pname = "Crypt-SysRandom";
+    version = "0.007";
+    src = fetchurl {
+      url = "mirror://cpan/authors/id/L/LE/LEONT/Crypt-SysRandom-0.007.tar.gz";
+      hash = "sha256-pdSemPyjxSZsea6YmoXsoik0sFiAPuSz5usI78pO70Y=";
+    };
+    meta = {
+      description = "Perl interface to system randomness";
+      license = with lib.licenses; [
+        artistic1
+        gpl1Plus
+      ];
     };
   };
 
@@ -32347,12 +32371,12 @@ with self;
 
   SysVirt = buildPerlModule rec {
     pname = "Sys-Virt";
-    version = "11.2.0";
+    version = "11.6.0";
     src = fetchFromGitLab {
       owner = "libvirt";
       repo = "libvirt-perl";
       tag = "v${version}";
-      hash = "sha256-e/Zb9ox/ehfybpxiCAsEl97T1vjBNpRYJK/kmehPHsY=";
+      hash = "sha256-a3c+ESUkpfaxJ6wuwgCRUoX5+N2KmpqXBgNNVqYZ/T0=";
     };
     nativeBuildInputs = [ pkgs.pkg-config ];
     buildInputs = [

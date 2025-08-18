@@ -269,6 +269,17 @@ let
         doCheck = false;
       });
 
+      python-roborock = super.python-roborock.overridePythonAttrs rec {
+        version = "2.18.2";
+
+        src = fetchFromGitHub {
+          owner = "Python-roborock";
+          repo = "python-roborock";
+          tag = "v${version}";
+          hash = "sha256-7xcw1jNCDapHjH1YVB5NW7jxMyb8Raf8HuTnWf2vdFo=";
+        };
+      };
+
       python-telegram-bot = super.python-telegram-bot.overridePythonAttrs (oldAttrs: rec {
         version = "21.5";
 
@@ -330,7 +341,7 @@ let
   extraBuildInputs = extraPackages python.pkgs;
 
   # Don't forget to run update-component-packages.py after updating
-  hassVersion = "2025.8.0";
+  hassVersion = "2025.8.2";
 
 in
 python.pkgs.buildPythonApplication rec {
@@ -351,13 +362,13 @@ python.pkgs.buildPythonApplication rec {
     owner = "home-assistant";
     repo = "core";
     tag = version;
-    hash = "sha256-o8NZ06GorRmICeu8GQzomkCuE2aALnodT5UuiJ4EOEc=";
+    hash = "sha256-z/wEYitbn8D0LEUTnBfDWfeo+NdDxX42Ifz2D5pbM8I=";
   };
 
   # Secondary source is pypi sdist for translations
   sdist = fetchPypi {
     inherit pname version;
-    hash = "sha256-U06ttXEWe46h8O2wurYyaCN78EdSCvOs10VbnyOQdsM=";
+    hash = "sha256-6VnXCc6NWwKUQWmIB/xJmR2AZgfXEXh8DNmoKzSY3GI=";
   };
 
   build-system = with python.pkgs; [
@@ -530,6 +541,7 @@ python.pkgs.buildPythonApplication rec {
 
   preCheck = ''
     export HOME="$TEMPDIR"
+    export PYTHONASYNCIODEBUG=1
 
     # the tests require the existance of a media dir
     mkdir "$NIX_BUILD_TOP"/media
