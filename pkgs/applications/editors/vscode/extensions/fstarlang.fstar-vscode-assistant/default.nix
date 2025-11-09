@@ -4,8 +4,8 @@ vscode-utils.buildVscodeMarketplaceExtension {
   mktplcRef = {
     name = "fstar-vscode-assistant";
     publisher = "FStarLang";
-    version = "0.19.1";
-    hash = "sha256-bC9Kzhp4H9wykuitEKQUthYVhmVI/m8H0PloBqoFbvU=";
+    version = "0.22.0";
+    hash = "sha256-jDHVN34f/HlE74+uXt4tx8cDjh9pG4nKZG5CaHKT9oE=";
   };
   meta = {
     description = "Interactive editing mode VS Code extension for F*";

@@ -7,16 +7,16 @@
 }:
 buildGoModule (finalAttrs: {
   pname = "jjui";
-  version = "0.9.1";
+  version = "0.9.5";
 
   src = fetchFromGitHub {
     owner = "idursun";
     repo = "jjui";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-XWsHkfakSVQZtmN21exUc62is6qT3jw/1FF9RNaW0Uo=";
+    hash = "sha256-QaAjxpn7VHUdL8PFQcDUsa7xA/7bMtGaGl1aTpKOs2M=";
   };
 
-  vendorHash = "sha256-2rlfR5HLFJyLVSRiUGTCwQDFWRBt4jmL6sdZcq7blaE=";
+  vendorHash = "sha256-YBRHpHBb3uzgXhwxVu3493CtPyG9Vzm8IPc1VW6/CKU=";
 
   ldflags = [ "-X main.Version=${finalAttrs.version}" ];
 

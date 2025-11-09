@@ -22,14 +22,14 @@
   libxml2,
   libXxf86vm,
   makeBinaryWrapper,
-  mbedtls_2,
+  mbedtls,
   libgbm,
   nixosTests,
   nvidia_cg_toolkit,
   pipewire,
   pkg-config,
   python3,
-  qt5,
+  qt6,
   SDL2,
   spirv-tools,
   udev,
@@ -69,7 +69,7 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [
     pkg-config
-    qt5.wrapQtAppsHook
+    qt6.wrapQtAppsHook
   ]
   ++ lib.optional withWayland wayland
   ++ lib.optional (runtimeLibs != [ ]) makeBinaryWrapper;
@@ -81,9 +81,9 @@ stdenv.mkDerivation rec {
     libGL
     libGLU
     libxml2
-    mbedtls_2
+    mbedtls
     python3
-    qt5.qtbase
+    qt6.qtbase
     SDL2
     spirv-tools
     zlib

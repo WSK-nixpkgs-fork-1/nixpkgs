@@ -16,18 +16,13 @@
 let
   python = python3.override {
     packageOverrides = final: prev: {
-      # https://github.com/django-crispy-forms/crispy-bootstrap3/issues/12
-      django = prev.django_5_1;
-      djangorestframework = prev.djangorestframework.overridePythonAttrs (old: {
-        # https://github.com/encode/django-rest-framework/discussions/9342
-        disabledTests = (old.disabledTests or [ ]) ++ [ "test_invalid_inputs" ];
-      });
+      django = prev.django_5_2;
     };
   };
 in
 python.pkgs.buildPythonApplication rec {
   pname = "weblate";
-  version = "5.12.2";
+  version = "5.14";
 
   pyproject = true;
 
@@ -40,13 +35,8 @@ python.pkgs.buildPythonApplication rec {
     owner = "WeblateOrg";
     repo = "weblate";
     tag = "weblate-${version}";
-    hash = "sha256-YaP0lhL7E0pv3ZyfpQ47CjhrzjJPDwGpSTcgXDaMZdA=";
+    hash = "sha256-XIaVM9bsgv6qJ1Q/6wzfO7D04WsUEkxNnJlyLd5+bY4=";
   };
-
-  patches = [
-    # FIXME This shouldn't be necessary and probably has to do with some dependency mismatch.
-    ./cache.lock.patch
-  ];
 
   build-system = with python.pkgs; [ setuptools ];
 
@@ -72,6 +62,10 @@ python.pkgs.buildPythonApplication rec {
       ${python.pythonOnBuildForHost.interpreter} manage.py compress
     '';
 
+  pythonRelaxDeps = [
+    "certifi"
+  ];
+
   dependencies =
     with python.pkgs;
     [
@@ -83,6 +77,7 @@ python.pkgs.buildPythonApplication rec {
       certifi
       charset-normalizer
       crispy-bootstrap3
+      crispy-bootstrap5
       cryptography
       cssselect
       cython
@@ -125,7 +120,6 @@ python.pkgs.buildPythonApplication rec {
       pyicumessageformat
       pyparsing
       python-dateutil
-      python-redis-lock
       qrcode
       rapidfuzz
       redis
@@ -145,12 +139,9 @@ python.pkgs.buildPythonApplication rec {
       weblate-schemas
     ]
     ++ django.optional-dependencies.argon2
-    ++ python-redis-lock.optional-dependencies.django
     ++ celery.optional-dependencies.redis
     ++ drf-spectacular.optional-dependencies.sidecar
     ++ drf-standardized-errors.optional-dependencies.openapi;
-
-  pythonRelaxDeps = [ "certifi" ];
 
   optional-dependencies = {
     postgres = with python.pkgs; [ psycopg ];

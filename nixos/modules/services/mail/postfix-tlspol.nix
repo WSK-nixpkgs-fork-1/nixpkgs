@@ -8,7 +8,6 @@
 let
   inherit (lib)
     hasPrefix
-    literalExpression
     mkEnableOption
     mkIf
     mkMerge
@@ -94,16 +93,13 @@ in
 
           dns = {
             address = mkOption {
-              type = types.str;
-              default = if config.networking.resolvconf.useLocalResolver then "127.0.0.1:53" else null;
-              defaultText = literalExpression ''
-                if config.networking.resolvconf.useLocalResolver then
-                  "127.0.0.1:53"
-                else
-                  null
-              '';
+              type = with types; nullOr str;
+              default = null;
+              example = "127.0.0.1:53";
               description = ''
-                IP and port to your DNS resolver
+                IP and port to your DNS resolver.
+
+                Uses resolvers from /etc/resolv.conf if unset.
 
                 ::: {.note}
                 The configured DNS resolver must validate DNSSEC signatures.
@@ -146,7 +142,7 @@ in
               else
                 "inet:${cfg.settings.server.address}";
           in
-          [ "socketmap:${address}:QUERYwithTLSRPT" ];
+          [ "socketmap:${address}:${if config.services.tlsrpt.enable then "QUERYwithTLSRPT" else "QUERY"}" ];
       };
 
       systemd.services.postfix = {

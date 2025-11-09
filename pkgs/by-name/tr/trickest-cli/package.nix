@@ -6,13 +6,13 @@
 
 buildGoModule rec {
   pname = "trickest-cli";
-  version = "2.1.3";
+  version = "2.1.5";
 
   src = fetchFromGitHub {
     owner = "trickest";
     repo = "trickest-cli";
     tag = "v${version}";
-    hash = "sha256-rYdv0OkABV2ih5u28AoxAg3qabbl2VQnuQ01PCXPY6M=";
+    hash = "sha256-4KVrDUmart2jGKFOGmHeBoy8ctA5wOYNRt2Udrf82/I=";
   };
 
   vendorHash = "sha256-Ae0fNzYOAeCMrNFVhw4VvG/BkOMcguIMiBvLGt7wxEo=";

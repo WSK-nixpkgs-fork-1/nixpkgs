@@ -4,7 +4,7 @@
   fetchurl,
   fetchFromGitHub,
   runCommand,
-  unstableGitUpdater,
+  gitUpdater,
   catch2_3,
   cmake,
   fontconfig,
@@ -78,14 +78,17 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "fire";
-  version = "1.0.2-unstable-2025-07-05";
+  # 1.5.0b is considered a beta release of 1.5.0, but gitUpdater identifies 1.5.0b as the newer version
+  # Sanity checked manually. Drop this once running the updateScript doesn't produce a downgrade.
+  # nixpkgs-update: no auto update
+  version = "1.5.0";
 
   src = fetchFromGitHub {
     owner = "jerryuhoo";
     repo = "Fire";
-    rev = "a0553c6fcced4919871771da3add390e931e29de";
+    tag = "v${finalAttrs.version}";
     fetchSubmodules = true;
-    hash = "sha256-bHqWP3EZQg42OBi44Z1RvkIB2Ou0dDxgBLcidgxaMU8=";
+    hash = "sha256-i8viPGErCuLSuRWstDtLwQ3XBz9gfiHin7Zvvq8l3kA=";
   };
 
   postPatch =
@@ -101,6 +104,9 @@ stdenv.mkDerivation (finalAttrs: {
         --replace-fail 'set(FORMATS' 'set(FORMATS ${formatsListing}) #' \
         --replace-fail 'BUNDLE_ID "''${BUNDLE_ID}"' 'BUNDLE_ID "''${BUNDLE_ID}" LV2URI "https://www.bluewingsmusic.com/Fire/"' \
         --replace-fail 'COPY_PLUGIN_AFTER_BUILD TRUE' 'COPY_PLUGIN_AFTER_BUILD FALSE'
+
+      # Regression tests require big sound files stored in LFS, skip them
+      rm -v tests/RegressionTests.cpp
     ''
     + lib.optionalString stdenv.hostPlatform.isLinux ''
       # Remove hardcoded LTO flags: needs extra setup on Linux
@@ -159,7 +165,7 @@ stdenv.mkDerivation (finalAttrs: {
     patchelf --add-rpath ${lib.makeLibraryPath x11Libs} $out/bin/Fire
   '';
 
-  passthru.updateScript = unstableGitUpdater { tagPrefix = "v"; };
+  passthru.updateScript = gitUpdater { rev-prefix = "v"; };
 
   meta = {
     description = "Multi-band distortion plugin by Wings";

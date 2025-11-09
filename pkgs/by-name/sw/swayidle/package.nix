@@ -16,13 +16,13 @@
 
 stdenv.mkDerivation rec {
   pname = "swayidle";
-  version = "1.8.0";
+  version = "1.9.0";
 
   src = fetchFromGitHub {
     owner = "swaywm";
     repo = "swayidle";
-    rev = version;
-    hash = "sha256-/U6Y9H5ZqIJph3TZVcwr9+Qfd6NZNYComXuC1D9uGHg=";
+    rev = "v${version}";
+    hash = "sha256-fxDwRfAXb9D6epLlyWnXpy9g8V3ovJRpQ/f3M4jxY/s=";
   };
 
   strictDeps = true;
@@ -59,7 +59,7 @@ stdenv.mkDerivation rec {
     '';
     license = licenses.mit;
     mainProgram = "swayidle";
-    maintainers = with maintainers; [ rewine ];
+    maintainers = with maintainers; [ wineee ];
     platforms = platforms.linux;
   };
 }

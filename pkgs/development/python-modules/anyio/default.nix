@@ -33,7 +33,7 @@
 
 buildPythonPackage rec {
   pname = "anyio";
-  version = "4.9.0";
+  version = "4.11.0";
   pyproject = true;
 
   disabled = pythonOlder "3.9";
@@ -42,7 +42,7 @@ buildPythonPackage rec {
     owner = "agronholm";
     repo = "anyio";
     tag = version;
-    hash = "sha256-kISaBHDkMOYYU9sdiQAXiq3jp1ehWOYFpvFbuceBWB0=";
+    hash = "sha256-TOXg9J/Z2S5/X7OBgU+J0HZNB3BDluaWTqDiqp3O4ek=";
   };
 
   build-system = [ setuptools-scm ];

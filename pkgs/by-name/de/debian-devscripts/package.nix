@@ -30,14 +30,14 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "debian-devscripts";
-  version = "2.25.17";
+  version = "2.25.22";
 
   src = fetchFromGitLab {
     domain = "salsa.debian.org";
     owner = "debian";
     repo = "devscripts";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-l5FVMg5PEpook9eKdaAnOUlFg7SAas3QC4xF1Spvyf0=";
+    hash = "sha256-FiqM2n33tbzHgwZGZ2CaAvNTrAUgTuwMtNbXbn6EYJ4=";
   };
 
   patches = [
@@ -91,6 +91,7 @@ stdenv.mkDerivation (finalAttrs: {
     IPCRun
     FileDirList
     FileTouch
+    IOString
   ]);
 
   preConfigure = ''
@@ -135,7 +136,12 @@ stdenv.mkDerivation (finalAttrs: {
     ln -s pts-subscribe $out/bin/pts-unsubscribe
   '';
 
-  passthru.updateScript = nix-update-script { };
+  passthru.updateScript = nix-update-script {
+    extraArgs = [
+      "--version-regex"
+      "^v([0-9.]+)$"
+    ];
+  };
 
   meta = {
     description = "Debian package maintenance scripts";

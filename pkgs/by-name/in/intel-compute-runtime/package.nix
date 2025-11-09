@@ -12,13 +12,13 @@
 
 stdenv.mkDerivation rec {
   pname = "intel-compute-runtime";
-  version = "25.27.34303.6";
+  version = "25.40.35563.4";
 
   src = fetchFromGitHub {
     owner = "intel";
     repo = "compute-runtime";
     tag = version;
-    hash = "sha256-AgdPhEAg9N15lNfcX/zQLxBUDTzEEvph+y0FYbB6iCs=";
+    hash = "sha256-V2zmS3CFLxhyFYvGOdkix9g3E6JkeVa/pDLPC5NYivo=";
   };
 
   nativeBuildInputs = [
@@ -35,7 +35,7 @@ stdenv.mkDerivation rec {
 
   cmakeFlags = [
     (lib.cmakeBool "SKIP_UNIT_TESTS" true)
-    (lib.cmakeFeature "IGC_DIR" (builtins.toString intel-graphics-compiler))
+    (lib.cmakeFeature "IGC_DIR" (toString intel-graphics-compiler))
     (lib.cmakeFeature "OCL_ICD_VENDORDIR" "${placeholder "out"}/etc/OpenCL/vendors")
     # The install script assumes this path is relative to CMAKE_INSTALL_PREFIX
     (lib.cmakeFeature "CMAKE_INSTALL_LIBDIR" "lib")

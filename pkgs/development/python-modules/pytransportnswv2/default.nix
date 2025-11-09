@@ -3,28 +3,27 @@
   buildPythonPackage,
   fetchPypi,
   gtfs-realtime-bindings,
-  pythonOlder,
+  httpx,
   requests,
   setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "pytransportnswv2";
-  version = "0.8.10";
+  version = "2.0.8";
   pyproject = true;
-
-  disabled = pythonOlder "3.7";
 
   src = fetchPypi {
     pname = "PyTransportNSWv2";
     inherit version;
-    hash = "sha256-/9NtytE2zjIfrhVz1gTMLXtiSWlICjhQUFHtVCeg7FA=";
+    hash = "sha256-+hE5onXQ/Isv+U7y9+CphpYTOW7CsMxR7M8jZS1djSs=";
   };
 
   build-system = [ setuptools ];
 
   dependencies = [
     gtfs-realtime-bindings
+    httpx
     requests
   ];
 

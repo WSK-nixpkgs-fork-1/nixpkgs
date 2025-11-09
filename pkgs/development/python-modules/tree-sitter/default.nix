@@ -1,10 +1,13 @@
 {
   lib,
-  stdenv,
   buildPythonPackage,
-  fetchPypi,
-  pythonOlder,
+  fetchFromGitHub,
+
+  # build-system
   setuptools,
+
+  # tests
+  pytestCheckHook,
   tree-sitter-python,
   tree-sitter-rust,
   tree-sitter-html,
@@ -14,24 +17,21 @@
 
 buildPythonPackage rec {
   pname = "tree-sitter";
-  version = "0.24.0";
+  version = "0.25.2";
   pyproject = true;
 
-  disabled = pythonOlder "3.10";
-
-  src = fetchPypi {
-    inherit pname version;
-    hash = "sha256-q9la9lyi9Pfso1Y0M5HtZp52Tzd0i1NSlG8A9/x45zQ=";
+  src = fetchFromGitHub {
+    owner = "tree-sitter";
+    repo = "py-tree-sitter";
+    tag = "v${version}";
+    hash = "sha256-MgiVxq9MUaOkNNgn46g2Cy7/IUx/yatKSR1vE6LscKg=";
+    fetchSubmodules = true;
   };
-
-  # see https://github.com/tree-sitter/py-tree-sitter/issues/330#issuecomment-2629403946
-  patches = lib.optionals (stdenv.hostPlatform.isAarch64 && stdenv.hostPlatform.isLinux) [
-    ./segfault-patch.diff
-  ];
 
   build-system = [ setuptools ];
 
   nativeCheckInputs = [
+    pytestCheckHook
     tree-sitter-python
     tree-sitter-rust
     tree-sitter-html
@@ -47,14 +47,16 @@ buildPythonPackage rec {
   '';
 
   disabledTests = [
-    # test fails in nix sandbox
+    # Test fails only in the Nix sandbox, with:
+    #
+    #    AssertionError: Lists differ: ['', '', ''] != ['graph {\n', 'label="new_parse"\n', '}\n']
     "test_dot_graphs"
   ];
 
   meta = {
     description = "Python bindings to the Tree-sitter parsing library";
     homepage = "https://github.com/tree-sitter/py-tree-sitter";
-    changelog = "https://github.com/tree-sitter/py-tree-sitter/releases/tag/v${version}";
+    changelog = "https://github.com/tree-sitter/py-tree-sitter/releases/tag/${src.tag}";
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ fab ];
   };

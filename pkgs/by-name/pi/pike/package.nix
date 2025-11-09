@@ -120,13 +120,13 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "pike";
-  version = "8.0.2020";
+  version = "8.0.2030";
 
   src = fetchFromGitHub {
     owner = "pikelang";
     repo = "Pike";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-VHfMfICtvCHdFTIjiYw9tR5g9KycR7jqdg3wT+T37mA=";
+    hash = "sha256-DFEmO4Au2qSw+/Jmbnl6XZtfvWwmv0uWzwgQn4dRtNw=";
   };
 
   nativeBuildInputs = [

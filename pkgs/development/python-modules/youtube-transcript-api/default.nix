@@ -12,7 +12,7 @@
 
 buildPythonPackage rec {
   pname = "youtube-transcript-api";
-  version = "1.2.2";
+  version = "1.2.3";
   pyproject = true;
 
   disabled = pythonOlder "3.7";
@@ -21,7 +21,7 @@ buildPythonPackage rec {
     owner = "jdepoix";
     repo = "youtube-transcript-api";
     tag = "v${version}";
-    hash = "sha256-nr8WeegMv7zSqlzcLSG224O9fRXA6jIlYQN4vV6lW24=";
+    hash = "sha256-UtKAT7BTWmG2wWnpK5OT/NeVksz6N8sLnRq9IpAm7D4=";
   };
 
   build-system = [ poetry-core ];
@@ -40,13 +40,16 @@ buildPythonPackage rec {
     pytestCheckHook
   ];
 
+  preCheck = ''
+    export PATH=$out/bin:$PATH
+  '';
+
   disabledTests = [
-    # fail with various assertions around numbers
+    # network access
     "test_fetch__create_consent_cookie_if_needed"
     "test_fetch__with_generic_proxy_reraise_when_blocked"
     "test_fetch__with_proxy_retry_when_blocked"
     "test_fetch__with_webshare_proxy_reraise_when_blocked"
-    "test_version_matches_metadata"
   ];
 
   pythonImportsCheck = [ "youtube_transcript_api" ];

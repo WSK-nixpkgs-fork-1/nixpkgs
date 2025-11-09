@@ -17,7 +17,7 @@ Some architectural notes about key decisions and concepts in our workflows:
   This is a temporary commit that GitHub creates automatically as "what would happen, if this PR was merged into the base branch now?".
   The checkout could be done via the virtual branch `refs/pull/<pr-number>/merge`, but doing so would cause failures when this virtual branch doesn't exist (anymore).
   This can happen when the PR has conflicts, in which case the virtual branch is not created, or when the PR is getting merged while workflows are still running, in which case the branch won't exist anymore at the time of checkout.
-  Thus, we use the `get-merge-commit.yml` workflow to check whether the PR is mergeable and the test merge commit exists and only then run the relevant jobs.
+  Thus, we use the `prepare` job to check whether the PR is mergeable and the test merge commit exists and only then run the relevant jobs.
 
 - Various workflows need to make comparisons against the base branch.
   In this case, we checkout the parent of the "test merge commit" for best results.
@@ -64,7 +64,7 @@ This results in a key with the following semantics:
 
 ## Required Status Checks
 
-The "Required Status Checks" branch ruleset is implemented in two top-level workflows: `pr.yml` and `merge-group.yml`.
+The "Required Status Checks" branch ruleset is implemented in two top-level workflows: `pull-request-target.yml` and `merge-group.yml`.
 
 The PR workflow defines all checks that need to succeed to add a Pull Request to the Merge Queue.
 If no Merge Queue is set up for a branch, the PR workflow defines the checks required to merge into the target branch.

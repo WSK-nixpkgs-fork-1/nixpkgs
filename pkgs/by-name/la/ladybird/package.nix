@@ -9,7 +9,7 @@
   cmake,
   ninja,
   pkg-config,
-  curl,
+  curlFull, # Websocket support
   libavif,
   angle, # libEGL
   libjxl,
@@ -29,17 +29,18 @@
   unstableGitUpdater,
   apple-sdk_14,
   libtommath,
+  sdl3,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "ladybird";
-  version = "0-unstable-2025-08-11";
+  version = "0-unstable-2025-10-31";
 
   src = fetchFromGitHub {
-    owner = "LadybirdWebBrowser";
+    owner = "LadybirdBrowser";
     repo = "ladybird";
-    rev = "a64cee528c5b387d45441da80f6c887399d4affb";
-    hash = "sha256-YtWh5Unny3IU0+81N8riGDJJAtethO1g04cxNap520s=";
+    rev = "35c6d52d7df251555ed006091b680a2299f6390e";
+    hash = "sha256-2bjjM0tQebmUIM6sjtUpRyJbSjDP3E/7WOq7qR2E+k8=";
   };
 
   postPatch = ''
@@ -79,7 +80,7 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   buildInputs = [
-    curl
+    curlFull
     fast-float
     ffmpeg
     fontconfig
@@ -91,6 +92,7 @@ stdenv.mkDerivation (finalAttrs: {
     openssl
     qt6Packages.qtbase
     qt6Packages.qtmultimedia
+    sdl3
     simdutf
     (skia.overrideAttrs (prev: {
       gnFlags = prev.gnFlags ++ [

@@ -46,21 +46,21 @@
   patchRcPathCsh,
   patchRcPathFish,
   patchRcPathPosix,
-  tbb,
+  onetbb,
   xrootd,
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "root";
-  version = "6.36.02";
+  version = "6.36.04";
 
   passthru = {
     tests = import ./tests { inherit callPackage; };
   };
 
   src = fetchurl {
-    url = "https://root.cern.ch/download/root_v${version}.source.tar.gz";
-    hash = "sha256-UQ1nezOsfKSKoNcSvbiNg1of9qN074bxoeFo+ieetHA=";
+    url = "https://root.cern.ch/download/root_v${finalAttrs.version}.source.tar.gz";
+    hash = "sha256-zGNn2PVjxtSco0wJ0LU8sPQaUo22+GrxEf12dEzaRZY=";
   };
 
   clad_src = fetchFromGitHub {
@@ -85,7 +85,7 @@ stdenv.mkDerivation rec {
     nlohmann_json # link interface of target "ROOT::ROOTEve"
   ];
   buildInputs = [
-    clang
+    finalAttrs.clang
     davix
     fftw
     ftgl
@@ -106,7 +106,7 @@ stdenv.mkDerivation rec {
     patchRcPathPosix
     pcre2
     python3
-    tbb
+    onetbb
     xrootd
     xxHash
     xz
@@ -135,6 +135,8 @@ stdenv.mkDerivation rec {
       hash = "sha256-D7LZWJnGF9DtKcM8EF3KILU81cqTcZolW+HMe3fmXTw=";
       revert = true;
     })
+    # Will also be integrated to ROOT 6.38.00
+    ./Build-rootcint-and-genreflex-as-separate-targets.patch
   ];
 
   preConfigure = ''
@@ -161,8 +163,8 @@ stdenv.mkDerivation rec {
       '';
 
   cmakeFlags = [
-    "-DCLAD_SOURCE_DIR=${clad_src}"
-    "-DClang_DIR=${clang}/lib/cmake/clang"
+    "-DCLAD_SOURCE_DIR=${finalAttrs.clad_src}"
+    "-DClang_DIR=${finalAttrs.clang}/lib/cmake/clang"
     "-Dbuiltin_clang=OFF"
     "-Dbuiltin_llvm=OFF"
     "-Dfail-on-missing=ON"
@@ -258,4 +260,4 @@ stdenv.mkDerivation rec {
     ];
     license = licenses.lgpl21;
   };
-}
+})

@@ -6,18 +6,24 @@
 
 buildGoModule rec {
   pname = "nakama";
-  version = "3.30.0";
+  version = "3.33.1";
 
   src = fetchFromGitHub {
     owner = "heroiclabs";
     repo = "nakama";
     tag = "v${version}";
-    hash = "sha256-G+cNR4Ny8aR3ByuKvrCTp3U+GXpdYaHlrZqifoWDce0=";
+    hash = "sha256-e+Z8BmEbBJazSorIYuVIbrwKHATN9SWTBOh60ol/c8g=";
   };
 
   vendorHash = null;
 
   subPackages = [ "." ];
+
+  postPatch = ''
+    substituteInPlace main.go \
+      --replace-fail  'os.Getenv("NAKAMA_TELEMETRY") != "0"' \
+                      'os.Getenv("NAKAMA_TELEMETRY") == "1"'
+  '';
 
   ldflags = [
     "-s"

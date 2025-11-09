@@ -32,18 +32,16 @@ let
     # Override the version of some packages pinned in Home Assistant's setup.py and requirements_all.txt
 
     (self: super: {
-      aioelectricitymaps = super.aioelectricitymaps.overridePythonAttrs (oldAttrs: rec {
-        version = "0.4.0";
+      aionotion = super.aionotion.overridePythonAttrs rec {
+        version = "2024.03.0";
         src = fetchFromGitHub {
-          owner = "jpbede";
-          repo = "aioelectricitymaps";
-          rev = "refs/tags/v${version}";
-          hash = "sha256-q06B40c0uvSuzH/3YCoxg4p9aNIOPrphsoESktF+B14=";
+          owner = "bachya";
+          repo = "aionotion";
+          tag = version;
+          hash = "sha256-BsbfLb5wCVxR8v2U2Zzt7LMl7XJcZWfVjZN47VDkhFc=";
         };
-        nativeCheckInputs = with self; [
-          aresponses
-        ];
-      });
+        postPatch = null;
+      };
 
       aioskybell = super.aioskybell.overridePythonAttrs (oldAttrs: rec {
         version = "22.7.0";
@@ -87,16 +85,6 @@ let
         ];
       });
 
-      async-timeout = super.async-timeout.overridePythonAttrs (oldAttrs: rec {
-        version = "4.0.3";
-        src = fetchFromGitHub {
-          owner = "aio-libs";
-          repo = "async-timeout";
-          tag = "v${version}";
-          hash = "sha256-gJGVRm7YMWnVicz2juHKW8kjJBxn4/vQ/kc2kQyl1i4=";
-        };
-      });
-
       av = super.av.overridePythonAttrs rec {
         version = "13.1.0";
         src = fetchFromGitHub {
@@ -115,16 +103,6 @@ let
         ];
       });
 
-      google-genai = super.google-genai.overridePythonAttrs (old: rec {
-        version = "1.7.0";
-        src = fetchFromGitHub {
-          owner = "googleapis";
-          repo = "python-genai";
-          tag = "v${version}";
-          hash = "sha256-vmrFPE7H9s9varrP0s6WK4opoU1hREH7rVVjrKiXY5E=";
-        };
-      });
-
       gspread = super.gspread.overridePythonAttrs (oldAttrs: rec {
         version = "5.12.4";
         src = fetchFromGitHub {
@@ -138,17 +116,14 @@ let
         ];
       });
 
-      mcp = super.mcp.overridePythonAttrs (oldAttrs: rec {
-        version = "1.5.0";
+      livisi = super.livisi.overridePythonAttrs (oldAttrs: rec {
+        version = "0.0.25";
         src = fetchFromGitHub {
-          inherit (oldAttrs.src) owner repo;
+          owner = "planbnet";
+          repo = "livisi";
           tag = "v${version}";
-          hash = "sha256-Z2NN6k4mD6NixDON1MUOELpBZW9JvMvFErcCbFPdg2o=";
+          hash = "sha256-kEkbuZmYzxhrbTdo7eZJYu2N2uJtfspgqepplXvSXFg=";
         };
-        pytestFlagsArray = [
-          "-W"
-          "ignore::pydantic.warnings.PydanticDeprecatedSince211"
-        ];
       });
 
       notifications-android-tv = super.notifications-android-tv.overridePythonAttrs (oldAttrs: rec {
@@ -200,6 +175,21 @@ let
           inherit version;
           hash = "sha256-17MHrYRmqkH+1QLtgq2d6zaRtqvb9ju9dvPt9gB2xCc=";
         };
+      });
+
+      py-madvr2 = super.py-madvr2.overridePythonAttrs (oldAttrs: rec {
+        version = "1.6.40";
+        src = fetchFromGitHub {
+          owner = "iloveicedgreentea";
+          repo = "py-madvr";
+          tag = "v${version}";
+          hash = "sha256-0IX57Sa/oXGiViD39FVBRa2jxuKuZ3UNsOTHwuBdmWs=";
+        };
+        pythonImportsCheck = [ "madvr" ];
+        disabledTests = oldAttrs.disabledTests ++ [
+          "test_async_add_tasks"
+          "test_send_heartbeat"
+        ];
       });
 
       # Pinned due to API changes >0.3.5.3
@@ -269,39 +259,7 @@ let
         doCheck = false;
       });
 
-      python-roborock = super.python-roborock.overridePythonAttrs rec {
-        version = "2.18.2";
-
-        src = fetchFromGitHub {
-          owner = "Python-roborock";
-          repo = "python-roborock";
-          tag = "v${version}";
-          hash = "sha256-7xcw1jNCDapHjH1YVB5NW7jxMyb8Raf8HuTnWf2vdFo=";
-        };
-      };
-
-      python-telegram-bot = super.python-telegram-bot.overridePythonAttrs (oldAttrs: rec {
-        version = "21.5";
-
-        src = fetchFromGitHub {
-          inherit (oldAttrs.src) owner repo;
-          tag = version;
-          hash = "sha256-i1YEcN615xeI4HcygXV9kzuXpT2yDSnlNU6bZqu1dPM=";
-        };
-      });
-
-      # Pinned due to API changes ~1.0
-      vultr = super.vultr.overridePythonAttrs (oldAttrs: rec {
-        version = "0.1.2";
-        src = fetchFromGitHub {
-          owner = "spry-group";
-          repo = "python-vultr";
-          rev = version;
-          hash = "sha256-sHCZ8Csxs5rwg1ZG++hP3MfK7ldeAdqm5ta9tEXeW+I=";
-        };
-      });
-
-      wolf-comm = super.wolf-comm.overridePythonAttrs (rec {
+      wolf-comm = super.wolf-comm.overridePythonAttrs rec {
         version = "0.0.23";
         src = fetchFromGitHub {
           owner = "janrothkegel";
@@ -309,7 +267,7 @@ let
           tag = version;
           hash = "sha256-LpehooW3vmohiyMwOQTFNLiNCsaLKelWQxQk8bl+y1k=";
         };
-      });
+      };
 
       # internal python packages only consumed by home-assistant itself
       hass-web-proxy-lib = self.callPackage ./python-modules/hass-web-proxy-lib { };
@@ -341,7 +299,7 @@ let
   extraBuildInputs = extraPackages python.pkgs;
 
   # Don't forget to run update-component-packages.py after updating
-  hassVersion = "2025.8.2";
+  hassVersion = "2025.11.0";
 
 in
 python.pkgs.buildPythonApplication rec {
@@ -362,13 +320,13 @@ python.pkgs.buildPythonApplication rec {
     owner = "home-assistant";
     repo = "core";
     tag = version;
-    hash = "sha256-z/wEYitbn8D0LEUTnBfDWfeo+NdDxX42Ifz2D5pbM8I=";
+    hash = "sha256-+syn/y2ukZKsnCniZxodRWVcCE3AcvUKt80L2XslKKI=";
   };
 
   # Secondary source is pypi sdist for translations
   sdist = fetchPypi {
     inherit pname version;
-    hash = "sha256-6VnXCc6NWwKUQWmIB/xJmR2AZgfXEXh8DNmoKzSY3GI=";
+    hash = "sha256-JSWr+yGvpXYc6Bw3B+xVLpYokVM11dsJZBWYy+W4bH4=";
   };
 
   build-system = with python.pkgs; [
@@ -482,7 +440,6 @@ python.pkgs.buildPythonApplication rec {
       pytest-asyncio
       pytest-aiohttp
       pytest-freezer
-      pytest-mock
       pytest-socket
       pytest-timeout
       pytest-unordered
@@ -491,17 +448,15 @@ python.pkgs.buildPythonApplication rec {
       requests-mock
       respx
       syrupy
-      tomli
-      # Sneakily imported in tests/conftest.py
-      paho-mqtt
       # Used in tests/non_packaged_scripts/test_alexa_locales.py
       beautifulsoup4
+      # Used in tests/scripts/test_check_config.py
+      colorlog
     ]
     ++ lib.concatMap (component: getPackages component python.pkgs) [
       # some components are needed even if tests in tests/components are disabled
       "default_config"
       "hue"
-      "qwikswitch"
     ];
 
   pytestFlags = [
@@ -533,10 +488,6 @@ python.pkgs.buildPythonApplication rec {
     "tests/test_bootstrap.py::test_setup_hass_takes_longer_than_log_slow_startup"
     "tests/test_test_fixtures.py::test_evict_faked_translations"
     "tests/helpers/test_backup.py::test_async_get_manager"
-    # (2025.7.0) Fails to find name of tracked time interval in scheduled jobs
-    "tests/helpers/test_event.py::test_track_time_interval_name"
-    # (2025.7.2) Exception string mismatch (non-blocking vs non blocking)
-    "tests/test_core.py::test_services_call_return_response_requires_blocking"
   ];
 
   preCheck = ''

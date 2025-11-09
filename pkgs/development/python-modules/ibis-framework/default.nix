@@ -98,14 +98,14 @@ in
 
 buildPythonPackage rec {
   pname = "ibis-framework";
-  version = "10.5.0";
+  version = "11.0.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "ibis-project";
     repo = "ibis";
     tag = version;
-    hash = "sha256-KJPl5bkD/tQlHY2k0b9zok5YCPekaXw7Y9z8P4AD3FQ=";
+    hash = "sha256-hf5guWeX9WQbKaNrs7ALwwDxV1Rgeb5Z0PedTQ4P7S0=";
   };
 
   build-system = [
@@ -142,6 +142,7 @@ buildPythonPackage rec {
 
   pytestFlags = [
     "--benchmark-disable"
+    "-Wignore::FutureWarning"
   ];
 
   enabledTestMarks = testBackends ++ [ "core" ];
@@ -174,6 +175,9 @@ buildPythonPackage rec {
 
     # duckdb ParserError: syntax error at or near "AT"
     "test_90"
+
+    # assert 0 == 3 (tests edge case behavior of databases)
+    "test_self_join_with_generated_keys"
   ];
 
   # patch out tests that check formatting with black
@@ -353,7 +357,7 @@ buildPythonPackage rec {
   meta = {
     description = "Productivity-centric Python Big Data Framework";
     homepage = "https://github.com/ibis-project/ibis";
-    changelog = "https://github.com/ibis-project/ibis/blob/${version}/docs/release_notes.md";
+    changelog = "https://github.com/ibis-project/ibis/blob/${src.tag}/docs/release_notes.md";
     license = lib.licenses.asl20;
     maintainers = with lib.maintainers; [
       cpcloud

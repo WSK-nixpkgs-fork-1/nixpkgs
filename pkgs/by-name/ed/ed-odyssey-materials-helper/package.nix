@@ -2,9 +2,8 @@
   stdenv,
   lib,
   fetchFromGitHub,
-  gradle,
-  jdk24,
-  makeWrapper,
+  gradle_9,
+  jdk25,
   wrapGAppsHook3,
   libXxf86vm,
   libXtst,
@@ -17,20 +16,22 @@
   makeDesktopItem,
   writeScript,
 }:
+let
+  gradle = gradle_9;
+in
 stdenv.mkDerivation rec {
   pname = "ed-odyssey-materials-helper";
-  version = "2.223";
+  version = "3.1.2";
 
   src = fetchFromGitHub {
     owner = "jixxed";
     repo = "ed-odyssey-materials-helper";
     tag = version;
-    hash = "sha256-NPiy1KQxi6iRR3tEjdPnx8w++sCLIsZ2FQXSUQL0WrA=";
+    hash = "sha256-2xUMl8AqZD/v+js/QyWBD4RfV8nfCAqVr0UgWaOtBrk=";
   };
 
   nativeBuildInputs = [
     gradle
-    makeWrapper
     wrapGAppsHook3
     copyDesktopItems
   ];
@@ -40,9 +41,6 @@ stdenv.mkDerivation rec {
     # so this removes 1) the popup about it when you first start the program, 2) the option in the settings
     # and makes the program always know that it is set up
     ./remove-urlscheme-settings.patch
-
-    # Upstream requested that sentry is only to be used with official builds, remove it so it doesn't complain about the lack of DSN
-    ./remove-sentry.patch
   ];
   postPatch = ''
     # oslib doesn't seem to do releases and hasn't had a change since 2021, so always use commit d6ee6549bb
@@ -68,11 +66,20 @@ stdenv.mkDerivation rec {
   };
 
   gradleFlags = [
-    "-Dorg.gradle.java.home=${jdk24}"
+    "-Dorg.gradle.java.home=${jdk25}"
     "--stacktrace"
   ];
 
   gradleBuildTask = "application:jpackage";
+
+  env = {
+    EDDN_SOFTWARE_NAME = "EDO Materials Helper";
+  };
+
+  preBuild = ''
+    # required to make EDDN_SOFTWARE_NAME work and for the program to know its own version
+    gradle $gradleFlags application:generateSecrets
+  '';
 
   installPhase = ''
     runHook preInstall
@@ -89,9 +96,7 @@ stdenv.mkDerivation rec {
   dontWrapGApps = true;
 
   postFixup = ''
-    # The logs would go into the current directory, so the wrapper will cd to the config dir first
-    makeShellWrapper $out/share/ed-odyssey-materials-helper/bin/Elite\ Dangerous\ Odyssey\ Materials\ Helper $out/bin/ed-odyssey-materials-helper \
-      --run 'mkdir -p ~/.config/odyssey-materials-helper/ && cd ~/.config/odyssey-materials-helper/' \
+    makeWrapper $out/share/ed-odyssey-materials-helper/bin/Elite\ Dangerous\ Odyssey\ Materials\ Helper $out/bin/ed-odyssey-materials-helper \
       --prefix LD_LIBRARY_PATH : ${
         lib.makeLibraryPath [
           libXxf86vm

@@ -3,23 +3,13 @@
   stdenv,
   copyDesktopItems,
   buildNpmPackage,
-  electron_35,
+  electron,
   fetchFromGitLab,
   makeBinaryWrapper,
   makeDesktopItem,
-  at-spi2-atk,
-  gtk3,
-  libappindicator-gtk3,
-  libnotify,
-  libsecret,
-  libuuid,
-  nss,
-  xdg-utils,
-  xorg,
 }:
 let
-  version = "2.250809.0";
-  electron = electron_35;
+  version = "2.250914.1";
 in
 buildNpmPackage (finalAttrs: {
   pname = "gridtracker2";
@@ -29,10 +19,10 @@ buildNpmPackage (finalAttrs: {
     owner = "gridtracker.org";
     repo = "gridtracker2";
     tag = "v${version}";
-    hash = "sha256-JvV0APwbANjPX/IN3ZV8ccsKBLixntQ2ZAzjWtN7/L4=";
+    hash = "sha256-ME68kGRlIRPs5tUOGb3g2CXJKC52QuMuTMc1ctAMzlk=";
   };
 
-  npmDepsHash = "sha256-on3v+kBOUEVsEX/HwJhtzPn8AlXNa+EcbolMl0F7ZXI=";
+  npmDepsHash = "sha256-MUXwJPo/A0gxtUbM3MOWfMcspM1losuDhc5XTc2oqCo=";
 
   nativeBuildInputs = [
     makeBinaryWrapper
@@ -91,21 +81,6 @@ buildNpmPackage (finalAttrs: {
     runHook postBuild
   '';
 
-  runtimeInputs = [
-    at-spi2-atk
-    gtk3
-    libnotify
-    libsecret
-    libuuid
-    nss
-    xdg-utils
-    xorg.libXScrnSaver
-    xorg.libXtst
-  ]
-  ++ lib.optionals stdenv.isLinux [
-    libappindicator-gtk3
-  ];
-
   installPhase = ''
     runHook preInstall
 
@@ -120,8 +95,6 @@ buildNpmPackage (finalAttrs: {
 
     makeWrapper ${lib.getExe electron} $out/bin/gridtracker2 \
       --add-flags $out/share/gridtracker2/resources/app.asar \
-      --prefix PATH : "${lib.makeBinPath finalAttrs.runtimeInputs}" \
-      --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath finalAttrs.runtimeInputs}" \
       --add-flags "--no-sandbox --disable-gpu-sandbox" \
       --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --enable-wayland-ime=true}}" \
       --inherit-argv0

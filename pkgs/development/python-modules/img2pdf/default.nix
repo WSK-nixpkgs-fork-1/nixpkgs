@@ -86,6 +86,10 @@ buildPythonPackage rec {
     # these only fail on aarch64
     "test_png_rgba8"
     "test_png_gray8a"
+    # AssertionError: assert 'resolution' not in ...
+    # (starting with ImagMagick 7.1.2-5)
+    "test_date"
+    "test_jpg"
   ];
 
   pythonImportsCheck = [ "img2pdf" ];
@@ -99,6 +103,7 @@ buildPythonPackage rec {
     maintainers = with lib.maintainers; [
       veprbl
       dotlambda
+      iedame
     ];
   };
 }

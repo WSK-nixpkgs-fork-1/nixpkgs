@@ -30,7 +30,7 @@ buildPythonPackage rec {
     repo = "scs-python";
     tag = version;
     fetchSubmodules = true;
-    hash = "sha256-Dv0LDY6JFFq/dpcDsnU+ErnHJ8RDpaNhrRjEwY31Szk=";
+    hash = "sha256-MC63xCZxJsHOiarMsQYtXljTV8xdIfJHzkUG5mV63NA=";
   };
 
   postPatch = ''
@@ -66,7 +66,8 @@ buildPythonPackage rec {
     '';
     inherit (pkgs.scs.meta) homepage;
     downloadPage = "https://github.com/bodono/scs-python";
+    changelog = "https://github.com/bodono/scs-python/releases/tag/${src.tag}";
     license = lib.licenses.mit;
-    maintainers = with lib.maintainers; [ drewrisinger ];
+    maintainers = [ ];
   };
 }

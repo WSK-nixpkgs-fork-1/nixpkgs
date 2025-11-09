@@ -3,8 +3,7 @@
   buildGoModule,
   fetchFromGitHub,
   buildEnv,
-  linkFarm,
-  makeWrapper,
+  makeBinaryWrapper,
   stdenv,
   addDriverRunpath,
   nix-update-script,
@@ -20,9 +19,11 @@
   autoAddDriverRunpath,
   apple-sdk_15,
 
+  versionCheckHook,
+  writableTmpDirAsHomeHook,
+
   # passthru
   nixosTests,
-  testers,
   ollama,
   ollama-rocm,
   ollama-cuda,
@@ -117,13 +118,13 @@ in
 goBuild (finalAttrs: {
   pname = "ollama";
   # don't forget to invalidate all hashes each update
-  version = "0.11.4";
+  version = "0.12.9";
 
   src = fetchFromGitHub {
     owner = "ollama";
     repo = "ollama";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-joIA/rH8j+SJH5EVMr6iqKLve6bkntPQM43KCN9JTZ8=";
+    hash = "sha256-D61jCyOUYXyPgztgEAFHd2oL5IXsO5TnE2AGEHOnows=";
   };
 
   vendorHash = "sha256-SlaDsu001TUW+t9WRp7LqxUSQSGDF1Lqu9M1bgILoX4=";
@@ -148,7 +149,7 @@ goBuild (finalAttrs: {
   ]
   ++ lib.optionals enableCuda [ cudaPackages.cuda_nvcc ]
   ++ lib.optionals (enableRocm || enableCuda) [
-    makeWrapper
+    makeBinaryWrapper
     autoAddDriverRunpath
   ];
 
@@ -179,7 +180,7 @@ goBuild (finalAttrs: {
         in
         if matched == null then str else builtins.head matched;
 
-      cudaArchitectures = builtins.concatStringsSep ";" (builtins.map removeSMPrefix cudaArches);
+      cudaArchitectures = builtins.concatStringsSep ";" (map removeSMPrefix cudaArches);
       rocmTargets = builtins.concatStringsSep ";" rocmGpuTargets;
 
       cmakeFlagsCudaArchitectures = lib.optionalString enableCuda "-DCMAKE_CUDA_ARCHITECTURES='${cudaArchitectures}'";
@@ -214,8 +215,6 @@ goBuild (finalAttrs: {
     '';
 
   ldflags = [
-    "-s"
-    "-w"
     "-X=github.com/ollama/ollama/version.Version=${finalAttrs.version}"
     "-X=github.com/ollama/ollama/server.mode=release"
   ];
@@ -228,13 +227,26 @@ goBuild (finalAttrs: {
     (allow iokit-open (iokit-user-client-class "AGXDeviceUserClient"))
   '';
 
+  checkFlags =
+    let
+      # Skip tests that require network access
+      skippedTests = [
+        "TestPushHandler/unauthorized_push" # Writes to $HOME, se https://github.com/ollama/ollama/pull/12307#pullrequestreview-3249128660
+      ];
+    in
+    [ "-skip=^${builtins.concatStringsSep "$|^" skippedTests}$" ];
+
+  doInstallCheck = true;
+  nativeInstallCheckInputs = [
+    versionCheckHook
+    writableTmpDirAsHomeHook
+  ];
+  versionCheckKeepEnvironment = "HOME";
+  versionCheckProgramArg = "--version";
+
   passthru = {
     tests = {
       inherit ollama;
-      version = testers.testVersion {
-        inherit (finalAttrs) version;
-        package = ollama;
-      };
     }
     // lib.optionalAttrs stdenv.hostPlatform.isLinux {
       inherit ollama-rocm ollama-cuda;
@@ -258,7 +270,6 @@ goBuild (finalAttrs: {
     maintainers = with maintainers; [
       abysssol
       dit7ya
-      elohmeier
       prusnak
     ];
   };

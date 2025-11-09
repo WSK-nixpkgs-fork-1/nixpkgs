@@ -2,27 +2,37 @@
   lib,
   fetchFromGitHub,
   rustPlatform,
+  versionCheckHook,
+  nix-update-script,
 }:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "slumber";
-  version = "3.3.0";
+  version = "4.2.0";
 
   src = fetchFromGitHub {
     owner = "LucasPickering";
     repo = "slumber";
-    tag = "v${version}";
-    hash = "sha256-3VsnK0CxcSYOnHTXPGdtwUn/0m5Uj9DThm3Mc4bMYoY=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-wEQPyp0J7p2TuJwH/fQv5fhenUY3MNIq0oazFJAj9lM=";
   };
 
-  cargoHash = "sha256-ZDB7YiqesCAnXkSyMQzV6LHRjUdv00SSG6aS8JKArfY=";
+  cargoHash = "sha256-Nz/Z2KJ8jJAsTASwnvleRpJ88UHGe7dktO0FkCOPdu4=";
+
+  nativeInstallCheckInputs = [
+    versionCheckHook
+  ];
+  versionCheckProgramArg = "--version";
+  doInstallCheck = true;
+
+  passthru.updateScript = nix-update-script { };
 
   meta = {
     description = "Terminal-based HTTP/REST client";
     homepage = "https://slumber.lucaspickering.me";
-    changelog = "https://github.com/LucasPickering/slumber/blob/v${version}/CHANGELOG.md";
+    changelog = "https://github.com/LucasPickering/slumber/blob/v${finalAttrs.version}/CHANGELOG.md";
     license = lib.licenses.mit;
     mainProgram = "slumber";
     maintainers = with lib.maintainers; [ javaes ];
   };
-}
+})

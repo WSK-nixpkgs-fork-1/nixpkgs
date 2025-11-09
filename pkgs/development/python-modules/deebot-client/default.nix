@@ -7,6 +7,7 @@
   defusedxml,
   docker,
   fetchFromGitHub,
+  orjson,
   pkg-config,
   pycountry,
   pytest-asyncio,
@@ -14,13 +15,14 @@
   pytestCheckHook,
   pythonOlder,
   rustPlatform,
+  syrupy,
   testfixtures,
   xz,
 }:
 
 buildPythonPackage rec {
   pname = "deebot-client";
-  version = "13.6.0";
+  version = "16.3.0";
   pyproject = true;
 
   disabled = pythonOlder "3.13";
@@ -29,17 +31,18 @@ buildPythonPackage rec {
     owner = "DeebotUniverse";
     repo = "client.py";
     tag = version;
-    hash = "sha256-/8IBXPqDHgAa7v5+c1co9cABXXaZJZhZy5N2TzVKG7Q=";
+    hash = "sha256-FjUHYG0AkZ/AS1jZhPc28f8rnjuWIyRpumnRnDaoRqY=";
   };
 
   cargoDeps = rustPlatform.fetchCargoVendor {
     inherit pname version src;
-    hash = "sha256-pJSbNgDLq+c3KLVXXZGr7jc7crrbZLcyO//sXJK/bA4=";
+    hash = "sha256-jAycxAxSSWwDNhtdvSCLujMsa7dMQ1lFLtMtVsKHdvk=";
   };
 
   pythonRelaxDeps = [
     "aiohttp"
     "defusedxml"
+    "orjson"
   ];
 
   nativeBuildInputs = [
@@ -55,6 +58,7 @@ buildPythonPackage rec {
     aiomqtt
     cachetools
     defusedxml
+    orjson
   ];
 
   nativeCheckInputs = [
@@ -63,6 +67,7 @@ buildPythonPackage rec {
     pytest-asyncio
     pytest-codspeed
     pytestCheckHook
+    syrupy
     testfixtures
   ];
 

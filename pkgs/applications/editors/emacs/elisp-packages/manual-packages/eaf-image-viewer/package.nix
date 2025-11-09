@@ -3,7 +3,7 @@
   lib,
   melpaBuild,
   fetchFromGitHub,
-  # Java Script dependency
+  # JavaScript dependency
   nodejs,
   fetchNpmDeps,
   npmHooks,
@@ -42,13 +42,13 @@ melpaBuild (finalAttrs: {
 
   postInstall = ''
     LISPDIR=$out/share/emacs/site-lisp/elpa/${finalAttrs.ename}-${finalAttrs.melpaVersion}
+    touch node_modules/.nosearch
     cp -r node_modules $LISPDIR/
   '';
 
   passthru = {
     updateScript = nix-update-script { extraArgs = [ "--version=branch" ]; };
     eafPythonDeps = ps: [ ];
-    eafOtherDeps = [ ];
   };
 
   meta = {

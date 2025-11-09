@@ -9,24 +9,16 @@
 
 buildGoModule (finalAttrs: {
   pname = "crush";
-  version = "0.6.1";
+  version = "0.13.5";
 
   src = fetchFromGitHub {
     owner = "charmbracelet";
     repo = "crush";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-QUYNJ2Ifny9Zj9YVQHcH80E2qa4clWVg2T075IEWujM=";
+    hash = "sha256-MKX26HptDwlwWvmP+9FDlFJzly5xKA0mNVsbeHi1zhg=";
   };
 
-  vendorHash = "sha256-vdzAVVGr7uTW/A/I8TcYW189E3960SCIqatu7Kb60hg=";
-
-  # rename TestMain to prevent it from running, as it panics in the sandbox.
-  postPatch = ''
-    substituteInPlace internal/llm/provider/openai_test.go \
-      --replace-fail \
-        "func TestMain" \
-        "func DisabledTestMain"
-  '';
+  vendorHash = "sha256-OiNmZKg+NN7Aoeao8L72Dvgz0moeaZGQ7KVJdvuWagY=";
 
   ldflags = [
     "-s"
@@ -37,6 +29,7 @@ buildGoModule (finalAttrs: {
     let
       # these tests fail in the sandbox
       skippedTests = [
+        "TestCoderAgent"
         "TestOpenAIClientStreamChoices"
         "TestGrepWithIgnoreFiles"
         "TestSearchImplementations"

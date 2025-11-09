@@ -13,14 +13,14 @@
 
 buildPythonPackage rec {
   pname = "livekit-api";
-  version = "1.0.5";
+  version = "1.0.7";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "livekit";
     repo = "python-sdks";
     tag = "api-v${version}";
-    hash = "sha256-GoVPOLA4aCC26+x9//mlmOO6tb3dczN+s1C+VtGRiRE=";
+    hash = "sha256-yS7Nzzrgyo3Q/O4z9acIfPXzS/SRv27BEiO4cMP11Z0=";
   };
 
   pypaBuildFlags = [ "livekit-api" ];

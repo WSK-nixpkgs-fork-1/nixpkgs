@@ -1,5 +1,6 @@
 {
   lib,
+  stdenv,
   buildGoModule,
   fetchFromGitHub,
   installShellFiles,
@@ -7,16 +8,16 @@
 
 buildGoModule rec {
   pname = "eksctl";
-  version = "0.212.0";
+  version = "0.216.0";
 
   src = fetchFromGitHub {
     owner = "weaveworks";
     repo = "eksctl";
     rev = version;
-    hash = "sha256-XOnRMD4EG0N8A2s4YlXqiukt9y6/YbHdJxGz9MM/iLc=";
+    hash = "sha256-uHwBzX/85B2oKmB0N4+uNxYzeAJpKSJamgu9M7bB3fg=";
   };
 
-  vendorHash = "sha256-WtrJJZRbH5RuKUJCXDqu9YuEIBflzvmIAWNqbTgcFeo=";
+  vendorHash = "sha256-pELsbEy+VUkGXywJQpPNGL2o00BoO9OPnrS148gMRFA=";
 
   doCheck = false;
 
@@ -36,7 +37,7 @@ buildGoModule rec {
 
   nativeBuildInputs = [ installShellFiles ];
 
-  postInstall = ''
+  postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     installShellCompletion --cmd eksctl \
       --bash <($out/bin/eksctl completion bash) \
       --fish <($out/bin/eksctl completion fish) \

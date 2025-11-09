@@ -45,7 +45,7 @@
 
 buildPythonPackage rec {
   pname = "django";
-  version = "4.2.23";
+  version = "4.2.25";
   format = "pyproject";
 
   disabled = pythonOlder "3.8";
@@ -54,7 +54,7 @@ buildPythonPackage rec {
     owner = "django";
     repo = "django";
     rev = "refs/tags/${version}";
-    hash = "sha256-h6VkMLg2XAVC0p+ItTs/2EqpYdZn9uNvv6ZwQHXP0bI=";
+    hash = "sha256-HUNKvLDLZ1VmcyIN0QVMUJZgmd1zBulhzGzGgkZ/84E=";
   };
 
   patches = [
@@ -79,6 +79,7 @@ buildPythonPackage rec {
       includes = [ "django/*" ]; # tests don't apply
       hash = "sha256-8YwdOBNJq6+GNoxzdLyN9HEEIWRXGQk9YbyfPwYVkwU=";
     })
+
   ]
   ++ lib.optionals withGdal [
     (replaceVars ./django_4_set_geos_gdal_lib.patch {

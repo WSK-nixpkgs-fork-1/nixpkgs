@@ -22,7 +22,7 @@ let
     timerToUnit
     mountToUnit
     automountToUnit
-    attrsToSection
+    settingsToSections
     ;
 
   cfg = config.boot.initrd.systemd;
@@ -325,6 +325,22 @@ in
       '';
     };
 
+    shell.enable = lib.mkEnableOption "" // {
+      default = config.environment.shell.enable;
+      internal = true;
+      description = ''
+        Whether to enable a shell in the initrd.
+
+        In contrast to `environment.shell.enable`, this option actually
+        strictly disables all shells in the initrd because they're not copied
+        into it anymore. Paths that use a shell (e.g. via the `script` option),
+        will break if this option is set.
+
+        Only set this option if you're sure that you can recover from potential
+        issues.
+      '';
+    };
+
     units = mkOption {
       description = "Definition of systemd units.";
       default = { };
@@ -460,12 +476,14 @@ in
     ++ lib.optional (config.boot.initrd.systemd.root == "gpt-auto") "rw";
 
     boot.initrd.systemd = {
-      # bashInteractive is easier to use and also required by debug-shell.service
       initrdBin = [
-        pkgs.bashInteractive
         pkgs.coreutils
-        cfg.package.kmod
         cfg.package
+      ]
+      ++ lib.optional (config.system.build.kernel.config.isYes "MODULES") cfg.package.kmod
+      ++ lib.optionals cfg.shell.enable [
+        # bashInteractive is easier to use and also required by debug-shell.service
+        pkgs.bashInteractive
       ];
       extraBin = {
         less = "${pkgs.less}/bin/less";
@@ -481,18 +499,10 @@ in
       settings.Manager.DefaultEnvironment = "PATH=/bin:/sbin";
 
       contents = {
-        "/tmp/.keep".text = "systemd requires the /tmp mount point in the initrd cpio archive";
         "/init".source = "${cfg.package}/lib/systemd/systemd";
         "/etc/systemd/system".source = stage1Units;
 
-        "/etc/systemd/system.conf".text = ''
-          [Manager]
-          ${attrsToSection cfg.settings.Manager}
-        '';
-
-        "/lib".source = "${config.system.build.modulesClosure}/lib";
-
-        "/etc/modules-load.d/nixos.conf".text = concatStringsSep "\n" config.boot.initrd.kernelModules;
+        "/etc/systemd/system.conf".text = settingsToSections cfg.settings;
 
         # We can use either ! or * to lock the root account in the
         # console, but some software like OpenSSH won't even allow you
@@ -507,11 +517,8 @@ in
 
         "/bin".source = "${initrdBinEnv}/bin";
         "/sbin".source = "${initrdBinEnv}/sbin";
-
-        "/etc/sysctl.d/nixos.conf".text = "kernel.modprobe = /sbin/modprobe";
-        "/etc/modprobe.d/systemd.conf".source = "${cfg.package}/lib/modprobe.d/systemd.conf";
-        "/etc/modprobe.d/ubuntu.conf".source = "${pkgs.kmod-blacklist-ubuntu}/modprobe.conf";
-        "/etc/modprobe.d/debian.conf".source = pkgs.kmod-debian-aliases;
+        "/usr/bin".source = "${initrdBinEnv}/bin";
+        "/usr/sbin".source = "${initrdBinEnv}/sbin";
 
         "/etc/os-release".source = config.boot.initrd.osRelease;
         "/etc/initrd-release".source = config.boot.initrd.osRelease;
@@ -522,6 +529,16 @@ in
       }
       // optionalAttrs (config.environment.etc ? "modprobe.d/nixos.conf") {
         "/etc/modprobe.d/nixos.conf".source = config.environment.etc."modprobe.d/nixos.conf".source;
+      }
+      // optionalAttrs (with config.system.build.kernel.config; isSet "MODULES" -> isYes "MODULES") {
+        "/lib".source = "${config.system.build.modulesClosure}/lib";
+
+        "/etc/modules-load.d/nixos.conf".text = concatStringsSep "\n" config.boot.initrd.kernelModules;
+
+        "/etc/sysctl.d/nixos.conf".text = "kernel.modprobe = /sbin/modprobe";
+        "/etc/modprobe.d/systemd.conf".source = "${cfg.package}/lib/modprobe.d/systemd.conf";
+        "/etc/modprobe.d/ubuntu.conf".source = "${pkgs.kmod-blacklist-ubuntu}/modprobe.conf";
+        "/etc/modprobe.d/debian.conf".source = pkgs.kmod-debian-aliases;
       };
 
       storePaths = [
@@ -551,19 +568,23 @@ in
         "${cfg.package.util-linux}/bin/umount"
         "${cfg.package.util-linux}/bin/sulogin"
 
+        # Resolving sysroot symlinks without code exec
+        "${config.system.nixos-init.package}/bin/chroot-realpath"
+        # Find the etc paths
+        "${config.system.nixos-init.package}/bin/find-etc"
+      ]
+      ++ lib.optionals config.system.nixos-init.enable [
+        "${config.system.nixos-init.package}/bin/initrd-init"
+      ]
+      ++ lib.optionals cfg.shell.enable [
         # required for services generated with writeShellScript and friends
         pkgs.runtimeShell
         # some tools like xfs still want the sh symlink
         "${pkgs.bashNonInteractive}/bin"
-
-        # so NSS can look up usernames
-        "${pkgs.glibc}/lib/libnss_files.so.2"
-
-        # Resolving sysroot symlinks without code exec
-        "${pkgs.chroot-realpath}/bin/chroot-realpath"
       ]
       ++ jobScripts
-      ++ map (c: builtins.removeAttrs c [ "text" ]) (builtins.attrValues cfg.contents);
+      ++ map (c: builtins.removeAttrs c [ "text" ]) (builtins.attrValues cfg.contents)
+      ++ lib.optional (pkgs.stdenv.hostPlatform.libc == "glibc") "${pkgs.glibc}/lib/libnss_files.so.2";
 
       targets.initrd.aliases = [ "default.target" ];
       units =
@@ -592,7 +613,7 @@ in
           ) cfg.automounts
         );
 
-      services.initrd-find-nixos-closure = {
+      services.initrd-find-nixos-closure = lib.mkIf (!config.system.nixos-init.enable) {
         description = "Find NixOS closure";
 
         unitConfig = {
@@ -613,7 +634,12 @@ in
         script = # bash
           ''
             set -uo pipefail
-            export PATH="/bin:${cfg.package.util-linux}/bin:${pkgs.chroot-realpath}/bin"
+            export PATH="/bin:${
+              lib.makeBinPath [
+                cfg.package.util-linux
+                config.system.nixos-init.package
+              ]
+            }"
 
             # Figure out what closure to boot
             closure=
@@ -668,7 +694,7 @@ in
         }
       ];
 
-      services.initrd-nixos-activation = {
+      services.initrd-nixos-activation = lib.mkIf (!config.system.nixos-init.enable) {
         after = [ "initrd-switch-root.target" ];
         requiredBy = [ "initrd-switch-root.service" ];
         before = [ "initrd-switch-root.service" ];
@@ -695,17 +721,46 @@ in
           '';
       };
 
-      # This will either call systemctl with the new init as the last parameter (which
-      # is the case when not booting a NixOS system) or with an empty string, causing
-      # systemd to bypass its verification code that checks whether the next file is a systemd
-      # and using its compiled-in value
-      services.initrd-switch-root.serviceConfig = {
-        EnvironmentFile = "-/etc/switch-root.conf";
-        ExecStart = [
-          ""
-          ''systemctl --no-block switch-root /sysroot "''${NEW_INIT}"''
-        ];
-      };
+      services.initrd-switch-root =
+        if config.system.nixos-init.enable then
+          {
+            path = [
+              cfg.package
+              cfg.package.util-linux
+              config.system.nixos-init.package
+            ];
+            environment = {
+              FIRMWARE = "${config.hardware.firmware}/lib/firmware";
+              MODPROBE_BINARY = "${pkgs.kmod}/bin/modprobe";
+              NIX_STORE_MOUNT_OPTS = lib.concatStringsSep "," config.boot.nixStoreMountOpts;
+            }
+            // lib.optionalAttrs (config.environment.usrbinenv != null) {
+              ENV_BINARY = config.environment.usrbinenv;
+            }
+            // lib.optionalAttrs (config.environment.binsh != null) {
+              SH_BINARY = config.environment.binsh;
+            };
+            serviceConfig = {
+              ExecStart = [
+                ""
+                "${config.system.nixos-init.package}/bin/initrd-init"
+              ];
+            };
+          }
+        else
+          # This will either call systemctl with the new init as the last parameter (which
+          # is the case when not booting a NixOS system) or with an empty string, causing
+          # systemd to bypass its verification code that checks whether the next file is a systemd
+          # and using its compiled-in value
+          {
+            serviceConfig = {
+              EnvironmentFile = "-/etc/switch-root.conf";
+              ExecStart = [
+                ""
+                ''systemctl --no-block switch-root /sysroot "''${NEW_INIT}"''
+              ];
+            };
+          };
 
       services.panic-on-fail = {
         wantedBy = [ "emergency.target" ];

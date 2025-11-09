@@ -33,7 +33,6 @@
   python3,
   sqlite,
   stdenv,
-  webkitgtk_4_0,
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "chow-tape-model";
@@ -87,7 +86,6 @@ stdenv.mkDerivation (finalAttrs: {
     pcre2
     python3
     sqlite
-    webkitgtk_4_0
   ];
 
   # Link-time-optimization fails without these
@@ -99,7 +97,12 @@ stdenv.mkDerivation (finalAttrs: {
 
   cmakeBuildType = "Release";
 
-  postPatch = "cd Plugin";
+  postPatch = ''
+    cd Plugin
+    substituteInPlace modules/RTNeural/CMakeLists.txt --replace-fail \
+      'cmake_minimum_required(VERSION 3.1)' \
+      'cmake_minimum_required(VERSION 4.0)'
+  '';
 
   installPhase = ''
     mkdir -p $out/lib/lv2 $out/lib/vst3 $out/lib/clap $out/bin $out/share/doc/CHOWTapeModel/

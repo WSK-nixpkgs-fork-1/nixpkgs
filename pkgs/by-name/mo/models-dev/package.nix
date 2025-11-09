@@ -6,23 +6,14 @@
   nix-update-script,
   writableTmpDirAsHomeHook,
 }:
-
-let
-  models-dev-node-modules-hash = {
-    "aarch64-darwin" = "sha256-VkqxZF2LkNBoIkbQGz98O+y7LgLqQ+FofV2WyMOOUEs=";
-    "aarch64-linux" = "sha256-P7Dik1bXWdipzs4orPff53bDwEXYFHSC05RV789mrTI=";
-    "x86_64-darwin" = "sha256-/VdwzrV+srDrexvXHLKtN2Od24XlXVDWu6pEk1zLtjM=";
-    "x86_64-linux" = "sha256-hMiCOMskK9kwGKaixsvodUVsOuuageiUAwxp/AvzR44=";
-  };
-in
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "models-dev";
-  version = "0-unstable-2025-08-15";
+  version = "0-unstable-2025-11-06";
   src = fetchFromGitHub {
     owner = "sst";
     repo = "models.dev";
-    rev = "f42ddd35b77a47bf11078096871a25a13d46a596";
-    hash = "sha256-OomKQ61KvOMxQ2InwFLIZqoyQ8bMV0S0nx67gREt97g=";
+    rev = "db75a6d97efdd7a3f73cc2c0ebc3f362ebce608c";
+    hash = "sha256-pl6Ra7QPmM15ndl/skxE+XTqWP9oD2olcs+EQFW0U/0=";
   };
 
   node_modules = stdenvNoCC.mkDerivation {
@@ -47,9 +38,12 @@ stdenvNoCC.mkDerivation (finalAttrs: {
        export BUN_INSTALL_CACHE_DIR=$(mktemp -d)
 
        bun install \
+         --filter=./packages/web \
          --force \
          --frozen-lockfile \
-         --no-progress
+         --ignore-scripts \
+         --no-progress \
+         --production
 
       runHook postBuild
     '';
@@ -57,46 +51,40 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     installPhase = ''
       runHook preInstall
 
-      mkdir -p $out/node_modules
-      cp -R ./node_modules $out
+      # Copy node_modules directories
+      while IFS= read -r dir; do
+        rel="''${dir#./}"
+        dest="$out/$rel"
+        mkdir -p "$(dirname "$dest")"
+        cp -R "$dir" "$dest"
+      done < <(find . -type d -name node_modules -prune)
 
       runHook postInstall
     '';
 
-    # Required else we get errors that our fixed-output derivation references store paths
+    # NOTE: Required else we get errors that our fixed-output derivation references store paths
     dontFixup = true;
 
-    outputHash = models-dev-node-modules-hash.${stdenvNoCC.hostPlatform.system};
+    outputHash = "sha256-otke/XlxVafkgtM3wDMU+/GBBgrbD32+3E+Wyue8+U8=";
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
   };
 
   nativeBuildInputs = [ bun ];
 
-  patches = [
-    # In bun 1.2.13 (release-25.05) HTML entrypoints get content hashes
-    # appended → index.html becomes index-pq8vj7za.html in ./dist. So, we
-    # rename the index file back to index.html
-    ./post-build-rename-index-file.patch
-  ];
-
   configurePhase = ''
     runHook preConfigure
 
-    cp -R ${finalAttrs.node_modules}/node_modules .
+    cp -R ${finalAttrs.node_modules}/. .
 
     runHook postConfigure
-  '';
-
-  preBuild = ''
-    patchShebangs packages/web/script/build.ts
   '';
 
   buildPhase = ''
     runHook preBuild
 
     cd packages/web
-    bun run build
+    bun run ./script/build.ts
 
     runHook postBuild
   '';

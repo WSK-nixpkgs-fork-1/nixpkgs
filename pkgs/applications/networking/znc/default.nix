@@ -19,6 +19,7 @@
   zlib,
   withIPv6 ? true,
   withDebug ? false,
+  testers,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -66,14 +67,18 @@ stdenv.mkDerivation (finalAttrs: {
 
   enableParallelBuilding = true;
 
+  passthru = {
+    tests.pkg-config = testers.testMetaPkgConfig finalAttrs.finalPackage;
+  };
+
   meta = {
     description = "Advanced IRC bouncer";
     homepage = "https://wiki.znc.in/ZNC";
     maintainers = with lib.maintainers; [
-      schneefux
       lnl7
     ];
     license = lib.licenses.asl20;
     platforms = lib.platforms.unix;
+    pkgConfigModules = [ "znc" ];
   };
 })

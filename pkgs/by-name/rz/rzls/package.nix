@@ -11,7 +11,11 @@ let
     with dotnetCorePackages;
     sdk_9_0
     // {
-      inherit (sdk_8_0)
+      inherit
+        (combinePackages [
+          sdk_9_0
+          sdk_8_0
+        ])
         packages
         targetPackages
         ;
@@ -25,11 +29,11 @@ buildDotnetModule {
   src = fetchFromGitHub {
     owner = "dotnet";
     repo = "razor";
-    rev = "ce522dd7670dc8e5885b8d078ff5be2877ee33ed";
-    hash = "sha256-FabK93NBoabQPuUr+yaXOxd2acrN3OMqeeCIT6nvAtw=";
+    rev = "73622b728a3015c601aeada75eb8425bde7ba439";
+    hash = "sha256-uy6e9J/mx05wlRILoetnSyRYXvaveGIVzdQKDHEfrVQ=";
   };
 
-  version = "10.0.0-preview.25403.1";
+  version = "10.0.0-preview.25517.9";
   projectFile = "src/Razor/src/rzls/rzls.csproj";
   useDotnetFromEnv = true;
   nugetDeps = ./deps.json;

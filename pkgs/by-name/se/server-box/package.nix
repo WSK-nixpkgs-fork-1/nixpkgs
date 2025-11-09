@@ -1,6 +1,6 @@
 {
   lib,
-  flutter332,
+  flutter335,
   fetchFromGitHub,
   autoPatchelfHook,
   copyDesktopItems,
@@ -12,16 +12,16 @@
 }:
 
 let
-  version = "1.0.1201";
+  version = "1.0.1270";
 
   src = fetchFromGitHub {
     owner = "lollipopkit";
     repo = "flutter_server_box";
     tag = "v${version}";
-    hash = "sha256-ScPpEL2YxWw1aKEyzhoa0b931WF4hrdren4aSAlMpoU=";
+    hash = "sha256-3erwb2e9iINe4MVuOQKzBuBdUJyBgW2zIImZwVyll6Q=";
   };
 in
-flutter332.buildFlutterApplication {
+flutter335.buildFlutterApplication {
   pname = "server-box";
   inherit version src;
 
@@ -34,10 +34,13 @@ flutter332.buildFlutterApplication {
     autoPatchelfHook
   ];
 
+  # https://github.com/juliansteenbakker/flutter_secure_storage/issues/965
+  CXXFLAGS = [ "-Wno-deprecated-literal-operator" ];
+
   desktopItems = [
     (makeDesktopItem {
       name = "server-box";
-      exec = "server-box";
+      exec = "ServerBox";
       icon = "server-box";
       genericName = "ServerBox";
       desktopName = "ServerBox";
@@ -52,7 +55,7 @@ flutter332.buildFlutterApplication {
   ];
 
   postInstall = ''
-    install -Dm0644 assets/app_icon.png $out/share/pixmaps/server-box.png
+    install -D --mode=0644 assets/app_icon.png $out/share/icons/hicolor/512x512/apps/server-box.png
   '';
 
   passthru = {
@@ -78,9 +81,10 @@ flutter332.buildFlutterApplication {
   meta = {
     description = "Server status & toolbox";
     homepage = "https://github.com/lollipopkit/flutter_server_box";
+    changelog = "https://github.com/lollipopkit/flutter_server_box/releases/tag/${src.tag}";
     mainProgram = "ServerBox";
     license = lib.licenses.gpl3Plus;
     platforms = lib.platforms.linux;
-    maintainers = with lib.maintainers; [ ];
+    maintainers = with lib.maintainers; [ ulysseszhan ];
   };
 }

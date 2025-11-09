@@ -5,8 +5,9 @@
   cargo,
   copyDesktopItems,
   darwin,
-  electron_36,
+  electron_37,
   fetchFromGitHub,
+  fetchpatch2,
   gnome-keyring,
   jq,
   llvmPackages_18,
@@ -25,7 +26,7 @@
 let
   description = "Secure and free password manager for all of your devices";
   icon = "bitwarden";
-  electron = electron_36;
+  electron = electron_37;
 
   # argon2 npm dependency is using `std::basic_string<uint8_t>`, which is no longer allowed in LLVM 19
   buildNpmPackage' = buildNpmPackage.override {
@@ -34,13 +35,13 @@ let
 in
 buildNpmPackage' rec {
   pname = "bitwarden-desktop";
-  version = "2025.7.0";
+  version = "2025.10.0";
 
   src = fetchFromGitHub {
     owner = "bitwarden";
     repo = "clients";
     rev = "desktop-v${version}";
-    hash = "sha256-i1osaSK2Nnjnt2j/bS6VEMi4j5UvEEHf+RVt0901DvA=";
+    hash = "sha256-A7bxAdFDChr7yiexV70N3tqhaUVAwJdGhhRKJyX0ra8=";
   };
 
   patches = [
@@ -49,10 +50,17 @@ buildNpmPackage' rec {
 
     # ensures `app.getPath("exe")` returns our wrapper, not ${electron}/bin/electron
     ./set-exe-path.patch
+    # ensure that the desktop proxy is correctly located in libexec
+    ./set-desktop-proxy-path.patch
     # on linux: don't flip fuses, don't create wrapper script, on darwin: don't try copying safari extensions, don't try re-signing app
     ./skip-afterpack-and-aftersign.patch
     # since out arch doesn't match upstream, we'll generate and use desktop_napi.node instead of desktop_napi.${platform}-${arch}.node
     ./dont-use-platform-triple.patch
+
+    (fetchpatch2 {
+      url = "https://github.com/bitwarden/clients/commit/cd56d01894c38cf046a7e44dcacc7e0ff2aa2a37.patch?full_index=1";
+      hash = "sha256-NRZiM+Y/ifh77vS+8mldbiwv/vPDr1JUOJzSu2tFMS8=";
+    })
   ];
 
   postPatch = ''
@@ -60,6 +68,8 @@ buildNpmPackage' rec {
     rm -r bitwarden_license
 
     substituteInPlace apps/desktop/src/main.ts --replace-fail '%%exePath%%' "$out/bin/bitwarden"
+    substituteInPlace apps/desktop/src/main/native-messaging.main.ts \
+      --replace-fail '%%desktopProxyPath%%' "$out/libexec/desktop_proxy"
 
     # force canUpdate to false
     # will open releases page instead of trying to update files
@@ -83,7 +93,7 @@ buildNpmPackage' rec {
     "--ignore-scripts"
   ];
   npmWorkspace = "apps/desktop";
-  npmDepsHash = "sha256-NnkT+NO3zUI71w9dSinnPeJbOlWBA4IHAxnMlYUmOT4=";
+  npmDepsHash = "sha256-Qhj8Lh25vNnJzbUm/M+mKIc6Fa5plSCiy53vjevs7Tc=";
 
   cargoDeps = rustPlatform.fetchCargoVendor {
     inherit
@@ -93,7 +103,7 @@ buildNpmPackage' rec {
       cargoRoot
       patches
       ;
-    hash = "sha256-nhQUUj7Hz21fnbhqrQL4eYInPNlNLVgbkWylWMRJkAk=";
+    hash = "sha256-fgnf+yT3UV8dHTE2tDHdBWTBW+LHAYI/JGgfS0J/Bgk=";
   };
   cargoRoot = "apps/desktop/desktop_native";
 
@@ -132,6 +142,10 @@ buildNpmPackage' rec {
 
     pushd apps/desktop/desktop_native/napi
     npm run build
+    popd
+
+    pushd apps/desktop/desktop_native/proxy
+    cargo build --bin desktop_proxy --release -j $NIX_BUILD_CORES --offline
     popd
   '';
 
@@ -176,6 +190,8 @@ buildNpmPackage' rec {
 
   installPhase = ''
     runHook preInstall
+
+    install -Dm755 -t $out/libexec apps/desktop/desktop_native/target/release/desktop_proxy
   ''
   + lib.optionalString stdenv.hostPlatform.isDarwin ''
     mkdir -p $out/Applications

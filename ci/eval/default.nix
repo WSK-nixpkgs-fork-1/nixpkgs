@@ -19,6 +19,17 @@
   nix,
 }:
 
+{
+  # The number of attributes per chunk, see ./README.md for more info.
+  chunkSize ? 5000,
+  # Whether to just evaluate a single chunk for quick testing
+  quickTest ? false,
+  # Don't try to eval packages marked as broken.
+  includeBroken ? false,
+  # Customize the config used to evaluate nixpkgs
+  extraNixpkgsConfig ? { },
+}:
+
 let
   nixpkgs =
     with lib.fileset;
@@ -26,14 +37,18 @@ let
       root = ../..;
       fileset = unions (
         map (lib.path.append ../..) [
+          ".version"
+          "ci/supportedSystems.json"
+          "ci/eval/attrpaths.nix"
+          "ci/eval/chunk.nix"
+          "ci/eval/outpaths.nix"
           "default.nix"
           "doc"
           "lib"
           "maintainers"
+          "modules"
           "nixos"
           "pkgs"
-          ".version"
-          "ci/supportedSystems.json"
         ]
       );
     };
@@ -59,9 +74,10 @@ let
         export GC_INITIAL_HEAP_SIZE=4g
         command time -f "Attribute eval done [%MKB max resident, %Es elapsed] %C" \
           nix-instantiate --eval --strict --json --show-trace \
-            "$src/pkgs/top-level/release-attrpaths-superset.nix" \
+            "$src/ci/eval/attrpaths.nix" \
             -A paths \
             -I "$src" \
+            --argstr extraNixpkgsConfigJson ${lib.escapeShellArg (builtins.toJSON extraNixpkgsConfig)} \
             --option restrict-eval true \
             --option allow-import-from-derivation false \
             --option eval-system "${evalSystem}" > $out/paths.json
@@ -75,14 +91,6 @@ let
       evalSystem ? builtins.currentSystem,
       # The path to the `paths.json` file from `attrpathsSuperset`
       attrpathFile ? "${attrpathsSuperset { inherit evalSystem; }}/paths.json",
-      # The number of attributes per chunk, see ./README.md for more info.
-      chunkSize ? 5000,
-      checkMeta ? true,
-
-      # Don't try to eval packages marked as broken.
-      includeBroken ? false,
-      # Whether to just evaluate a single chunk for quick testing
-      quickTest ? false,
     }:
     let
       singleChunk = writeShellScript "single-chunk" ''
@@ -92,25 +100,30 @@ let
         system=$3
         outputDir=$4
 
+        # Default is 5, higher values effectively disable the warning.
+        # This randomly breaks Eval.
+        export GC_LARGE_ALLOC_WARN_INTERVAL=1000
+
         export NIX_SHOW_STATS=1
         export NIX_SHOW_STATS_PATH="$outputDir/stats/$myChunk"
         echo "Chunk $myChunk on $system start"
         set +e
         command time -o "$outputDir/timestats/$myChunk" \
           -f "Chunk $myChunk on $system done [%MKB max resident, %Es elapsed] %C" \
-          nix-env -f "${nixpkgs}/pkgs/top-level/release-outpaths-parallel.nix" \
+          nix-env -f "${nixpkgs}/ci/eval/chunk.nix" \
           --eval-system "$system" \
           --option restrict-eval true \
           --option allow-import-from-derivation false \
           --query --available \
           --out-path --json \
+          --meta \
           --show-trace \
           --arg chunkSize "$chunkSize" \
           --arg myChunk "$myChunk" \
           --arg attrpathFile "${attrpathFile}" \
           --arg systems "[ \"$system\" ]" \
-          --arg checkMeta ${lib.boolToString checkMeta} \
           --arg includeBroken ${lib.boolToString includeBroken} \
+          --argstr extraNixpkgsConfigJson ${lib.escapeShellArg (builtins.toJSON extraNixpkgsConfig)} \
           -I ${nixpkgs} \
           -I ${attrpathFile} \
           > "$outputDir/result/$myChunk" \
@@ -140,6 +153,8 @@ let
         env = {
           inherit evalSystem chunkSize;
         };
+        __structuredAttrs = true;
+        unsafeDiscardReferences.out = true;
       }
       ''
         export NIX_STATE_DIR=$(mktemp -d)
@@ -196,6 +211,7 @@ let
         fi
 
         cat "$chunkOutputDir"/result/* | jq -s 'add | map_values(.outputs)' > $out/${evalSystem}/paths.json
+        cat "$chunkOutputDir"/result/* | jq -s 'add | map_values(.meta)' > $out/${evalSystem}/meta.json
       '';
 
   diff = callPackage ./diff.nix { };
@@ -224,6 +240,14 @@ let
           })
         ' > $out/combined-diff.json
 
+        # Combine maintainers from all systems
+        cat ${diffDir}/*/maintainers.json | jq -s '
+          add | group_by(.package) | map({
+            key: .[0].package,
+            value: map(.maintainers) | flatten | unique
+          }) | from_entries
+        ' > $out/maintainers.json
+
         mkdir -p $out/before/stats
         for d in ${diffDir}/before/*; do
           cp -r "$d"/stats-by-chunk $out/before/stats/$(basename "$d")
@@ -237,36 +261,53 @@ let
 
   compare = callPackage ./compare { };
 
+  baseline =
+    {
+      # Whether to evaluate on a specific set of systems, by default all are evaluated
+      evalSystems ? if quickTest then [ "x86_64-linux" ] else supportedSystems,
+    }:
+    symlinkJoin {
+      name = "nixpkgs-eval-baseline";
+      paths = map (
+        evalSystem:
+        singleSystem {
+          inherit evalSystem;
+        }
+      ) evalSystems;
+    };
+
   full =
     {
       # Whether to evaluate on a specific set of systems, by default all are evaluated
       evalSystems ? if quickTest then [ "x86_64-linux" ] else supportedSystems,
-      # The number of attributes per chunk, see ./README.md for more info.
-      chunkSize,
-      quickTest ? false,
+      baseline,
+      # What files have been touched? Defaults to none; use the expression below to calculate it.
+      # ```
+      # git diff --name-only --merge-base master HEAD \
+      #   | jq --raw-input --slurp 'split("\n")[:-1]' > touched-files.json
+      # ```
+      touchedFilesJson ? builtins.toFile "touched-files.json" "[ ]",
     }:
     let
       diffs = symlinkJoin {
-        name = "diffs";
+        name = "nixpkgs-eval-diffs";
         paths = map (
           evalSystem:
-          let
-            eval = singleSystem {
-              inherit quickTest evalSystem chunkSize;
-            };
-          in
           diff {
             inherit evalSystem;
-            # Local "full" evaluation doesn't do a real diff.
-            beforeDir = eval;
-            afterDir = eval;
+            beforeDir = baseline;
+            afterDir = singleSystem {
+              inherit evalSystem;
+            };
           }
         ) evalSystems;
       };
+      comparisonReport = compare {
+        combinedDir = combine { diffDir = diffs; };
+        inherit touchedFilesJson;
+      };
     in
-    combine {
-      diffDir = diffs;
-    };
+    comparisonReport;
 
 in
 {
@@ -277,7 +318,8 @@ in
     combine
     compare
     # The above three are used by separate VMs in a GitHub workflow,
-    # while the below is intended for testing on a single local machine
+    # while the below are intended for testing on a single local machine
+    baseline
     full
     ;
 }

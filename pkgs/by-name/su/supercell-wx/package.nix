@@ -24,7 +24,7 @@
   gtest,
   glm,
   qt6,
-  tbb_2021,
+  onetbb,
   tracy,
   replaceVars,
   python3,
@@ -79,7 +79,7 @@ stdenv.mkDerivation (finalAttrs: {
     maintainers = with lib.maintainers; [ aware70 ];
   };
 
-  env.CXXFLAGS = "-Wno-error=restrict -Wno-error=maybe-uninitialized -Wno-error=deprecated-declarations -Wno-error=stringop-overflow";
+  env.CXXFLAGS = "-Wno-error=restrict -Wno-error=maybe-uninitialized -Wno-error=deprecated-declarations -Wno-error=stringop-overflow -DQT_NO_USE_NODISCARD_FILE_OPEN";
   env.GTEST_FILTER = "-${lib.concatStringsSep ":" gtestSkip}";
 
   doCheck = true;
@@ -104,6 +104,7 @@ stdenv.mkDerivation (finalAttrs: {
 
     # These may be or already are submitted upstream {{{
     ./patches/explicit-link-aws-crt.patch # fix missing symbols from aws-crt-cpp
+    ./patches/fix-qt-6.10.patch
     # }}}
   ];
 
@@ -130,7 +131,7 @@ stdenv.mkDerivation (finalAttrs: {
     aws-sdk-cpp
     howard-hinnant-date
     boost
-    tbb_2021
+    onetbb
     glew
     geos
     spdlog

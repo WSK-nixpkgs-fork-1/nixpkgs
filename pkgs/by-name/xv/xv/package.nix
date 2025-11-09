@@ -7,18 +7,20 @@
   libpng,
   libwebp,
   libtiff,
+  libjpeg,
   jasper,
+  libxrandr,
 }:
 
 stdenv.mkDerivation rec {
   pname = "xv";
-  version = "6.0.3";
+  version = "6.0.4";
 
   src = fetchFromGitHub {
     owner = "jasper-software";
     repo = "xv";
     rev = "v${version}";
-    sha256 = "sha256-508P88Kac1W0xwjNblOjkYJri36ReZkjzrNzrrSBZjg=";
+    sha256 = "sha256-5bhLMGdj7HJOsSOFjNO5s3wDA9XbPTwG+g7OSrKMMXk=";
   };
 
   nativeBuildInputs = [ cmake ];
@@ -28,7 +30,9 @@ stdenv.mkDerivation rec {
     libpng
     libwebp
     libtiff
+    libjpeg
     jasper
+    libxrandr
   ];
 
   meta = {

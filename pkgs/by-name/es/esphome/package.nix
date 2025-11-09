@@ -34,15 +34,23 @@ let
 in
 python.pkgs.buildPythonApplication rec {
   pname = "esphome";
-  version = "2025.7.5";
+  version = "2025.10.4";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "esphome";
     repo = "esphome";
     tag = version;
-    hash = "sha256-f6HBgjg6yiFCQk6hIvQMYw+5/KjIVvUJaK+c/xmIseM=";
+    hash = "sha256-+j3x/9wmPk9HEHkQEfdgYnpUojGc89dU4pvRNaT5czk=";
   };
+
+  patches = [
+    # Use the esptool executable directly in the ESP32 post build script, that
+    # gets executed by platformio. This is required, because platformio uses its
+    # own python environment through `python -m esptool` and then fails to find
+    # the esptool library.
+    ./esp32-post-build-esptool-reference.patch
+  ];
 
   build-system = with python.pkgs; [
     setuptools
@@ -61,7 +69,8 @@ python.pkgs.buildPythonApplication rec {
 
   postPatch = ''
     substituteInPlace pyproject.toml \
-      --replace-fail "setuptools==80.9.0" "setuptools"
+      --replace-fail "setuptools==80.9.0" "setuptools" \
+      --replace-fail "wheel>=0.43,<0.46" "wheel"
   '';
 
   # Remove esptool and platformio from requirements
@@ -157,6 +166,19 @@ python.pkgs.buildPythonApplication rec {
     '';
 
   doInstallCheck = true;
+
+  disabledTests = [
+    # tries to import platformio, which is wrapped in an fhsenv
+    "test_clean_build"
+    "test_clean_build_empty_cache_dir"
+    "test_clean_all"
+    "test_clean_all_partial_exists"
+    # tries to use esptool, which is wrapped in an fhsenv
+    "test_upload_using_esptool_path_conversion"
+    "test_upload_using_esptool_with_file_path"
+    # AssertionError: Expected 'run_external_command' to have been called once. Called 0 times.
+    "test_run_platformio_cli_sets_environment_variables"
+  ];
 
   versionCheckProgramArg = "--version";
 

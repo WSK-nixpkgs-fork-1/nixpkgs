@@ -2,6 +2,7 @@
   lib,
   buildPythonPackage,
   fetchFromGitHub,
+  fetchpatch,
 
   # build-system
   setuptools,
@@ -38,15 +39,26 @@
 
 buildPythonPackage rec {
   pname = "flax";
-  version = "0.11.1";
+  version = "0.12.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "google";
     repo = "flax";
     tag = "v${version}";
-    hash = "sha256-XZ9a8wpT+XpRsg8va/OnlccSYhLVV57/kz/sVdWkE3E=";
+    hash = "sha256-ioMj8+TuOFX3t9p3oVaywaOQPFBgvNcy7b/2WX/yvXA=";
   };
+
+  patches = [
+    # Fixes TypeError: shard_map() got an unexpected keyword argument 'auto'
+    # TODO: remove when updating to the next release
+    # https://github.com/google/flax/pull/5020
+    (fetchpatch {
+      name = "jax-0.8.0-compat";
+      url = "https://github.com/google/flax/commit/5bf9b35ff03130f440a93a812fd8b47ec6a49add.patch";
+      hash = "sha256-KYpa1wDQMt77XIDGQEg/VuU/OPPNp2enGSA986TZSLQ=";
+    })
+  ];
 
   build-system = [
     setuptools
@@ -105,6 +117,9 @@ buildPythonPackage rec {
   disabledTests = [
     # AssertionError: [Chex] Function 'add' is traced > 1 times!
     "PadShardUnpadTest"
+
+    # AssertionError: nnx_model.kernel.value.sharding = NamedSharding(...
+    "test_linen_to_nnx_metadata"
   ];
 
   passthru = {

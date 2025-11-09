@@ -9,13 +9,13 @@
 buildHomeAssistantComponent rec {
   owner = "AlexxIT";
   domain = "xiaomi_gateway3";
-  version = "4.1.0";
+  version = "4.1.4";
 
   src = fetchFromGitHub {
     owner = "AlexxIT";
     repo = "XiaomiGateway3";
     rev = "v${version}";
-    hash = "sha256-fpMrp8iVO1Gmj0c80qRr3yfdZ3fl+DOiEi1vF1GZwXU=";
+    hash = "sha256-pa9B2c1QeQ3DR2qjttP0c/44pERGtune+4nlnzPBSYo=";
   };
 
   dependencies = [ zigpy ];

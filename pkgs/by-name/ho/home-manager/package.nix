@@ -19,14 +19,14 @@
 
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "home-manager";
-  version = "0-unstable-2025-08-06";
+  version = "0-unstable-2025-11-03";
 
   src = fetchFromGitHub {
     name = "home-manager-source";
     owner = "nix-community";
     repo = "home-manager";
-    rev = "13461dec40bf03d9196ff79d1abe48408268cc35";
-    hash = "sha256-V0iiDcYvNeMOP2FyfgC4H8Esx+JodXEl80lD4hFD4SI=";
+    rev = "aa6936bb637e46a49cf1292486200ba41dd4bcf7";
+    hash = "sha256-Y5950vzoyJ8+u4U6dlI/2VEbf3JQnIJsmRWWWcsgpRg=";
   };
 
   nativeBuildInputs = [

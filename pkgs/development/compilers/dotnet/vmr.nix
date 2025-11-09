@@ -1,14 +1,14 @@
 {
-  clangStdenv,
+  llvmPackages_20,
   lib,
   fetchurl,
+  fetchpatch,
   dotnetCorePackages,
   jq,
   curl,
   git,
   cmake,
   pkg-config,
-  llvm,
   zlib,
   icu,
   lttng-ust_2_12,
@@ -18,6 +18,7 @@
   darwin,
   xcbuild,
   swiftPackages,
+  apple-sdk_13,
   openssl,
   getconf,
   python3,
@@ -36,7 +37,9 @@
 }:
 
 let
-  stdenv = if clangStdenv.hostPlatform.isDarwin then swiftPackages.stdenv else clangStdenv;
+  llvmPackages = llvmPackages_20;
+
+  stdenv = llvmPackages.stdenv;
 
   inherit (stdenv)
     isLinux
@@ -100,7 +103,7 @@ stdenv.mkDerivation rec {
     # this gets copied into the tree, but we still need the sandbox profile
     bootstrapSdk
     # the propagated build inputs in llvm.dev break swift compilation
-    llvm.out
+    llvmPackages.llvm.out
     zlib
     _icu
     openssl
@@ -109,12 +112,15 @@ stdenv.mkDerivation rec {
     krb5
     lttng-ust_2_12
   ]
-  ++ lib.optionals isDarwin [
-    xcbuild
-    swift
-    krb5
-    sigtool
-  ];
+  ++ lib.optionals isDarwin (
+    [
+      xcbuild
+      swift
+      krb5
+      sigtool
+    ]
+    ++ lib.optional (lib.versionAtLeast version "10") apple-sdk_13
+  );
 
   # This is required to fix the error:
   # > CSSM_ModuleLoad(): One or more parameters passed to a function were not valid.
@@ -139,11 +145,6 @@ stdenv.mkDerivation rec {
     ++ lib.optionals (lib.versionOlder version "9") [
       ./fix-aspnetcore-portable-build.patch
       ./vmr-compiler-opt-v8.patch
-    ]
-    ++ lib.optionals (lib.versionAtLeast version "10") [
-      # src/repos/projects/Directory.Build.targets(106,5): error MSB4018: The "AddSourceToNuGetConfig" task failed unexpectedly.
-      # src/repos/projects/Directory.Build.targets(106,5): error MSB4018: System.Xml.XmlException->Microsoft.Build.Framework.BuildException.GenericBuildTransferredException: There are multiple root elements. Line 9, position 2.
-      ./source-build-externals-overwrite-rather-than-append-.patch
     ];
 
   postPatch = ''
@@ -178,11 +179,15 @@ stdenv.mkDerivation rec {
       -s \$prev -t elem -n NoWarn -v '$(NoWarn);AD0001' \
       src/source-build-reference-packages/src/referencePackages/Directory.Build.props
 
+  ''
+  + lib.optionalString (lib.versionOlder version "10") ''
     # https://github.com/microsoft/ApplicationInsights-dotnet/issues/2848
     xmlstarlet ed \
       --inplace \
       -u //_:Project/_:PropertyGroup/_:BuildNumber -v 0 \
-      src/source-build-externals/src/${lib.optionalString (lib.versionAtLeast version "10") "repos/src/"}application-insights/.props/_GlobalStaticVersion.props
+      src/source-build-externals/src/application-insights/.props/_GlobalStaticVersion.props
+  ''
+  + ''
 
     # this fixes compile errors with clang 15 (e.g. darwin)
     substituteInPlace \
@@ -365,7 +370,6 @@ stdenv.mkDerivation rec {
     ''
     + lib.optionalString (lib.versionAtLeast version "10") ''
       dotnet nuget add source "${bootstrapSdk.artifacts}"
-      dotnet nuget add source "${bootstrapSdk.artifacts}/SourceBuildReferencePackages"
     ''
     + ''
       ${prepScript} $prepFlags
@@ -398,6 +402,9 @@ stdenv.mkDerivation rec {
   ]
   ++ lib.optionals (lib.versionAtLeast version "9") [
     "--source-build"
+  ]
+  ++ lib.optionals (lib.versionAtLeast version "10") [
+    "--branding default"
   ]
   ++ [
     "--"

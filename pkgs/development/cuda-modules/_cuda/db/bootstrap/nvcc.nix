@@ -28,6 +28,110 @@
       ```
   */
   nvccCompatibilities = {
+    # https://docs.nvidia.com/cuda/archive/11.0/cuda-toolkit-release-notes/index.html#cuda-compiler-new-features
+    "11.0" = {
+      clang = {
+        maxMajorVersion = "9";
+        minMajorVersion = "7";
+      };
+      gcc = {
+        maxMajorVersion = "9";
+        minMajorVersion = "6";
+      };
+    };
+
+    # Added support for Clang 10 and GCC 10
+    # https://docs.nvidia.com/cuda/archive/11.1.1/cuda-toolkit-release-notes/index.html#cuda-compiler-new-features
+    "11.1" = {
+      clang = {
+        maxMajorVersion = "10";
+        minMajorVersion = "7";
+      };
+      gcc = {
+        maxMajorVersion = "10";
+        minMajorVersion = "6";
+      };
+    };
+
+    # Added support for Clang 11
+    # https://docs.nvidia.com/cuda/archive/11.2.2/cuda-installation-guide-linux/index.html#system-requirements
+    "11.2" = {
+      clang = {
+        maxMajorVersion = "11";
+        minMajorVersion = "7";
+      };
+      gcc = {
+        maxMajorVersion = "10";
+        minMajorVersion = "6";
+      };
+    };
+
+    # No changes from 11.2 to 11.3
+    "11.3" = {
+      clang = {
+        maxMajorVersion = "11";
+        minMajorVersion = "7";
+      };
+      gcc = {
+        maxMajorVersion = "10";
+        minMajorVersion = "6";
+      };
+    };
+
+    # Added support for Clang 12 and GCC 11
+    # https://docs.nvidia.com/cuda/archive/11.4.4/cuda-toolkit-release-notes/index.html#cuda-general-new-features
+    # NOTE: There is a bug in the version of GLIBC that GCC 11 uses which causes it to fail to compile some CUDA
+    # code. As such, we skip it for this release, and do the bump in 11.6 (skipping 11.5).
+    # https://forums.developer.nvidia.com/t/cuda-11-5-samples-throw-multiple-error-attribute-malloc-does-not-take-arguments/192750/15
+    "11.4" = {
+      clang = {
+        maxMajorVersion = "12";
+        minMajorVersion = "7";
+      };
+      gcc = {
+        maxMajorVersion = "10";
+        minMajorVersion = "6";
+      };
+    };
+
+    # No changes from 11.4 to 11.5
+    "11.5" = {
+      clang = {
+        maxMajorVersion = "12";
+        minMajorVersion = "7";
+      };
+      gcc = {
+        maxMajorVersion = "10";
+        minMajorVersion = "6";
+      };
+    };
+
+    # No changes from 11.5 to 11.6
+    # However, as mentioned above, we add GCC 11 this release.
+    "11.6" = {
+      clang = {
+        maxMajorVersion = "12";
+        minMajorVersion = "7";
+      };
+      gcc = {
+        maxMajorVersion = "11";
+        minMajorVersion = "6";
+      };
+    };
+
+    # Added support for Clang 13
+    # https://docs.nvidia.com/cuda/archive/11.7.1/cuda-toolkit-release-notes/index.html#cuda-compiler-new-features
+    "11.7" = {
+      clang = {
+        maxMajorVersion = "13";
+        minMajorVersion = "7";
+      };
+      gcc = {
+        maxMajorVersion = "11";
+        minMajorVersion = "6";
+      };
+    };
+
     # Added support for Clang 14
     # https://docs.nvidia.com/cuda/archive/11.8.0/cuda-installation-guide-linux/index.html#system-requirements
     "11.8" = {
@@ -121,7 +225,7 @@
       };
     };
 
-    # Maximum Clang version is 18
+    # Added support for Clang 18
     # https://docs.nvidia.com/cuda/archive/12.6.0/cuda-installation-guide-linux/index.html#host-compiler-support-policy
     "12.6" = {
       clang = {
@@ -148,7 +252,7 @@
     };
 
     # No changes from 12.8 to 12.9
-    # https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#host-compiler-support-policy
+    # https://docs.nvidia.com/cuda/archive/12.9.1/cuda-installation-guide-linux/index.html#host-compiler-support-policy
     "12.9" = {
       clang = {
         maxMajorVersion = "19";
@@ -156,6 +260,19 @@
       };
       gcc = {
         maxMajorVersion = "14";
+        minMajorVersion = "6";
+      };
+    };
+
+    # 12.9 to 13.0 adds support for GCC 15 and Clang 20
+    # https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#host-compiler-support-policy
+    "13.0" = {
+      clang = {
+        maxMajorVersion = "20";
+        minMajorVersion = "7";
+      };
+      gcc = {
+        maxMajorVersion = "15";
         minMajorVersion = "6";
       };
     };

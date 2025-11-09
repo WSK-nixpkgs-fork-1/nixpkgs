@@ -9,6 +9,7 @@
   config,
   docutils,
   fetchFromGitHub,
+  fetchpatch,
   ffmpeg,
   freefont_ttf,
   freetype,
@@ -39,7 +40,7 @@
   libvdpau,
   libxkbcommon,
   lua,
-  makeWrapper,
+  makeBinaryWrapper,
   libgbm,
   meson,
   mujs,
@@ -112,6 +113,16 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-x8cDczKIX4+KrvRxZ+72TGlEQHd4Kx7naq0CSoOZGHA=";
   };
 
+  patches = [
+    # ffmpeg-8 compat:
+    #   https://github.com/mpv-player/mpv/pull/16145
+    (fetchpatch {
+      name = "ffmpeg-8.patch";
+      url = "https://github.com/mpv-player/mpv/commit/26b29fba02a2782f68e2906f837d21201fc6f1b9.patch";
+      hash = "sha256-ANNoTtIJBARHbm5IgrE0eEZyzmNhOnbVgve7iqCBzQg=";
+    })
+  ];
+
   postPatch = lib.concatStringsSep "\n" [
     # Don't reference compile time dependencies or create a build outputs cycle
     # between out and dev
@@ -159,7 +170,7 @@ stdenv.mkDerivation (finalAttrs: {
   ++ lib.optionals stdenv.hostPlatform.isDarwin [
     buildPackages.darwin.sigtool
     swift
-    makeWrapper
+    makeBinaryWrapper
   ]
   ++ lib.optionals waylandSupport [ wayland-scanner ];
 
@@ -253,6 +264,7 @@ stdenv.mkDerivation (finalAttrs: {
     sed -e '/Icon=/ ! s|mpv|umpv|g; s|^Exec=.*|Exec=umpv %U|' \
       mpv.desktop > umpv.desktop
     printf "NoDisplay=true\n" >> umpv.desktop
+    printf "StartupNotify=false\n" >> umpv.desktop
     popd
   ''
   + lib.optionalString stdenv.hostPlatform.isDarwin ''
@@ -314,7 +326,6 @@ stdenv.mkDerivation (finalAttrs: {
     maintainers = with lib.maintainers; [
       fpletz
       globin
-      ma27
       SchweGELBin
     ];
     platforms = lib.platforms.unix;

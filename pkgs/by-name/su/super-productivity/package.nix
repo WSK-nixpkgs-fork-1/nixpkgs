@@ -14,13 +14,13 @@
 
 buildNpmPackage rec {
   pname = "super-productivity";
-  version = "14.1.0";
+  version = "16.2.1";
 
   src = fetchFromGitHub {
     owner = "johannesjo";
     repo = "super-productivity";
     tag = "v${version}";
-    hash = "sha256-wZQhSQBJPyJPAMZU927Xq9bOxAohSaEg+ylk7DoTJJE=";
+    hash = "sha256-R+GZE7hxPUOF5eny0vxH7H1Ja82AbXx4xcL4tszaDQc=";
 
     postFetch = ''
       find $out -name package-lock.json -exec ${lib.getExe npm-lockfile-fix} -r {} \;
@@ -63,7 +63,7 @@ buildNpmPackage rec {
       dontInstall = true;
 
       outputHashMode = "recursive";
-      hash = "sha256-SmA2qTi7tXxUcAlFOI61AW8pimB7YEYe749h5hjtLN8=";
+      hash = "sha256-MPTLx/5+0qP7PcxcsIyJEZVUPsoA5J+NG+g92n6vNEk=";
     }
   );
 
@@ -85,6 +85,14 @@ buildNpmPackage rec {
   buildPhase = ''
     runHook preBuild
 
+    # Npm hooks do not install packages for the plugins. The build
+    # script does install the packages, but it does not handle patching
+    # the shebangs.
+    find packages -name package-lock.json | while read -r p; do
+      npm --prefix "$(dirname $p)" ci --ignore-scripts
+    done
+    patchShebangs packages
+
     # electronDist needs to be modifiable on Darwin
     cp -r ${electron.dist} electron-dist
     chmod -R u+w electron-dist
@@ -93,7 +101,8 @@ buildNpmPackage rec {
     npm run build
     npm exec electron-builder -- --dir \
       -c.electronDist=electron-dist \
-      -c.electronVersion=${electron.version}
+      -c.electronVersion=${electron.version} \
+      -c.mac.identity=null
 
     runHook postBuild
   '';

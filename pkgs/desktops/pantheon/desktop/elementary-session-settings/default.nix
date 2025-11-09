@@ -19,15 +19,16 @@
   meson,
   ninja,
 }:
-stdenv.mkDerivation rec {
+
+stdenv.mkDerivation (finalAttrs: {
   pname = "elementary-session-settings";
-  version = "8.0.1";
+  version = "8.1.0";
 
   src = fetchFromGitHub {
     owner = "elementary";
     repo = "session-settings";
-    rev = version;
-    sha256 = "sha256-4B7lUjHEa4LdKrmsFCB3iFIsdVd/rgwmtQUAgAj3rXs=";
+    tag = finalAttrs.version;
+    hash = "sha256-mdfmCzR9ikXDlDc7FeOITsdbPbz+G66jUrl1BobY+g8=";
   };
 
   /*
@@ -56,10 +57,10 @@ stdenv.mkDerivation rec {
 
   mesonFlags = [
     "-Dmimeapps-list=false"
-    "-Dfallback-session=GNOME"
     "-Ddetect-program-prefixes=true"
+    # https://github.com/elementary/session-settings/issues/91
+    "-Dx11=false"
     "--sysconfdir=${placeholder "out"}/etc"
-    "-Dwayland=true"
   ];
 
   postInstall = ''
@@ -69,7 +70,7 @@ stdenv.mkDerivation rec {
     cp -av ${./pantheon-mimeapps.list} $out/share/applications/pantheon-mimeapps.list
 
     # absolute path patched sessions
-    substituteInPlace $out/share/{xsessions/pantheon.desktop,wayland-sessions/pantheon-wayland.desktop} \
+    substituteInPlace $out/share/wayland-sessions/pantheon-wayland.desktop \
       --replace-fail "Exec=gnome-session" "Exec=${gnome-session}/bin/gnome-session" \
       --replace-fail "TryExec=io.elementary.wingpanel" "TryExec=${wingpanel}/bin/io.elementary.wingpanel"
   '';
@@ -78,7 +79,6 @@ stdenv.mkDerivation rec {
     updateScript = nix-update-script { };
 
     providedSessions = [
-      "pantheon"
       "pantheon-wayland"
     ];
   };
@@ -90,4 +90,4 @@ stdenv.mkDerivation rec {
     platforms = platforms.linux;
     teams = [ teams.pantheon ];
   };
-}
+})

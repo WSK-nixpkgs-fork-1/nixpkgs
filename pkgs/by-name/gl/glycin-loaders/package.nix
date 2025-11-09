@@ -2,8 +2,6 @@
   stdenv,
   lib,
   fetchurl,
-  replaceVars,
-  bubblewrap,
   cairo,
   cargo,
   gettext,
@@ -20,6 +18,7 @@
   ninja,
   pkg-config,
   rustc,
+  rustPlatform,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -31,13 +30,7 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-OAqv4r+07KDEW0JmDr/0SWANAKQ7YJ1bHIP3lfXI+zw=";
   };
 
-  patches = [
-    # Fix paths in glycin library.
-    # Not actually needed for this package since we are only building loaders
-    # and this patch is relevant just to apps that use the loaders
-    # but apply it here to ensure the patch continues to apply.
-    finalAttrs.passthru.glycinPathsPatch
-  ];
+  cargoVendorDir = "vendor";
 
   nativeBuildInputs = [
     cargo
@@ -47,6 +40,7 @@ stdenv.mkDerivation (finalAttrs: {
     ninja
     pkg-config
     rustc
+    rustPlatform.cargoSetupHook
   ];
 
   buildInputs = [
@@ -68,14 +62,17 @@ stdenv.mkDerivation (finalAttrs: {
 
   strictDeps = true;
 
+  postPatch = ''
+    substituteInPlace loaders/meson.build \
+      --replace-fail "cargo_target_dir / rust_target / loader," "cargo_target_dir / '${stdenv.hostPlatform.rust.cargoShortTarget}' / rust_target / loader,"
+  '';
+
+  env.CARGO_BUILD_TARGET = stdenv.hostPlatform.rust.rustcTargetSpec;
+
   passthru = {
     updateScript = gnome.updateScript {
       attrPath = "glycin-loaders";
       packageName = "glycin";
-    };
-
-    glycinPathsPatch = replaceVars ./fix-glycin-paths.patch {
-      bwrap = "${bubblewrap}/bin/bwrap";
     };
   };
 

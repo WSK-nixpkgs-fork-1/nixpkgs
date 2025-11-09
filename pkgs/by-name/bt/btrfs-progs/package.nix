@@ -21,11 +21,11 @@
 
 stdenv.mkDerivation rec {
   pname = "btrfs-progs";
-  version = "6.15";
+  version = "6.17";
 
   src = fetchurl {
     url = "mirror://kernel/linux/kernel/people/kdave/btrfs-progs/btrfs-progs-v${version}.tar.xz";
-    hash = "sha256-V9pCjdIZn9iNg+zxytBWeM54ZA735S12M76Yh872dLs=";
+    hash = "sha256-J31pbJ15cT/1r7U8fv69zq0uamAHeJsXQuxBH05Moik=";
   };
 
   nativeBuildInputs = [
@@ -71,6 +71,10 @@ stdenv.mkDerivation rec {
   ]
   ++ lib.optionals (!udevSupport) [
     "--disable-libudev"
+  ]
+  ++ lib.optionals (stdenv.hostPlatform != stdenv.buildPlatform) [
+    "ac_cv_func_malloc_0_nonnull=yes"
+    "ac_cv_func_realloc_0_nonnull=yes"
   ];
 
   makeFlags = [ "udevruledir=$(out)/lib/udev/rules.d" ];

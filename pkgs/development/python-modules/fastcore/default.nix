@@ -3,22 +3,19 @@
   buildPythonPackage,
   fetchFromGitHub,
   packaging,
-  pythonOlder,
   setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "fastcore";
-  version = "1.8.7";
+  version = "1.8.15";
   pyproject = true;
-
-  disabled = pythonOlder "3.8";
 
   src = fetchFromGitHub {
     owner = "fastai";
     repo = "fastcore";
     tag = version;
-    hash = "sha256-CF6bODkD1ooIWK4AnOXXKOKyu09cQP876BXgoGtGoXk=";
+    hash = "sha256-qMF0PWKtP2EKEUw/9FAOTo3scMYqyNWfydn2yble1jc=";
   };
 
   build-system = [ setuptools ];

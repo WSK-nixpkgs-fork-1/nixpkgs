@@ -1,44 +1,35 @@
 {
-  autoAddDriverRunpath,
+  backendStdenv,
   cmake,
-  cudaPackages,
+  cuda_cccl,
+  cuda_cudart,
+  cuda_nvcc,
+  cudaNamePrefix,
+  flags,
   lib,
+  libcublas,
   saxpy,
 }:
-let
-  inherit (cudaPackages)
-    backendStdenv
-    cuda_cccl
-    cuda_cudart
-    cuda_nvcc
-    cudaAtLeast
-    flags
-    libcublas
-    ;
-  inherit (lib) getDev getLib getOutput;
-in
-backendStdenv.mkDerivation {
-  pname = "saxpy";
-  version = "unstable-2023-07-11";
-
-  src = ./src;
-
+backendStdenv.mkDerivation (finalAttrs: {
   __structuredAttrs = true;
   strictDeps = true;
 
+  name = "${cudaNamePrefix}-${finalAttrs.pname}-${finalAttrs.version}";
+  pname = "saxpy";
+  version = "0-unstable-2023-07-11";
+
+  src = ./src;
+
   nativeBuildInputs = [
     cmake
-    autoAddDriverRunpath
     cuda_nvcc
   ];
 
   buildInputs = [
-    (getDev libcublas)
-    (getLib libcublas)
-    (getOutput "static" libcublas)
+    cuda_cccl
     cuda_cudart
-  ]
-  ++ lib.optionals (cudaAtLeast "12.0") [ cuda_cccl ];
+    libcublas
+  ];
 
   cmakeFlags = [
     (lib.cmakeBool "CMAKE_VERBOSE_MAKEFILE" true)
@@ -60,4 +51,4 @@ backendStdenv.mkDerivation {
     mainProgram = "saxpy";
     platforms = lib.platforms.unix;
   };
-}
+})

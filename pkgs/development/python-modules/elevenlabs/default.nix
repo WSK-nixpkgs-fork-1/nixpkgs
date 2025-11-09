@@ -13,7 +13,7 @@
 }:
 
 let
-  version = "2.8.1";
+  version = "2.22.0";
   tag = "v${version}";
 in
 buildPythonPackage {
@@ -25,7 +25,7 @@ buildPythonPackage {
     owner = "elevenlabs";
     repo = "elevenlabs-python";
     inherit tag;
-    hash = "sha256-o2lDKe/1/eifZ1ZuE8UolyQG1GEkpjLc724Xn487c1c=";
+    hash = "sha256-tSPMHEvce4lRT2weyDl6EFONCT8dRGgLfGptNuTdAPc=";
   };
 
   build-system = [ poetry-core ];

@@ -48,8 +48,13 @@ buildGoModule (
         runHook postInstall
       '';
 
+      postFixup = ''
+        find $out -type f -name '*.go' -exec \
+          sed -i -E 's|//.*protoc-gen-go(-grpc)? +v.*$||' {} +
+      '';
+
       outputHashMode = "recursive";
-      outputHash = "sha256-o+Zt3rmTK7NmBQ9hDlbxZySUlCx6Ks7yQTtdm9+pJac=";
+      outputHash = "sha256-wHqXsSV18mF/CfLQ0S4rGtT3QRcLnneYXAa8nXZaHpQ=";
     };
 
     webui = buildNpmPackage {
@@ -81,13 +86,13 @@ buildGoModule (
 
   {
     pname = "olivetin";
-    version = "2025.7.29";
+    version = "2025.11.06";
 
     src = fetchFromGitHub {
       owner = "OliveTin";
       repo = "OliveTin";
       tag = finalAttrs.version;
-      hash = "sha256-QNwPc+qr26S2hl4deLVx58Xh9hkSfZyrxrdaO1NCTDc=";
+      hash = "sha256-81AcegFKG5TacKAv9kZgbSOKcAx+ZmK3rqrk3ia/res=";
     };
 
     modRoot = "service";

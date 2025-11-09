@@ -15,14 +15,16 @@ let
     python = python3;
   };
 
-  gypPatches = callPackage ./gyp-patches.nix {
-    patch_tools = false;
-  };
+  gypPatches =
+    if stdenv.buildPlatform.isDarwin then
+      callPackage ./gyp-patches.nix { patch_tools = false; }
+    else
+      [ ];
 in
 buildNodejs {
   inherit enableNpm;
-  version = "22.17.0";
-  sha256 = "7a3ef2aedb905ea7926e5209157266e2376a5db619d9ac0cba3c967f6f5db4f9";
+  version = "22.20.0";
+  sha256 = "ff7a6a6e8a1312af5875e40058351c4f890d28ab64c32f12b2cc199afa22002d";
   patches =
     (
       if (stdenv.hostPlatform.emulatorAvailable buildPackages) then
@@ -51,17 +53,9 @@ buildNodejs {
     ++ gypPatches
     ++ [
       ./configure-armv6-vfpv2.patch
-      ./disable-darwin-v8-system-instrumentation-node19.patch
-      ./bypass-darwin-xcrun-node16.patch
       ./node-npm-build-npm-package-logic.patch
       ./use-correct-env-in-tests.patch
       ./bin-sh-node-run-v22.patch
-
-      # Fix for flaky test
-      # TODO: remove when included in a release
-      (fetchpatch2 {
-        url = "https://github.com/nodejs/node/commit/cd685fe3b6b18d2a1433f2635470513896faebe6.patch?full_index=1";
-        hash = "sha256-KA7WBFnLXCKx+QVDGxFixsbj3Y7uJkAKEUTeLShI1Xo=";
-      })
+      ./use-nix-codesign.patch
     ];
 }
