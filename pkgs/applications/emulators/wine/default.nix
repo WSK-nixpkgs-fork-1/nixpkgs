@@ -47,44 +47,49 @@
   moltenvk, # Allow users to override MoltenVK easily
 }:
 
-lib.getAttr wineBuild (
-  callPackage ./packages.nix {
-    inherit wineRelease;
-    supportFlags = {
-      inherit
-        alsaSupport
-        cairoSupport
-        cupsSupport
-        cursesSupport
-        dbusSupport
-        embedInstallers
-        fontconfigSupport
-        gettextSupport
-        gphoto2Support
-        gstreamerSupport
-        gtkSupport
-        krb5Support
-        mingwSupport
-        netapiSupport
-        odbcSupport
-        openclSupport
-        openglSupport
-        pcapSupport
-        pulseaudioSupport
-        saneSupport
-        sdlSupport
-        tlsSupport
-        udevSupport
-        usbSupport
-        v4lSupport
-        vaSupport
-        vulkanSupport
-        waylandSupport
-        x11Support
-        ffmpegSupport
-        xineramaSupport
-        ;
-    };
-    inherit moltenvk;
-  }
-)
+let
+  wine-build =
+    build:
+    lib.getAttr build (
+      callPackage ./packages.nix {
+        inherit wineRelease;
+        supportFlags = {
+          inherit
+            alsaSupport
+            cairoSupport
+            cupsSupport
+            cursesSupport
+            dbusSupport
+            embedInstallers
+            fontconfigSupport
+            gettextSupport
+            gphoto2Support
+            gstreamerSupport
+            gtkSupport
+            krb5Support
+            mingwSupport
+            netapiSupport
+            odbcSupport
+            openclSupport
+            openglSupport
+            pcapSupport
+            pulseaudioSupport
+            saneSupport
+            sdlSupport
+            tlsSupport
+            udevSupport
+            usbSupport
+            v4lSupport
+            vaSupport
+            vulkanSupport
+            waylandSupport
+            x11Support
+            ffmpegSupport
+            xineramaSupport
+            ;
+        };
+        inherit moltenvk;
+      }
+    );
+in
+wine-build wineBuild
