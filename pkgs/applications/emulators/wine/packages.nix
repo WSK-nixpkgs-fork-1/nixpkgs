@@ -18,27 +18,9 @@
 }:
 
 let
-  sources = callPackage ./sources.nix { };
-
-  # "staging" of course enables staging, but for "yabridge" we do too
-  # --- we are not interested in yabridge without the staging patches
-  # applied.
-  useStaging = wineRelease == "staging" || wineRelease == "yabridge";
-
-  # Map wineRelease to actual source. Many versions have a "staging"
-  # variant, but when we say "staging", the version we want to use is
-  # "unstable".
-  baseRelease = if wineRelease == "staging" then "unstable" else wineRelease;
-
-  src = lib.getAttr baseRelease (callPackage ./sources.nix { });
-  inherit (src)
-    version
-    patches
-    gecko32
-    gecko64
-    mono
-    ;
+  src = lib.getAttr wineRelease (callPackage ./sources.nix { });
 in
+with src;
 {
   wine32 = pkgsi686Linux.callPackage ./base.nix {
     pname = "wine";
@@ -49,7 +31,6 @@ in
       patches
       moltenvk
       wineRelease
-      useStaging
       # Forcing these `nativeBuildInputs` used in the `staging` to come
       # from ambient `pkgs`, rather than being provided by
       # `pkgsi686Linux.callPackage` for that platform.
@@ -77,7 +58,6 @@ in
       patches
       moltenvk
       wineRelease
-      useStaging
       ;
     pkgArches = [ pkgs ];
     mingwGccs = with pkgsCross; [ mingwW64.buildPackages.gcc ];
@@ -99,7 +79,6 @@ in
       patches
       moltenvk
       wineRelease
-      useStaging
       ;
     stdenv = stdenv_32bit;
     pkgArches = [
@@ -133,7 +112,6 @@ in
       patches
       moltenvk
       wineRelease
-      useStaging
       ;
     supportFlags = supportFlags // {
       mingwSupport = true;
