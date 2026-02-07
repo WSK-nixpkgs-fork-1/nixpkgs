@@ -22,7 +22,7 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "libplacebo";
-  version = "7.349.0";
+  version = "7.351.0";
 
   src = fetchFromGitLab {
     domain = "code.videolan.org";
