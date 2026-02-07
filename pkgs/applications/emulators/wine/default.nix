@@ -100,9 +100,10 @@ let
     .${wineRelease} or null;
 in
 if baseRelease != null then
-  (wine-build wineBuild baseRelease).override {
-    inherit wineRelease;
-    useStaging = true;
+  callPackage ./staging.nix {
+    wineUnstable = (wine-build wineBuild baseRelease).override {
+      inherit wineRelease;
+    };
   }
 else
   wine-build wineBuild wineRelease
