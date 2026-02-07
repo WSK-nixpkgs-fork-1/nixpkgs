@@ -90,6 +90,8 @@ python3.pkgs.buildPythonApplication rec {
     "test_xdg_existant"
     # Tests are sensitive to performance
     "test_sorting_fields"
+    # Test fails with urwid 3.0.4, but should work with 3.0.5 again
+    "test_todo_editor_list"
   ];
 
   pythonImportsCheck = [
@@ -115,7 +117,6 @@ python3.pkgs.buildPythonApplication rec {
     }";
     license = lib.licenses.isc;
     maintainers = with lib.maintainers; [
-      leenaars
       antonmosich
     ];
     mainProgram = "todo";

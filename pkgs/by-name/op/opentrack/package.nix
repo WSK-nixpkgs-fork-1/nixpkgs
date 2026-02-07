@@ -12,7 +12,7 @@
   opencv4,
   procps,
   eigen,
-  libXdmcp,
+  libxdmcp,
   libevdev,
   makeDesktopItem,
   wineWowPackages,
@@ -22,13 +22,13 @@
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "opentrack";
-  version = "2024.1.1-unstable-2025-11-06";
+  version = "2026.1.0-unstable-2026-01-03";
 
   src = fetchFromGitHub {
     owner = "opentrack";
     repo = "opentrack";
-    rev = "f7696e0b8515d53f0d0a7515cc27d3f80b3a5c28";
-    hash = "sha256-FhI6lem83STBWjFMlChy/hhletyBkVM3iUmJfAU91UE=";
+    rev = "0779d3ce9da19d46919e909d0a1a252d67122db9";
+    hash = "sha256-n7XCNNXgfwU4q27Q7ss9tgc2Z/tmzcRxUP4chwpPN38=";
   };
 
   aruco = callPackage ./aruco.nix { };
@@ -54,7 +54,7 @@ stdenv.mkDerivation (finalAttrs: {
   buildInputs = [
     finalAttrs.aruco
     eigen
-    libXdmcp
+    libxdmcp
     libevdev
     onnxruntime
     opencv4

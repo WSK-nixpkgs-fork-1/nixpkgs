@@ -6,12 +6,12 @@
   nix-update-script,
   pkg-config,
   libGL,
-  libX11,
-  libXcursor,
-  libXrandr,
-  libXinerama,
-  libXi,
-  libXxf86vm,
+  libx11,
+  libxcursor,
+  libxrandr,
+  libxinerama,
+  libxi,
+  libxxf86vm,
   mupdf,
   fontconfig,
   freetype,
@@ -19,13 +19,13 @@
 
 buildGoModule rec {
   pname = "gcs";
-  version = "5.41.1";
+  version = "5.42.0";
 
   src = fetchFromGitHub {
     owner = "richardwilkes";
     repo = "gcs";
     tag = "v${version}";
-    hash = "sha256-PPlz3DRwkKN0nZSFKJvl/axow6LxqyA3JPzZmfEkIsM=";
+    hash = "sha256-eCWMaO1iv917aHcdln2B10oCSbmzpXvQIF/luztHwRc=";
   };
 
   modPostBuild = ''
@@ -33,7 +33,7 @@ buildGoModule rec {
     sed -i 's|-lmupdf[^ ]* |-lmupdf |g' vendor/github.com/richardwilkes/pdf/pdf.go
   '';
 
-  vendorHash = "sha256-LfRzNmjJe6hBhWuN5fUfFpB3nKmURZhM/wpdrcYr9jU=";
+  vendorHash = "sha256-pbt4zNbFYTXKVe9D70Lg3XVsjadnUIuPwbbV1CJNLc8=";
 
   nativeBuildInputs = [ pkg-config ];
 
@@ -42,12 +42,12 @@ buildGoModule rec {
   ]
   ++ lib.optionals stdenv.hostPlatform.isLinux [
     libGL
-    libX11
-    libXcursor
-    libXrandr
-    libXinerama
-    libXi
-    libXxf86vm
+    libx11
+    libxcursor
+    libxrandr
+    libxinerama
+    libxi
+    libxxf86vm
     fontconfig
     freetype
   ];

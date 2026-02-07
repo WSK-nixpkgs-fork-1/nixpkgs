@@ -5,9 +5,9 @@
   cmake,
   kwindowsystem,
   layer-shell-qt,
-  libXdmcp,
+  libxdmcp,
   liblxqt,
-  libpthreadstubs,
+  libpthread-stubs,
   libqtxdg,
   lxqt-build-tools,
   pkg-config,
@@ -44,9 +44,9 @@ stdenv.mkDerivation rec {
   buildInputs = [
     kwindowsystem
     layer-shell-qt
-    libXdmcp
+    libxdmcp
     liblxqt
-    libpthreadstubs
+    libpthread-stubs
     libqtxdg
     procps
     qtbase
@@ -58,11 +58,11 @@ stdenv.mkDerivation rec {
 
   passthru.updateScript = gitUpdater { };
 
-  meta = with lib; {
+  meta = {
     homepage = "https://github.com/lxqt/lxqt-session";
     description = "Alternative session manager ported from the original razor-session";
-    license = licenses.lgpl21Plus;
-    platforms = platforms.linux;
-    teams = [ teams.lxqt ];
+    license = lib.licenses.lgpl21Plus;
+    platforms = lib.platforms.linux;
+    teams = [ lib.teams.lxqt ];
   };
 }

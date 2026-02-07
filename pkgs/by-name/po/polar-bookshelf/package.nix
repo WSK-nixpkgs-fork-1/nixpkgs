@@ -14,18 +14,18 @@
   glib,
   at-spi2-atk,
   dbus,
-  libX11,
+  libx11,
   libxcb,
-  libXi,
-  libXcursor,
-  libXdamage,
-  libXrandr,
-  libXcomposite,
-  libXext,
-  libXfixes,
-  libXrender,
-  libXtst,
-  libXScrnSaver,
+  libxi,
+  libxcursor,
+  libxdamage,
+  libxrandr,
+  libxcomposite,
+  libxext,
+  libxfixes,
+  libxrender,
+  libxtst,
+  libxscrnsaver,
   nss,
   nspr,
   alsa-lib,
@@ -48,7 +48,7 @@ stdenv.mkDerivation rec {
 
   # fetching a .deb because there's no easy way to package this Electron app
   src = fetchurl {
-    url = "https://github.com/burtonator/polar-bookshelf/releases/download/v${version}/polar-desktop-app-${version}-amd64.deb";
+    url = "mirror://sourceforge/polar-bookshelf.mirror/v${version}/polar-desktop-app-${version}-amd64.deb";
     hash = "sha256-jcq0hW698bAhVM3fLQQeKAnld33XLkHsGjS3QwUpciQ=";
   };
 
@@ -64,18 +64,18 @@ stdenv.mkDerivation rec {
     gdk-pixbuf
     at-spi2-atk
     dbus
-    libX11
+    libx11
     libxcb
-    libXi
-    libXcursor
-    libXdamage
-    libXrandr
-    libXcomposite
-    libXext
-    libXfixes
-    libXrender
-    libXtst
-    libXScrnSaver
+    libxi
+    libxcursor
+    libxdamage
+    libxrandr
+    libxcomposite
+    libxext
+    libxfixes
+    libxrender
+    libxtst
+    libxscrnsaver
     nss
     nspr
     alsa-lib

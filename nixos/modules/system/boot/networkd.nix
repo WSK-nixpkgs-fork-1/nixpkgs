@@ -376,6 +376,7 @@ let
             "TOS"
             "TTL"
             "DiscoverPathMTU"
+            "IgnoreDontFragment"
             "IPv6FlowLabel"
             "CopyDSCP"
             "EncapsulationLimit"
@@ -398,6 +399,7 @@ let
           (assertInt "TTL")
           (assertRange "TTL" 0 255)
           (assertValueOneOf "DiscoverPathMTU" boolValues)
+          (assertValueOneOf "IgnoreDontFragment" boolValues)
           (assertValueOneOf "CopyDSCP" boolValues)
           (assertValueOneOf "Mode" [
             "ip6ip6"
@@ -1279,7 +1281,7 @@ let
         (assertValueOneOf "EmitRouter" boolValues)
         (assertValueOneOf "EmitTimezone" boolValues)
         (assertValueOneOf "BindToInterface" boolValues)
-        (assertValueOneOf "PersistLeases" boolValues)
+        (assertValueOneOf "PersistLeases" (boolValues ++ [ "runtime" ]))
       ];
 
       sectionIPv6SendRA = checkUnitConfig "IPv6SendRA" [

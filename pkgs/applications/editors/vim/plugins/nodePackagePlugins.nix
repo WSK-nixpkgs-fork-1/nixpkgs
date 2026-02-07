@@ -6,24 +6,17 @@
 final: prev:
 let
   nodePackageNames = [
+    # # keep-sorted start case=no
     "coc-go"
-    "coc-ltex"
     "coc-tsserver"
-    "coc-ultisnips"
-    "coc-nginx"
+    # keep-sorted end
   ];
-
-  packageNameOverrides = {
-    "coc-nginx" = "@yaegassy/coc-nginx";
-  };
-
-  getPackageName = name: packageNameOverrides.${name} or name;
 in
 lib.genAttrs nodePackageNames (
   name:
   buildVimPlugin {
     pname = name;
-    inherit (nodePackages.${getPackageName name}) version meta;
-    src = "${nodePackages.${getPackageName name}}/lib/node_modules/${getPackageName name}";
+    inherit (nodePackages.${name}) version meta;
+    src = "${nodePackages.${name}}/lib/node_modules/${name}";
   }
 )

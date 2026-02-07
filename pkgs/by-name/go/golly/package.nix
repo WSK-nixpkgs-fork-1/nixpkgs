@@ -8,7 +8,7 @@
   zlib,
   libGLU,
   libGL,
-  libX11,
+  libx11,
   SDL2,
 }:
 stdenv.mkDerivation (finalAttrs: {
@@ -26,12 +26,15 @@ stdenv.mkDerivation (finalAttrs: {
     zlib
     libGLU
     libGL
-    libX11
+    libx11
     SDL2
   ];
 
   nativeBuildInputs = [
-    (python3.withPackages (ps: [ ps.setuptools ]))
+    (python3.withPackages (ps: [
+      ps.setuptools
+      ps.distutils
+    ]))
     wrapGAppsHook3
   ];
 

@@ -152,6 +152,11 @@ let
                ]
              }"
 
+          # substitute path that ZFS will pass on when calling external helper scripts (/etc/zfs/zpool.d/*, zfs_prepare_disk)
+          substituteInPlace ./lib/libzfs/libzfs_util.c \
+            --replace-fail \"PATH=/bin:/sbin:/usr/bin:/usr/sbin\" \
+            \"PATH=/run/wrappers/bin:/run/current-system/sw/bin:/run/current-system/sw/sbin\"
+
           substituteInPlace ./config/zfs-build.m4 \
             --replace-fail "bashcompletiondir=/etc/bash_completion.d" \
               "bashcompletiondir=$out/share/bash-completion/completions"
@@ -295,7 +300,15 @@ let
           done
         '';
 
-      outputs = [ "out" ] ++ optionals buildUser [ "dev" ];
+      outputs = [
+        "out"
+      ]
+      ++ optionals buildUser [
+        "dev"
+      ]
+      ++ optionals (!buildKernel) [
+        "man"
+      ];
 
       passthru = {
         inherit kernel;

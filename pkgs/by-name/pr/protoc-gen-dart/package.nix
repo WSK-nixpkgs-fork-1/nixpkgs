@@ -11,13 +11,13 @@
 
 buildDartApplication rec {
   pname = "protoc-gen-dart";
-  version = "22.5.0";
+  version = "25.0.0";
 
   src = fetchFromGitHub {
     owner = "google";
     repo = "protobuf.dart";
     tag = "protoc_plugin-v${version}";
-    hash = "sha256-8pSCYlbZLqHnpetM4luyfGo1qnWgKx93JPjRVWCOX0w=";
+    hash = "sha256-/JkXGaropyDt7mofYP5sZwTKy9syAA8PgzbNOhLtApY=";
   };
 
   pubspecLock = lib.importJSON ./pubspec.lock.json;

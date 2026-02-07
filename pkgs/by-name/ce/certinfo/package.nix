@@ -3,7 +3,7 @@
   lib,
   buildGoModule,
   fetchFromGitHub,
-  libX11,
+  libx11,
 }:
 
 buildGoModule rec {
@@ -20,15 +20,15 @@ buildGoModule rec {
   # clipboard functionality not working on Darwin
   doCheck = !(stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isAarch64);
 
-  buildInputs = lib.optionals stdenv.hostPlatform.isLinux [ libX11 ];
+  buildInputs = lib.optionals stdenv.hostPlatform.isLinux [ libx11 ];
 
   vendorHash = null;
 
-  meta = with lib; {
+  meta = {
     description = "Print x509 certificate info";
     mainProgram = "certinfo";
     homepage = "https://github.com/pete911/certinfo";
-    license = licenses.mit;
-    maintainers = with maintainers; [ jakuzure ];
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [ jakuzure ];
   };
 }

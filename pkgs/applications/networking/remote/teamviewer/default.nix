@@ -1,5 +1,4 @@
 {
-  mkDerivation,
   lib,
   stdenv,
   fetchurl,
@@ -9,13 +8,13 @@
   dbus,
   getconf,
   glibc,
-  libXrandr,
-  libX11,
-  libXext,
-  libXdamage,
-  libXtst,
-  libSM,
-  libXfixes,
+  libxrandr,
+  libx11,
+  libxext,
+  libxdamage,
+  libxtst,
+  libsm,
+  libxfixes,
   coreutils,
   wrapQtAppsHook,
   icu63,
@@ -23,7 +22,7 @@
   minizip,
 }:
 
-mkDerivation rec {
+stdenv.mkDerivation rec {
   pname = "teamviewer";
   # teamviewer itself has not development files but the dev output removes propagated other dev outputs from runtime
   outputs = [
@@ -127,13 +126,13 @@ mkDerivation rec {
     }"
     "--prefix LD_LIBRARY_PATH : ${
       lib.makeLibraryPath [
-        libXrandr
-        libX11
-        libXext
-        libXdamage
-        libXtst
-        libSM
-        libXfixes
+        libxrandr
+        libx11
+        libxext
+        libxdamage
+        libxtst
+        libsm
+        libxfixes
         dbus
         icu63
       ]
@@ -154,17 +153,16 @@ mkDerivation rec {
 
   passthru.updateScript = ./update-teamviewer.sh;
 
-  meta = with lib; {
+  meta = {
     homepage = "https://www.teamviewer.com";
-    sourceProvenance = with sourceTypes; [ binaryNativeCode ];
-    license = licenses.unfree;
+    sourceProvenance = with lib.sourceTypes; [ binaryNativeCode ];
+    license = lib.licenses.unfree;
     description = "Desktop sharing application, providing remote support and online meetings";
     platforms = [
       "x86_64-linux"
       "aarch64-linux"
     ];
-    maintainers = with maintainers; [
-      jagajaga
+    maintainers = with lib.maintainers; [
       jraygauthier
       gador
       c4patino

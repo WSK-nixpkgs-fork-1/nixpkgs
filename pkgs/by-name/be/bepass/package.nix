@@ -5,13 +5,13 @@
   enableGUI ? false, # upstream working in progress
   pkg-config,
   glfw,
-  xorg,
-  libXcursor,
-  libXrandr,
-  libXinerama,
+  libxft,
+  libxcursor,
+  libxrandr,
+  libxinerama,
   xinput,
-  libXi,
-  libXxf86vm,
+  libxi,
+  libxxf86vm,
 }:
 buildGoModule rec {
   pname = "bepass";
@@ -33,13 +33,13 @@ buildGoModule rec {
   nativeBuildInputs = lib.optionals enableGUI [ pkg-config ];
   buildInputs = lib.optionals enableGUI [
     glfw
-    xorg.libXft
-    libXcursor
-    libXrandr
-    libXinerama
-    libXi
+    libxft
+    libxcursor
+    libxrandr
+    libxinerama
+    libxi
     xinput
-    libXxf86vm
+    libxxf86vm
   ];
 
   ldflags = [
@@ -51,12 +51,12 @@ buildGoModule rec {
     mv $out/bin/cli $out/bin/bepass
   '';
 
-  meta = with lib; {
+  meta = {
     homepage = "https://github.com/bepass-org/bepass";
     description = "Simple DPI bypass tool written in go";
-    license = licenses.mit;
+    license = lib.licenses.mit;
     mainProgram = "bepass";
-    maintainers = with maintainers; [ oluceps ];
+    maintainers = with lib.maintainers; [ oluceps ];
     broken = enableGUI;
   };
 }

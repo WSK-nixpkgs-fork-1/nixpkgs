@@ -7,7 +7,7 @@
   ninja,
   addDriverRunpath,
   pkg-config,
-  libXcomposite,
+  libxcomposite,
   libpulseaudio,
   dbus,
   ffmpeg,
@@ -18,22 +18,22 @@
   libdrm,
   libva,
   libglvnd,
-  libXdamage,
-  libXi,
-  libXrandr,
-  libXfixes,
+  libxdamage,
+  libxi,
+  libxrandr,
+  libxfixes,
   wrapperDir ? "/run/wrappers/bin",
   gitUpdater,
 }:
 
 stdenv.mkDerivation rec {
   pname = "gpu-screen-recorder";
-  version = "5.8.1";
+  version = "5.12.1";
 
   src = fetchgit {
-    url = "https://repo.dec05eba.com/${pname}";
+    url = "https://repo.dec05eba.com/gpu-screen-recorder";
     tag = version;
-    hash = "sha256-VAb7YAPZVe23qqoGgY8wPR+PwPHuWUmlcixoLOW/H5A=";
+    hash = "sha256-FUt3R2clnWYNKgW5uo2HtON91zB2+u+Ini15/ccTJdk=";
   };
 
   nativeBuildInputs = [
@@ -44,7 +44,7 @@ stdenv.mkDerivation rec {
   ];
 
   buildInputs = [
-    libXcomposite
+    libxcomposite
     libpulseaudio
     dbus
     ffmpeg
@@ -54,10 +54,10 @@ stdenv.mkDerivation rec {
     vulkan-headers
     libdrm
     libva
-    libXdamage
-    libXi
-    libXrandr
-    libXfixes
+    libxdamage
+    libxi
+    libxrandr
+    libxfixes
   ];
 
   mesonFlags = [

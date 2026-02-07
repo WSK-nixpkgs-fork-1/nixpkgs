@@ -22,17 +22,14 @@
   rapidjson,
   libzip,
   curl,
-  libX11,
+  libx11,
   wayland,
   shaderc,
   spirv-cross,
   udev,
   libbacktrace,
-  ffmpeg_8-headless,
-  alsa-lib,
-  libjack2,
-  libpulseaudio,
-  pipewire,
+  ffmpeg-headless,
+  cubeb,
   fetchurl,
   zip,
   unzip,
@@ -55,7 +52,6 @@ let
     homepage = "https://duckstation.org";
     license = lib.licenses.cc-by-nc-nd-40;
     maintainers = with lib.maintainers; [
-      normalcea
       matteopacini
     ];
   };
@@ -64,21 +60,47 @@ let
 
   linuxDrv = llvmPackages.stdenv.mkDerivation (finalAttrs: {
     pname = "duckstation";
-    version = "0.1-9787-unstable-2025-10-13";
+    version = "0.1-10413";
 
     src = fetchFromGitHub {
       owner = "stenzek";
       repo = "duckstation";
-      rev = "8f0c9dd171210dfd7f06223a393e2565abbaabf3";
-      hash = "sha256-CzHWdY0RaGBB6CY3PzHHHbq3/Mbf6WtUm6Dizr0IW6I=";
+      tag = "v${finalAttrs.version}";
+      deepClone = true;
+      hash = "sha256-ytJ0vaXXbbgSmZ42gQPlQY7p30hz7hx/+09TSvCKyEg=";
+
+      postFetch = ''
+        cd $out
+        mkdir -p .nixpkgs-auxfiles/
+        git rev-parse HEAD > .nixpkgs-auxfiles/git_hash
+        git rev-parse --abbrev-ref HEAD | tr -d '\r\n' > .nixpkgs-auxfiles/git_branch
+        git describe | tr -d '\r\n' > .nixpkgs-auxfiles/git_tag
+        git log -1 --date=iso8601-strict --format=%cd > .nixpkgs-auxfiles/git_date
+        rm -rf .git
+      '';
     };
 
-    # TODO: Remove once this is fixed upstream.
-    postPatch = ''
-      substituteInPlace src/util/animated_image.cpp \
-        --replace-fail "png_write_frame_head(png_ptr, info_ptr," \
-                       "png_write_frame_head(png_ptr, info_ptr, 0,"
-    '';
+    patches = [
+      ./cubeb-remove-vendor.patch
+      ./git-version-info.patch
+    ];
+
+    postPatch =
+      # Fixes compilation error with nixpkgs libapng
+      ''
+        substituteInPlace src/util/animated_image.cpp \
+          --replace-fail "png_write_frame_head(png_ptr, info_ptr," \
+                         "png_write_frame_head(png_ptr, info_ptr, 0,"
+      ''
+      # Fills in git-info obtained in the `postFetch` step for version
+      # information in the UI
+      + ''
+        gitHash=$(cat .nixpkgs-auxfiles/git_hash) \
+        gitBranch=$(cat .nixpkgs-auxfiles/git_branch) \
+        gitTag=$(cat .nixpkgs-auxfiles/git_tag) \
+        gitDate=$(cat .nixpkgs-auxfiles/git_date) \
+        substituteAllInPlace src/scmversion/gen_scmversion.sh
+      '';
 
     vendorDiscordRPC = llvmPackages.stdenv.mkDerivation {
       pname = "discord-rpc-duckstation";
@@ -226,17 +248,14 @@ let
       cpuinfo
       libzip
       curl
-      libX11
+      libx11
       wayland
       spirv-cross
       qt6.qtbase
       udev
       libbacktrace
-      ffmpeg_8-headless
-      alsa-lib
-      libjack2
-      pipewire
-      libpulseaudio
+      ffmpeg-headless
+      cubeb
     ]
     ++ [
       finalAttrs.vendorDiscordRPC
@@ -250,12 +269,12 @@ let
       mkdir -p $out/{lib,bin,share/{applications,icons/hicolor/512x512/apps}}
       cp -r bin $out/lib/duckstation
       ln -s $out/lib/duckstation/duckstation-qt $out/bin/duckstation-qt
-      ln -s $out/lib/duckstation/resources/org.duckstation.DuckStation.desktop \
-            $out/share/applications
-      ln -s $out/lib/duckstation/resources/org.duckstation.DuckStation.png \
-            $out/share/icons/hicolor/512x512/apps
 
       pushd ..
+      install -Dm644 scripts/packaging/org.duckstation.DuckStation.desktop \
+        -t $out/share/applications
+      install -Dm644 scripts/packaging/org.duckstation.DuckStation.png \
+        -t $out/share/icons/hicolor/512x512/apps
       install -Dm644 LICENSE -t $out/share/doc/duckstation
       install -Dm644 README.* -t $out/share/doc/duckstation
       install -Dm644 CONTRIBUTORS.md -t $out/share/doc/duckstation
@@ -267,7 +286,7 @@ let
     qtWrapperArgs = [
       "--prefix LD_LIBRARY_PATH : ${
         (lib.makeLibraryPath [
-          ffmpeg_8-headless
+          ffmpeg-headless
           finalAttrs.vendorShaderc
         ])
       }"

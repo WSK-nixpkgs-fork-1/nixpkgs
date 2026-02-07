@@ -32,17 +32,17 @@
   libpulseaudio,
   libuuid,
   libva,
-  libX11,
-  libXScrnSaver,
-  libXcomposite,
-  libXcursor,
-  libXdamage,
-  libXext,
-  libXfixes,
-  libXi,
-  libXrandr,
-  libXrender,
-  libXtst,
+  libx11,
+  libxscrnsaver,
+  libxcomposite,
+  libxcursor,
+  libxdamage,
+  libxext,
+  libxfixes,
+  libxi,
+  libxrandr,
+  libxrender,
+  libxtst,
   libxcb,
   libxshmfence,
   libgbm,
@@ -116,10 +116,10 @@ stdenv.mkDerivation (finalAttrs: {
     cups
     libdrm
     libuuid
-    libXdamage
-    libX11
-    libXScrnSaver
-    libXtst
+    libxdamage
+    libx11
+    libxscrnsaver
+    libxtst
     libxcb
     libxshmfence
     libgbm
@@ -153,24 +153,24 @@ stdenv.mkDerivation (finalAttrs: {
       gtk3
       libglvnd
       libnotify
-      libX11
-      libXcomposite
+      libx11
+      libxcomposite
       libunity
       libuuid
       libva
-      libXcursor
-      libXdamage
-      libXext
-      libXfixes
-      libXi
-      libXrandr
-      libXrender
-      libXtst
+      libxcursor
+      libxdamage
+      libxext
+      libxfixes
+      libxi
+      libxrandr
+      libxrender
+      libxtst
       nspr
       libxcb
       pango
       pipewire
-      libXScrnSaver
+      libxscrnsaver
       libappindicator-gtk3
       libdbusmenu
       wayland
@@ -253,14 +253,7 @@ stdenv.mkDerivation (finalAttrs: {
   passthru = {
     # make it possible to run disableBreakingUpdates standalone
     inherit disableBreakingUpdates;
-    updateScript = writeScript "discord-update-script" ''
-      #!/usr/bin/env nix-shell
-      #!nix-shell -i bash -p curl gnugrep common-updater-scripts
-      set -eou pipefail;
-      url=$(curl -sI -o /dev/null -w '%header{location}' "https://discord.com/api/download/${branch}?platform=linux&format=tar.gz")
-      version=$(echo $url | grep -oP '/\K(\d+\.){2}\d+')
-      update-source-version ${pname} "$version" --file=./pkgs/applications/networking/instant-messengers/discord/default.nix --version-key=${branch}
-    '';
+    updateScript = ./update.py;
 
     tests = {
       withVencord = self.override {

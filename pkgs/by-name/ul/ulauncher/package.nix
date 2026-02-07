@@ -18,7 +18,7 @@
   wmctrl,
   xvfb-run,
   librsvg,
-  libX11,
+  libx11,
   copyDesktopItems,
   makeDesktopItem,
 }:
@@ -123,7 +123,7 @@ python3Packages.buildPythonApplication rec {
     makeWrapperArgs+=(
      "''${gappsWrapperArgs[@]}"
      --prefix PATH : "${lib.makeBinPath [ wmctrl ]}"
-     --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ libX11 ]}"
+     --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ libx11 ]}"
      --prefix WEBKIT_DISABLE_COMPOSITING_MODE : "1"
     )
   '';
@@ -142,13 +142,13 @@ python3Packages.buildPythonApplication rec {
     })
   ];
 
-  meta = with lib; {
+  meta = {
     description = "Fast application launcher for Linux, written in Python, using GTK";
     homepage = "https://ulauncher.io/";
-    license = licenses.gpl3;
-    platforms = platforms.linux;
+    license = lib.licenses.gpl3;
+    platforms = lib.platforms.linux;
     mainProgram = "ulauncher";
-    maintainers = with maintainers; [
+    maintainers = with lib.maintainers; [
       aaronjanse
     ];
   };

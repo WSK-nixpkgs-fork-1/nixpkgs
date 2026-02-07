@@ -1,6 +1,6 @@
 {
-  libX11,
-  libXfixes,
+  libx11,
+  libxfixes,
   lib,
   stdenv,
   fetchFromGitHub,
@@ -17,8 +17,8 @@ stdenv.mkDerivation rec {
   };
 
   buildInputs = [
-    libX11
-    libXfixes
+    libx11
+    libxfixes
   ];
 
   installPhase = ''
@@ -26,11 +26,11 @@ stdenv.mkDerivation rec {
     cp clipnotify $out/bin
   '';
 
-  meta = with lib; {
+  meta = {
     description = "Notify on new X clipboard events";
     inherit (src.meta) homepage;
-    maintainers = with maintainers; [ jb55 ];
-    license = licenses.publicDomain;
+    maintainers = with lib.maintainers; [ jb55 ];
+    license = lib.licenses.publicDomain;
     mainProgram = "clipnotify";
   };
 }

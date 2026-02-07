@@ -5,7 +5,7 @@
   cmake,
   gitUpdater,
   kwindowsystem,
-  libXScrnSaver,
+  libxscrnsaver,
   libqtxdg,
   lxqt-build-tools,
   polkit-qt-1,
@@ -34,7 +34,7 @@ stdenv.mkDerivation rec {
 
   buildInputs = [
     kwindowsystem
-    libXScrnSaver
+    libxscrnsaver
     libqtxdg
     polkit-qt-1
     qtsvg
@@ -53,12 +53,12 @@ stdenv.mkDerivation rec {
 
   passthru.updateScript = gitUpdater { };
 
-  meta = with lib; {
+  meta = {
     description = "Core utility library for all LXQt components";
     mainProgram = "lxqt-backlight_backend";
     homepage = "https://github.com/lxqt/liblxqt";
-    license = licenses.lgpl21Plus;
-    platforms = platforms.linux;
-    teams = [ teams.lxqt ];
+    license = lib.licenses.lgpl21Plus;
+    platforms = lib.platforms.linux;
+    teams = [ lib.teams.lxqt ];
   };
 }

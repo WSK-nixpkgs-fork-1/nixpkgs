@@ -2,7 +2,7 @@
   buildGoModule,
   fetchFromGitHub,
   lib,
-  libX11,
+  libx11,
   stdenv,
 }:
 
@@ -19,9 +19,7 @@ buildGoModule rec {
 
   vendorHash = "sha256-OzIp6tVVVh4xWuzaGI4FasCz5dMZQmRxeLqZhg/AgN0=";
 
-  buildInputs = lib.optional stdenv.hostPlatform.isLinux libX11;
-
-  hardeningEnabled = [ "pie" ];
+  buildInputs = lib.optional stdenv.hostPlatform.isLinux libx11;
 
   meta = {
     description = "Automated WireGuard® Management Client";

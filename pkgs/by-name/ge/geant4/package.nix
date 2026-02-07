@@ -11,10 +11,10 @@
   libGL,
   libGLU,
   libGLX,
-  libX11,
-  libXext,
-  libXmu,
-  libXpm,
+  libx11,
+  libxext,
+  libxmu,
+  libxpm,
   motif,
   python3,
   qt5,
@@ -37,12 +37,12 @@ let
   };
 in
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   version = "11.3.2";
   pname = "geant4";
 
   src = fetchurl {
-    url = "https://cern.ch/geant4-data/releases/geant4-v${version}.tar.gz";
+    url = "https://cern.ch/geant4-data/releases/geant4-v${finalAttrs.version}.tar.gz";
     hash = "sha256-iSrt10JSYqUKw9PHEX2BwMDaS0CMaIDbr1R4uTAeSIw=";
   };
 
@@ -87,11 +87,11 @@ stdenv.mkDerivation rec {
   buildInputs =
     lib.optionals enableOpenGLX11 [
       libGLU
-      libXext
-      libXmu
+      libxext
+      libxmu
     ]
     ++ lib.optionals enableInventor [
-      libXpm
+      libxpm
       coin3d
       soxt
       motif
@@ -109,7 +109,7 @@ stdenv.mkDerivation rec {
   ]
   ++ lib.optionals enableOpenGLX11 [
     libGL
-    libX11
+    libx11
   ]
   ++ lib.optionals enableXM [ motif ]
   ++ lib.optionals enableQt [ qt5.qtbase ];
@@ -137,7 +137,7 @@ stdenv.mkDerivation rec {
     source $out/nix-support/setup-hook
   '';
 
-  meta = with lib; {
+  meta = {
     description = "Toolkit for the simulation of the passage of particles through matter";
     longDescription = ''
       Geant4 is a toolkit for the simulation of the passage of particles through matter.
@@ -145,11 +145,11 @@ stdenv.mkDerivation rec {
       The two main reference papers for Geant4 are published in Nuclear Instruments and Methods in Physics Research A 506 (2003) 250-303, and IEEE Transactions on Nuclear Science 53 No. 1 (2006) 270-278.
     '';
     homepage = "https://www.geant4.org";
-    license = licenses.g4sl;
-    maintainers = with maintainers; [
+    license = lib.licenses.g4sl;
+    maintainers = with lib.maintainers; [
       omnipotententity
       veprbl
     ];
-    platforms = platforms.unix;
+    platforms = lib.platforms.unix;
   };
-}
+})

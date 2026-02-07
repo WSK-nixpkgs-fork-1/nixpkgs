@@ -9,7 +9,7 @@
   eigen,
   libepoxy,
   libGL,
-  libX11,
+  libx11,
 }:
 
 stdenv.mkDerivation rec {
@@ -17,7 +17,7 @@ stdenv.mkDerivation rec {
   version = "1.7.2";
 
   src = fetchurl {
-    url = "https://movit.sesse.net/${pname}-${version}.tar.gz";
+    url = "https://movit.sesse.net/movit-${version}.tar.gz";
     sha256 = "sha256-AKwfjkbC0+OMdcu3oa8KYVdRwVjGEctwBTCUtl7P6NU=";
   };
 
@@ -37,7 +37,7 @@ stdenv.mkDerivation rec {
     fftw
     gtest
     libGL
-    libX11
+    libx11
   ];
 
   propagatedBuildInputs = [
@@ -55,11 +55,11 @@ stdenv.mkDerivation rec {
 
   enableParallelBuilding = true;
 
-  meta = with lib; {
+  meta = {
     description = "High-performance, high-quality video filters for the GPU";
     homepage = "https://movit.sesse.net";
-    license = licenses.gpl2Plus;
+    license = lib.licenses.gpl2Plus;
     maintainers = [ ];
-    platforms = platforms.unix;
+    platforms = lib.platforms.unix;
   };
 }
