@@ -18,7 +18,7 @@
   pkg-config,
   nixosTests,
   supportFlags,
-  pnameSuffix ? "",
+  wineRelease,
   patches,
   moltenvk,
   buildScript ? null,
@@ -95,7 +95,9 @@ stdenv.mkDerivation (
   // {
     inherit version src;
 
-    pname = prevName + pnameSuffix;
+    pname =
+      prevName
+      + lib.optionalString (wineRelease != "stable" && wineRelease != "unstable") "-${wineRelease}";
 
     # Fixes "Compiler cannot create executables" building wineWow with mingwSupport
     strictDeps = true;
@@ -265,8 +267,7 @@ stdenv.mkDerivation (
         )
       )
     );
-    # Just here to avoid rebuilds for now.
-    env.NIX_CFLAGS_COMPILE = "";
+    env.NIX_CFLAGS_COMPILE = lib.optionalString (wineRelease == "yabridge") "-std=gnu17";
 
     # Don't shrink the ELF RPATHs in order to keep the extra RPATH
     # elements specified above.
