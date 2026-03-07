@@ -155,6 +155,8 @@ buildPythonPackage {
       else
         "cpu"
     ))
+    # Work around CUDA 12.x compatibility issues
+    (lib.cmakeFeature "CMAKE_CXX_FLAGS" "-Wno-error=noexcept-type")
   ]
   ++ lib.optionals rocmSupport [
     # ends up using g++ to build some files it shouldn't
