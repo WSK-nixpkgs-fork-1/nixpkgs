@@ -26,6 +26,7 @@ let
       "java.security.jgss"
       "java.sql"
       "java.xml"
+      "jdk.zipfs"
     ];
   };
 in
