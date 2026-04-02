@@ -10,7 +10,11 @@ let
 in
 {
   ###### interface
-  options.services.i2p.enable = lib.mkEnableOption "I2P router";
+  options.services.i2p = {
+    enable = lib.mkEnableOption "I2P router";
+    package = lib.mkPackageOption pkgs "i2p" { };
+  };
+
 
   ###### implementation
   config = lib.mkIf cfg.enable {
@@ -30,7 +34,7 @@ in
         User = "i2p";
         WorkingDirectory = homeDir;
         Restart = "on-abort";
-        ExecStart = "${pkgs.i2p}/bin/i2prouter";
+        ExecStart = "${cfg.package}/bin/i2prouter";
       };
     };
   };
