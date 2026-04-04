@@ -99,9 +99,9 @@ effectiveStdenv.mkDerivation (finalAttrs: {
 
   patches = [ ];
 
-  postPatch = ''
-    rm tools/server/public/index.html.gz
-  '';
+  #postPatch = ''
+  #  rm tools/server/public/index.html.gz
+  #'';
 
   nativeBuildInputs = [
     cmake
