@@ -9,13 +9,13 @@
 }:
 mkLibretroCore {
   core = "mame";
-  version = "0-unstable-2026-01-01";
+  version = "0-unstable-2026-04-21";
 
   src = fetchFromGitHub {
     owner = "libretro";
     repo = "mame";
-    rev = "b207f9c6fc93b9d21417a9e4424607840c71db6b";
-    hash = "sha256-n9vDYSzij01rRgUc8l763FCLXsFGHIsZxAIZ+N8IBGo=";
+    rev = "18d4628347a2475ba2f34e6bdc4eca81ba38b5f6";
+    hash = "sha256-0shdiEw9OFGbgnl2aIwOy5gMb9xjTfTQKFEFEAEbP9Y=";
     fetchSubmodules = true;
   };
 

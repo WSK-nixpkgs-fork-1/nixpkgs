@@ -279,7 +279,7 @@ def update_gitaly():
                 NIXPKGS_PATH,
                 "-H",
                 "-a",
-                "leaveDotGit",
+                "fetchSubmodules",
                 "true",
                 "https://gitlab.com/gitlab-org/git",
                 git_rev
@@ -454,6 +454,7 @@ def commit_gitlab(old_version: str, new_version: str, new_rev: str) -> None:
             "pkgs/by-name/gi/gitlab-elasticsearch-indexer",
             "pkgs/by-name/gi/gitlab-kas",
             "pkgs/by-name/gi/gitlab-pages",
+            "pkgs/by-name/gi/gitlab-shell",
         ],
         cwd=NIXPKGS_PATH,
     )

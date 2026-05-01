@@ -32,7 +32,7 @@ stdenv.mkDerivation (finalAttrs: {
     qmake $qmakeFlags \
       PREFIX=$out \
       DESKTOPDIR=$out/share/applications \
-      ICONDIR=$out/share/pixmaps \
+      ICONDIR=$out/share/icons \
       QtBitcoinTrader_Desktop.pro
 
     runHook postConfigure

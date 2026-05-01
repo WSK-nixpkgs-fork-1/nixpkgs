@@ -77,14 +77,14 @@ let
   # The geodata website is not versioned, so we use the internet archive
   geodata =
     let
-      timestamp = "20250818205425";
+      timestamp = "20260408011516";
       date =
         "${lib.substring 0 4 timestamp}-${lib.substring 4 2 timestamp}-${lib.substring 6 2 timestamp}T"
         + "${lib.substring 8 2 timestamp}:${lib.substring 10 2 timestamp}:${lib.substring 12 2 timestamp}Z";
     in
     runCommand "immich-geodata"
       {
-        outputHash = "sha256-zZHAomW1C4qReFbhme5dkVnTiLw+jmhZhzuYvoBVBCY=";
+        outputHash = "sha256-WSKaTn54+8ckXPsk3jsOJ4yCsO0jLKf3y+apqwNlHc4=";
         outputHashMode = "recursive";
         nativeBuildInputs = [
           cacert
@@ -115,26 +115,24 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "immich";
-  version = "2.5.5";
+  version = "2.7.5";
 
   src = fetchFromGitHub {
     owner = "immich-app";
     repo = "immich";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-wAZcgAazfEy5dJhlut4cHGOj+qWrvF9vD6sxAswuhVU=";
+    hash = "sha256-EC1IXM7KObAWfwG5KEao5VDp79d8WGNEI7E89lLOJ44=";
   };
 
   pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs) pname version src;
     inherit pnpm;
     fetcherVersion = 3;
-    hash = "sha256-kJBX0hoDijs5IjS37oUDVv61t4vXTF6e3lmZIy/lQ/o=";
+    hash = "sha256-FEesjbhxP7ydFfNshF3iFIk9N3Z53jrEZ9DRBjgEfs0=";
   };
 
   postPatch = ''
-    # pg_dumpall fails without database root access
-    # see https://github.com/immich-app/immich/issues/13971
-    substituteInPlace server/src/utils/database-backups.ts \
+    substituteInPlace server/src/services/database-backup.service.ts \
       --replace-fail '`/usr/lib/postgresql/''${databaseMajorVersion}/bin/''${bin}`' '`''${bin}`'
   '';
 
@@ -226,7 +224,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   passthru = {
     tests = {
-      inherit (nixosTests) immich immich-vectorchord-migration immich-vectorchord-reindex;
+      inherit (nixosTests) immich immich-vectorchord-reindex;
     };
 
     machine-learning = immich-machine-learning.override {

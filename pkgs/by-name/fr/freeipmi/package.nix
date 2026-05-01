@@ -9,13 +9,13 @@
   libgpg-error,
 }:
 
-stdenv.mkDerivation rec {
-  version = "1.6.16";
+stdenv.mkDerivation (finalAttrs: {
+  version = "1.6.17";
   pname = "freeipmi";
 
   src = fetchurl {
-    url = "mirror://gnu/freeipmi/freeipmi-${version}.tar.gz";
-    sha256 = "sha256-W872u562gOSbSjYjV5kwrOeJn1OSWyBF/p+RrWkEER0=";
+    url = "mirror://gnu/freeipmi/freeipmi-${finalAttrs.version}.tar.gz";
+    sha256 = "sha256-Fng9EPqiiEenlczgv4be6qcrj75x0fDcEQHROmtQHsE=";
   };
 
   postPatch = lib.optionalString stdenv.cc.isClang ''
@@ -76,4 +76,4 @@ stdenv.mkDerivation rec {
     maintainers = with lib.maintainers; [ raskin ];
     platforms = lib.platforms.gnu ++ lib.platforms.unix;
   };
-}
+})

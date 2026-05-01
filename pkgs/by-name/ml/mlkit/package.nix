@@ -8,13 +8,13 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "mlkit";
-  version = "4.7.18";
+  version = "4.7.21";
 
   src = fetchFromGitHub {
     owner = "melsman";
     repo = "mlkit";
-    rev = "v${finalAttrs.version}";
-    sha256 = "sha256-OACdbHwg3sEAVw+Fje0tWVHh7Xy6C/WdOQHfexOezlo=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-c1GdM3K6dgY0EgHu01adBXwAxuMehRfo73Lo71couJ4=";
   };
 
   nativeBuildInputs = [
@@ -25,6 +25,13 @@ stdenv.mkDerivation (finalAttrs: {
   buildFlags = [
     "mlkit"
     "mlkit_libs"
+    "smltojs"
+    "smltojs_basislibs"
+  ];
+
+  installTargets = [
+    "install"
+    "install_smltojs"
   ];
 
   doCheck = true;

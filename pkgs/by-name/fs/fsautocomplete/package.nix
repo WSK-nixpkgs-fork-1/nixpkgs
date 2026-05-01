@@ -9,13 +9,13 @@
 
 buildDotnetModule (finalAttrs: {
   pname = "fsautocomplete";
-  version = "0.82.0";
+  version = "0.83.0";
 
   src = fetchFromGitHub {
     owner = "fsharp";
     repo = "FsAutoComplete";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-P/RPyYVyKK+s2AwQZzlSW8obQbhOoNSCd/ibahJ9BLg=";
+    hash = "sha256-1WK6vb/UfqnF5KlwrjmGTPeAnEgwPswcYweeotB6j00=";
   };
 
   nugetDeps = ./deps.json;
@@ -24,7 +24,7 @@ buildDotnetModule (finalAttrs: {
     rm global.json
 
     substituteInPlace src/FsAutoComplete/FsAutoComplete.fsproj \
-      --replace-fail TargetFrameworks TargetFramework \
+      --replace-fail TargetFrameworks TargetFramework
   '';
 
   dotnet-sdk = dotnetCorePackages.sdk_8_0;

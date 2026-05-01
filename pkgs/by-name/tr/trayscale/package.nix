@@ -10,25 +10,25 @@
   libadwaita,
 }:
 
-buildGoModule rec {
+buildGoModule (finalAttrs: {
   pname = "trayscale";
-  version = "0.18.5";
+  version = "0.18.8";
 
   src = fetchFromGitHub {
     owner = "DeedleFake";
     repo = "trayscale";
-    tag = "v${version}";
-    hash = "sha256-rrN0ofmKn8oSZ8jD3yMirTUSoXwqq1SJwXueG7mk0Ek=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-eOKTzIZ/040R6qIRBTtNXz8Me9I/PYuX9+ne4gxGKSw=";
   };
 
-  vendorHash = "sha256-N1FaKkOVzSdY+jTVroHDshPrzMORTWN3lzf+ugirJyw=";
+  vendorHash = "sha256-NdXXnSaNhp1CikrkycvGbjFS3Ow0SOQcBiWIVYwEODU=";
 
   subPackages = [ "cmd/trayscale" ];
 
   ldflags = [
     "-s"
     "-w"
-    "-X=deedles.dev/trayscale/internal/metadata.version=${version}"
+    "-X=deedles.dev/trayscale/internal/metadata.version=${finalAttrs.version}"
   ];
 
   nativeBuildInputs = [
@@ -54,7 +54,7 @@ buildGoModule rec {
   '';
 
   meta = {
-    changelog = "https://github.com/DeedleFake/trayscale/releases/tag/${src.rev}";
+    changelog = "https://github.com/DeedleFake/trayscale/releases/tag/${finalAttrs.src.rev}";
     description = "Unofficial GUI wrapper around the Tailscale CLI client";
     homepage = "https://github.com/DeedleFake/trayscale";
     license = lib.licenses.mit;
@@ -62,4 +62,4 @@ buildGoModule rec {
     mainProgram = "trayscale";
     platforms = lib.platforms.unix;
   };
-}
+})

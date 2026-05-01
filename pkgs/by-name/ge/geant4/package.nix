@@ -17,7 +17,7 @@
   libxpm,
   motif,
   python3,
-  qt5,
+  qt6,
   soxt,
   xercesc,
   zlib,
@@ -38,12 +38,12 @@ let
 in
 
 stdenv.mkDerivation (finalAttrs: {
-  version = "11.3.2";
+  version = "11.4.1";
   pname = "geant4";
 
   src = fetchurl {
     url = "https://cern.ch/geant4-data/releases/geant4-v${finalAttrs.version}.tar.gz";
-    hash = "sha256-iSrt10JSYqUKw9PHEX2BwMDaS0CMaIDbr1R4uTAeSIw=";
+    hash = "sha256-HG3ymOw5hFlDgP/jRJ48I80jKZsX4QZz5pI7jmuNIBc=";
   };
 
   # Fix broken paths in a .pc
@@ -81,7 +81,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   nativeBuildInputs = [ cmake ];
 
-  propagatedNativeBuildInputs = lib.optionals enableQt [ qt5.wrapQtAppsHook ];
+  propagatedNativeBuildInputs = lib.optionals enableQt [ qt6.wrapQtAppsHook ];
   dontWrapQtApps = true; # no binaries
 
   buildInputs =
@@ -112,7 +112,7 @@ stdenv.mkDerivation (finalAttrs: {
     libx11
   ]
   ++ lib.optionals enableXM [ motif ]
-  ++ lib.optionals enableQt [ qt5.qtbase ];
+  ++ lib.optionals enableQt [ qt6.qtbase ];
 
   postFixup = ''
     substituteInPlace "$out"/bin/geant4.sh \

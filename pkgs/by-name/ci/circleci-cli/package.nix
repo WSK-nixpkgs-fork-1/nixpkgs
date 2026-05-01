@@ -5,18 +5,18 @@
   installShellFiles,
 }:
 
-buildGoModule rec {
+buildGoModule (finalAttrs: {
   pname = "circleci-cli";
-  version = "0.1.34283";
+  version = "0.1.35800";
 
   src = fetchFromGitHub {
     owner = "CircleCI-Public";
     repo = "circleci-cli";
-    rev = "v${version}";
-    sha256 = "sha256-LcZAdYADw8pQQIpnAhP1Yoo4E5pC+/9+rNEthntZ1vU=";
+    rev = "v${finalAttrs.version}";
+    sha256 = "sha256-Mxeyij1S0mrVTBNFDgnlIFCHYik47sHtrgbc1cjObbM=";
   };
 
-  vendorHash = "sha256-QMSciB81khHhjd/4Km1YYyTiEFDF75AcNGsmZTLLO5Q=";
+  vendorHash = "sha256-vTYepN/srd5qb2o1O5KwcGBwvKmV1DLG3/4OdtKJpVk=";
 
   nativeBuildInputs = [ installShellFiles ];
 
@@ -25,8 +25,8 @@ buildGoModule rec {
   ldflags = [
     "-s"
     "-w"
-    "-X github.com/CircleCI-Public/circleci-cli/version.Version=${version}"
-    "-X github.com/CircleCI-Public/circleci-cli/version.Commit=${src.rev}"
+    "-X github.com/CircleCI-Public/circleci-cli/version.Version=${finalAttrs.version}"
+    "-X github.com/CircleCI-Public/circleci-cli/version.Commit=${finalAttrs.src.rev}"
     "-X github.com/CircleCI-Public/circleci-cli/version.packageManager=nix"
   ];
 
@@ -44,9 +44,9 @@ buildGoModule rec {
       Command to enable you to reproduce the CircleCI environment locally and
       run jobs as if they were running on the hosted CirleCI application.
     '';
-    maintainers = with lib.maintainers; [ synthetica ];
+    maintainers = [ ];
     mainProgram = "circleci";
     license = lib.licenses.mit;
     homepage = "https://circleci.com/";
   };
-}
+})

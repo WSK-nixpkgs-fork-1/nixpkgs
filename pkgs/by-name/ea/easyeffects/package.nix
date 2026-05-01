@@ -11,7 +11,7 @@
   gsl,
   intltool,
   kdePackages,
-  ladspaH,
+  ladspa-header,
   libbs2b,
   libebur128,
   libmysofa,
@@ -35,7 +35,7 @@
   webrtc-audio-processing,
   zam-plugins,
   zita-convolver,
-  wrapGAppsNoGuiHook,
+  wrapGAppsHook3,
 }:
 
 let
@@ -55,20 +55,19 @@ let
     kirigami-addons
     qqc2-desktop-style
     ;
+  speexdsp' = speexdsp.override { withFftw3 = false; };
 in
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "easyeffects";
-  version = "8.1.2";
+  version = "8.2.1";
 
   src = fetchFromGitHub {
     owner = "wwmm";
     repo = "easyeffects";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-Tz14pjI5pNJOQH0KFaf9mJkFdup1GVxlkMnzVQusx/M=";
+    hash = "sha256-bGjIqts06ruwMQIW5hk4wlG7G/7GtgFVBgSr68tkIqY=";
   };
-
-  patches = [ ./qmlmodule-fix.patch ];
 
   nativeBuildInputs = [
     cmake
@@ -76,7 +75,7 @@ stdenv.mkDerivation (finalAttrs: {
     intltool
     ninja
     pkg-config
-    wrapGAppsNoGuiHook
+    wrapGAppsHook3
     wrapQtAppsHook
   ];
 
@@ -95,7 +94,7 @@ stdenv.mkDerivation (finalAttrs: {
     kiconthemes
     kirigami
     kirigami-addons
-    ladspaH
+    ladspa-header
     qqc2-desktop-style
     libbs2b
     libebur128
@@ -111,7 +110,7 @@ stdenv.mkDerivation (finalAttrs: {
     rnnoise
     rubberband
     soundtouch
-    speexdsp
+    speexdsp'
     onetbb
     webrtc-audio-processing
     zita-convolver

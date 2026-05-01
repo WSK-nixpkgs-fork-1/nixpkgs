@@ -30,15 +30,20 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "numpyro";
-  version = "0.20.0";
+  version = "0.20.1";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "pyro-ppl";
     repo = "numpyro";
     tag = finalAttrs.version;
-    hash = "sha256-lMga+mPQEh6RCeqXKa2KELR6RcksKJ/K32h7X7a1IcQ=";
+    hash = "sha256-sNqllL9nBwXp0kn+HAjvIaHf7LR0UKh9q7DZ20yCr5A=";
   };
+
+  patches = [
+    # Remove usage of xla_pmap_p which was removed in jax 0.10.0
+    ./fix-jax-0.10.0-compat.patch
+  ];
 
   build-system = [ setuptools ];
 
@@ -81,6 +86,12 @@ buildPythonPackage (finalAttrs: {
   ];
 
   disabledTests = [
+    # Failing with jax>=0.9.0
+    # TypeError: Error interpreting argument to closed_call as a JAX value
+    "test_provenance_call"
+    "test_provenance_closed_call"
+    "test_numpyrooptim_no_double_jit"
+
     # ValueError: Found unexpected Arrays on value of type <class 'list'> in static attribute 'layers'
     # of Pytree type '<class 'test_module.test_random_nnx_module_mcmc_sequence_params.<locals>.MLP'>'.
     # This is an error starting from Flax version 0.12.0.

@@ -8,13 +8,13 @@
   yq,
   protobuf,
   installShellFiles,
-  librusty_v8 ? callPackage ./librusty_v8.nix {
-    inherit (callPackage ./fetchers.nix { }) fetchLibrustyV8;
-  },
+  makeBinaryWrapper,
+  librusty_v8 ? callPackage ./librusty_v8.nix { },
   libffi,
   sqlite,
   lld,
   writableTmpDirAsHomeHook,
+  fetchpatch,
 
   # Test deps
   curl,
@@ -29,17 +29,17 @@ let
 in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "deno";
-  version = "2.6.6";
+  version = "2.7.13";
 
   src = fetchFromGitHub {
     owner = "denoland";
     repo = "deno";
     tag = "v${finalAttrs.version}";
     fetchSubmodules = true; # required for tests
-    hash = "sha256-QqzV4Ikr5iWrOX+KJH/65S1HHhxOB0SmHj7yejVJp3M=";
+    hash = "sha256-LGTA2xwT939GlAaKfUU3XA0Jx0h1P+8eFgPLmddHxlo=";
   };
 
-  cargoHash = "sha256-soJ2ZKpxlBskl2b3pz4pn6zMaWUXjYOBRKBuoxHokes=";
+  cargoHash = "sha256-CLI54HSEOC/OVnIf0FmizVrS0adfzukFFBDl+EUP7BE=";
 
   patches = [
     ./patches/0002-tests-replace-hardcoded-paths.patch
@@ -67,6 +67,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     # required by deno_kv crate
     protobuf
     installShellFiles
+    makeBinaryWrapper
   ]
   ++ lib.optionals stdenv.hostPlatform.isDarwin [ lld ];
 
@@ -128,7 +129,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   cargoTestFlags = [
     "--lib" # unit tests
-    "--test=integration_tests"
+    "--test=integration_test"
     # Test targets not included here:
     # - node_compat: there are tons of network access in them and it's not trivial to skip test cases.
     # - specs: this target uses a custom test harness that doesn't implement the --skip flag.
@@ -177,6 +178,12 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
     # sqlite extension tests are in a separate Cargo crate and therefore are not handled by the nixpkgs Cargo tooling
     "--skip=sqlite_extension_test"
+
+    # Needs deno in $PATH
+    "--skip=tests::test_rebuild_async_stubs"
+
+    # Causes SIGTRAP
+    "--skip=external::tests::test_external_deref_after_take"
   ]
   ++ lib.optionals stdenv.hostPlatform.isDarwin [
     # Expects specific shared libraries from macOS to be linked
@@ -215,6 +222,9 @@ rustPlatform.buildRustPackage (finalAttrs: {
   postInstall = ''
     # Remove non-essential binaries like denort and test_server
     find $out/bin/* -not -name "deno" -delete
+
+    # Do what `deno x --install-alias` would do (it doesn't work with Nix-packaged Deno)
+    makeBinaryWrapper $out/bin/deno $out/bin/dx --add-flags "x"
   ''
   + lib.optionalString canExecute ''
     installShellCompletion --cmd deno \
@@ -232,7 +242,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
   '';
 
   passthru = {
-    updateScript = ./update/update.ts;
+    updateScript = ./update.sh;
     tests = callPackage ./tests { };
     inherit librusty_v8;
   };
@@ -255,6 +265,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     maintainers = with lib.maintainers; [
       jk
       ofalvai
+      mynacol
     ];
     platforms = [
       "x86_64-linux"

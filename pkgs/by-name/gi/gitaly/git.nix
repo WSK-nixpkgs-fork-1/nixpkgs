@@ -7,22 +7,23 @@
   pcre2,
   zlib,
   git,
+  meson,
+  ninja,
   pkg-config,
   openssl,
 }:
 let
   data = lib.importJSON ./git-data.json;
 in
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   inherit (data) version;
   pname = "gitaly-git";
 
-  # `src` attribute for nix-update
   src = fetchFromGitLab {
     owner = "gitlab-org";
     repo = "git";
     inherit (data) rev hash;
-    leaveDotGit = true;
+    fetchSubmodules = true;
   };
 
   # Use gitaly and their build system as source root
@@ -32,14 +33,21 @@ stdenv.mkDerivation rec {
     git config --global --add safe.directory '*'
   '';
 
-  sourceRoot = src.name;
+  # This is a patch for gitaly, not git
+  patches = [
+    ./dont-clone-git-repo.patch
+  ];
+
+  sourceRoot = "source";
 
   buildFlags = [ "install-git" ];
-  GIT_REPO_URL = src;
+  GIT_REPO_PATH = finalAttrs.src;
   HOME = "/build";
 
   nativeBuildInputs = [
     git # clones our repo from the store
+    meson
+    ninja
     pkg-config
   ];
   # git inputs
@@ -49,6 +57,10 @@ stdenv.mkDerivation rec {
     pcre2
     curl
   ];
+
+  # Meson and ninja are required to build git, but gitaly doesn't use them
+  dontUseMesonConfigure = true;
+  dontUseNinjaBuild = true;
 
   # required to support pthread_cancel()
   NIX_LDFLAGS =
@@ -76,4 +88,4 @@ stdenv.mkDerivation rec {
     platforms = lib.platforms.all;
     teams = [ lib.teams.gitlab ];
   };
-}
+})

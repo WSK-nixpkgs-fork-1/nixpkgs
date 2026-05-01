@@ -461,16 +461,18 @@ optionalAttrs allowAliases aliases
       generate =
         name: value:
         pkgs.callPackage (
-          { runCommand, remarshal }:
+          { runCommand, go-toml }:
           runCommand name
             {
-              nativeBuildInputs = [ remarshal ];
+              nativeBuildInputs = [ go-toml ];
               value = builtins.toJSON value;
               passAsFile = [ "value" ];
               preferLocalBuild = true;
             }
+            # -use-json-number: preserve JSON ints as TOML ints
+            # (Go's json.Decoder defaults to float64 for all numbers)
             ''
-              json2toml "$valuePath" "$out"
+              jsontoml -use-json-number < "$valuePath" > "$out"
             ''
         ) { };
 
@@ -1053,4 +1055,27 @@ optionalAttrs allowAliases aliases
 
       generate = name: value: pkgs.writeText name (lib.generators.toPlist { inherit escape; } value);
     };
+
+  hcl1 =
+    args:
+    let
+      # Helper function to recursively transform values for HCL1 canonicalization
+      # Rule: If an attribute value is an attribute set, wrap it in a list
+      transform =
+        value:
+        if isAttrs value && !isDerivation value then
+          # If it's an attribute set, transform it recursively and wrap in a list
+          [ (mapAttrs (name: transform) value) ]
+        else if isList value then
+          # If it's already a list, transform each element
+          map transform value
+        else
+          value;
+      jsonFormat = json { };
+    in
+    jsonFormat
+    // {
+      generate = name: value: jsonFormat.generate name (mapAttrs (_: transform) value);
+    };
+
 }

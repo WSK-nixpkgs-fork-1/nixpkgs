@@ -4,6 +4,7 @@
   fetchPypi,
   hatchling,
   blockbuster,
+  croniter,
   langgraph,
   langgraph-checkpoint,
   sse-starlette,
@@ -13,20 +14,21 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "langgraph-runtime-inmem";
-  version = "0.23.1";
+  version = "0.27.3";
   pyproject = true;
 
   # Not available in any repository
   src = fetchPypi {
     pname = "langgraph_runtime_inmem";
     inherit (finalAttrs) version;
-    hash = "sha256-94VLsnQt15eujRmlHTty1iGLUcuWGvT+m0N7tQcQiQs=";
+    hash = "sha256-jylX7GXEJFJr5pBxCnD2W/kG3dkqS9IFS7VhyPlErJE=";
   };
 
   build-system = [ hatchling ];
 
   dependencies = [
     blockbuster
+    croniter
     langgraph
     langgraph-checkpoint
     sse-starlette

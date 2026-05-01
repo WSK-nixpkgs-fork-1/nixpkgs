@@ -26,14 +26,14 @@
   gitUpdater,
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "gpu-screen-recorder";
-  version = "5.12.1";
+  version = "5.12.5";
 
   src = fetchgit {
     url = "https://repo.dec05eba.com/gpu-screen-recorder";
-    tag = version;
-    hash = "sha256-FUt3R2clnWYNKgW5uo2HtON91zB2+u+Ini15/ccTJdk=";
+    tag = finalAttrs.version;
+    hash = "sha256-cw3IejeWFhuFSzUgK2sv4LEa2ohHNx6C3T7+GhHljsY=";
   };
 
   nativeBuildInputs = [
@@ -97,4 +97,4 @@ stdenv.mkDerivation rec {
     ];
     platforms = [ "x86_64-linux" ];
   };
-}
+})

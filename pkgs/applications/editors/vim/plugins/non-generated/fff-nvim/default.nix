@@ -5,40 +5,72 @@
   nix-update-script,
   openssl,
   perl,
+  zig,
+  gitMinimal,
   pkg-config,
   stdenv,
   vimUtils,
+  writableTmpDirAsHomeHook,
 }:
 let
-  version = "0523fe3-unstable-2026-01-25";
+  version = "0.6.4";
   src = fetchFromGitHub {
     owner = "dmtrKovalenko";
     repo = "fff.nvim";
-    rev = "0523fe39ffc59373de0648ba636705d35a6fdfc2";
-    hash = "sha256-7rP6C/zPhpTMcsewR9LZlB23Ot7W23E2WM7Fnj89rlA=";
+    tag = "v${version}";
+    hash = "sha256-vu5yqOvVAPXHMi8sZFQuH9rNsFDffh3Ja74Be0Cs64c=";
   };
   fff-nvim-lib = rustPlatform.buildRustPackage {
     pname = "fff-nvim-lib";
     inherit version src;
 
-    cargoHash = "sha256-jch2snZVoDqPkbeuF++yc/3ikoWal29bTKZjkyDgVjU=";
+    cargoHash = "sha256-w6KwiE0rAT00fiRa1rT8uthVgcMB7EFGoG3+M5MYEBo=";
+
+    cargoBuildFlags = [
+      "-p"
+      "fff-nvim"
+      "--features"
+      "zlob"
+    ];
+
+    cargoCheckFlags = [
+      "-p"
+      "fff-nvim"
+      "--features"
+      "zlob"
+    ];
 
     nativeBuildInputs = [
       pkg-config
       perl
+      rustPlatform.bindgenHook
+      writableTmpDirAsHomeHook
     ];
+
+    # Some tests need git
+    nativeCheckInputs = [ gitMinimal ];
+
+    # Tests need these permissions in order to use the FSEvents API on macOS.
+    sandboxProfile = ''
+      (allow mach-lookup (global-name "com.apple.FSEvents"))
+    '';
 
     buildInputs = [
       openssl
     ];
 
-    env = {
-      RUSTC_BOOTSTRAP = 1; # We need rust unstable features
+    # This test requires curl and GitHub access
+    checkFlags = [
+      "--skip=update_check::tests::test_update_check_end_to_end"
+    ];
 
+    env = {
       OPENSSL_NO_VENDOR = true;
 
       # Allow undefined symbols on Darwin - they will be provided by Neovim's LuaJIT runtime
       RUSTFLAGS = lib.optionalString stdenv.hostPlatform.isDarwin "-C link-arg=-undefined -C link-arg=dynamic_lookup";
+
+      ZIG = lib.getExe zig; # zlob requires zig
     };
   };
 in
@@ -60,7 +92,6 @@ vimUtils.buildVimPlugin {
 
   passthru = {
     updateScript = nix-update-script {
-      extraArgs = [ "--version=branch" ];
       attrPath = "vimPlugins.fff-nvim.fff-nvim-lib";
     };
 

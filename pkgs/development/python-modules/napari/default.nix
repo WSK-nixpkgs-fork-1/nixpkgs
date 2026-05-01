@@ -1,6 +1,5 @@
 {
   lib,
-  mkDerivationWith,
   buildPythonPackage,
   fetchFromGitHub,
 
@@ -9,7 +8,7 @@
   setuptools-scm,
 
   # nativeBuildInputs
-  wrapQtAppsHook,
+  qt6,
 
   # dependencies
   app-model,
@@ -24,12 +23,13 @@
   napari-console,
   napari-npe2,
   napari-svg,
-  numpydoc,
   pandas,
   pillow,
   pint,
   psutil,
   pydantic,
+  pydantic-extra-types,
+  pydantic-settings,
   pyopengl,
   pyyaml,
   scikit-image,
@@ -44,6 +44,7 @@
 
   # tests
   hypothesis,
+  pooch,
   pretend,
   pyautogui,
   pytest-pretty,
@@ -54,16 +55,16 @@
   zarr,
 }:
 
-mkDerivationWith buildPythonPackage rec {
+buildPythonPackage (finalAttrs: {
   pname = "napari";
-  version = "0.6.6";
+  version = "0.7.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "napari";
     repo = "napari";
-    tag = "v${version}";
-    hash = "sha256-F0l6GWyZ6n4HNZW7XyUk4ZBPQfrAW4DWixCaRHViDPI=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-fDt9n4+yQcA03IO7sMhcpiP3TfOWfyvbCjY7ImEj+Qg=";
   };
 
   postPatch = ''
@@ -76,13 +77,12 @@ mkDerivationWith buildPythonPackage rec {
     setuptools-scm
   ];
 
-  nativeBuildInputs = [ wrapQtAppsHook ];
+  nativeBuildInputs = [ qt6.wrapQtAppsHook ];
 
-  pythonRelaxDeps = [
-    "app-model"
-    "psygnal"
-    "vispy"
+  buildInputs = [
+    qt6.qtbase
   ];
+
   dependencies = [
     app-model
     appdirs
@@ -96,12 +96,13 @@ mkDerivationWith buildPythonPackage rec {
     napari-console
     napari-npe2
     napari-svg
-    numpydoc
     pandas
     pillow
     pint
     psutil
     pydantic
+    pydantic-extra-types
+    pydantic-settings
     pyopengl
     pyyaml
     scikit-image
@@ -126,6 +127,7 @@ mkDerivationWith buildPythonPackage rec {
 
   nativeCheckInputs = [
     hypothesis
+    pooch
     pretend
     pyautogui
     pytest-pretty
@@ -181,6 +183,7 @@ mkDerivationWith buildPythonPackage rec {
     # Fatal Python error: Aborted
     "test_add_layer_data_to_viewer_optional"
     "test_from_layer_data_tuple_accept_deprecating_dict"
+    "test_layer_rename_updates_combobox"
     "test_layers_populate_immediately"
     "test_magicgui_add_data"
     "test_magicgui_add_future_data"
@@ -199,8 +202,8 @@ mkDerivationWith buildPythonPackage rec {
   meta = {
     description = "Fast, interactive, multi-dimensional image viewer";
     homepage = "https://github.com/napari/napari";
-    changelog = "https://github.com/napari/napari/releases/tag/${src.tag}";
+    changelog = "https://github.com/napari/napari/releases/tag/${finalAttrs.src.tag}";
     license = lib.licenses.bsd3;
     maintainers = with lib.maintainers; [ SomeoneSerge ];
   };
-}
+})

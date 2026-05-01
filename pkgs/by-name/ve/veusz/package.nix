@@ -5,14 +5,14 @@
   qt6,
 }:
 
-python3Packages.buildPythonApplication rec {
+python3Packages.buildPythonApplication (finalAttrs: {
   pname = "veusz";
-  version = "4.2";
+  version = "4.2.1";
   format = "setuptools";
 
   src = fetchPypi {
-    inherit pname version;
-    hash = "sha256-jyghPk/u4THHnXrG/UDzHfW4AkS6n0CEd3VK+GX9he0=";
+    inherit (finalAttrs) pname version;
+    hash = "sha256-+txG1MQWbZaVq322p4ZctzanPw+geEf9ilu5kGQI3Qk=";
   };
 
   nativeBuildInputs = [
@@ -76,4 +76,4 @@ python3Packages.buildPythonApplication rec {
     platforms = lib.platforms.linux;
     maintainers = with lib.maintainers; [ laikq ];
   };
-}
+})

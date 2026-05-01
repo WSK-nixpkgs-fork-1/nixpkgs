@@ -12,19 +12,19 @@
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "ni";
-  version = "28.2.0";
+  version = "30.1.0";
 
   src = fetchFromGitHub {
     owner = "antfu-collective";
     repo = "ni";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-QRatGm8e12mYtCPpeZwz4adtl6PTPUXTRlge6UKqiqI=";
+    hash = "sha256-mBKSnnmvlZOwU+6MQrg8S8iCea2PGAsHa+A4lseLYyw=";
   };
 
   pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs) pname version src;
     fetcherVersion = 2;
-    hash = "sha256-n/iqROsdVwLZEAHU3G6Hkl2wrwnwJv7BUMzJif9bYRM=";
+    hash = "sha256-BoQO6oTctvRAzHUw6dsOSV5w7uLzrnD1+KmP9irG0Z4=";
   };
 
   nativeBuildInputs = [

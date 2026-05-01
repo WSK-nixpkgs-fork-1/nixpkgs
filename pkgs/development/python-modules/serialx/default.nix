@@ -3,6 +3,7 @@
   cargo,
   fetchFromGitHub,
   lib,
+  psutil,
   pytest-asyncio,
   pytest-xdist,
   pytestCheckHook,
@@ -17,14 +18,14 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "serialx";
-  version = "0.6.2";
+  version = "1.5.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "puddly";
     repo = "serialx";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-AtRh6xrmuRf7+ZL8dSxq4cHFOtKNJox5iQF84eDOY80=";
+    hash = "sha256-ttKnjpF3SYo2QIKMuPU2EuTTp/Hq0s+4gvNdXdNApbs=";
   };
 
   cargoDeps = rustPlatform.fetchCargoVendor {
@@ -51,10 +52,18 @@ buildPythonPackage (finalAttrs: {
   pythonImportsCheck = [ "serialx" ];
 
   nativeCheckInputs = [
+    psutil
     pytest-asyncio
     pytest-xdist
     pytestCheckHook
     socat
+  ];
+
+  disabledTests = [
+    # tries to access /sys/class/tty in sandbox
+    "test_compat_tools_module"
+    # connects to 192.0.2.1
+    "test_async_socket_connect_timeout"
   ];
 
   meta = {

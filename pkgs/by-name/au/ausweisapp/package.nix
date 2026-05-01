@@ -8,17 +8,24 @@
   qt6,
   pcsclite,
   gitUpdater,
+  llhttp,
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "ausweisapp";
-  version = "2.4.0";
+  version = "2.5.1";
 
   src = fetchFromGitHub {
     owner = "Governikus";
     repo = "AusweisApp2";
     rev = finalAttrs.version;
-    hash = "sha256-vMvCnYSj7y6ETGoudV1YJwI2bibXePSkR4nQ4T5HqTo=";
+    hash = "sha256-R+2swDzIHlgE0kVonoYQih8r8p38RN7bqkbb+WB1hCc=";
   };
+
+  postPatch = ''
+    # avoid runtime QML cache to fix GUI loading issues
+    substituteInPlace src/ui/qml/CMakeLists.txt src/ui/qml/modules/CMakeLists.txt \
+      --replace-fail NO_CACHEGEN ""
+  '';
 
   nativeBuildInputs = [
     cmake
@@ -33,6 +40,7 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   buildInputs = [
+    llhttp
     pcsclite
     qt6.qtscxml
     qt6.qtsvg
@@ -40,6 +48,8 @@ stdenv.mkDerivation (finalAttrs: {
     qt6.qtwayland
     qt6.qtwebsockets
   ];
+
+  env.LANG = "C.UTF-8";
 
   passthru = {
     tests.version = testers.testVersion {

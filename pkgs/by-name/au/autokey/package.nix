@@ -11,7 +11,7 @@
   wmctrl,
 }:
 
-python3Packages.buildPythonApplication rec {
+python3Packages.buildPythonApplication (finalAttrs: {
   pname = "autokey";
   version = "0.96.0";
   pyproject = true;
@@ -19,7 +19,7 @@ python3Packages.buildPythonApplication rec {
   src = fetchFromGitHub {
     owner = "autokey";
     repo = "autokey";
-    rev = "v${version}";
+    rev = "v${finalAttrs.version}";
     hash = "sha256-d1WJLqkdC7QgzuYdnxYhajD3DtCpgceWCAxGrk0KKew=";
   };
 
@@ -58,7 +58,7 @@ python3Packages.buildPythonApplication rec {
   dontWrapGApps = true;
 
   preFixup = ''
-    makeWrapperArgs+=(''${gappsWrapperArgs[@]} --prefix PATH : ${lib.makeBinPath runtimeDeps})
+    makeWrapperArgs+=(''${gappsWrapperArgs[@]} --prefix PATH : ${lib.makeBinPath finalAttrs.runtimeDeps})
   '';
 
   postInstall = ''
@@ -70,7 +70,7 @@ python3Packages.buildPythonApplication rec {
     homepage = "https://github.com/autokey/autokey";
     description = "Desktop automation utility for Linux and X11";
     license = with lib.licenses; [ gpl3 ];
-    maintainers = with lib.maintainers; [ pneumaticat ];
+    maintainers = [ ];
     platforms = lib.platforms.linux;
   };
-}
+})

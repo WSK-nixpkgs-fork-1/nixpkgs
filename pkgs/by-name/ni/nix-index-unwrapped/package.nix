@@ -8,18 +8,18 @@
   sqlite,
 }:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "nix-index";
-  version = "0.1.9";
+  version = "0.1.9-unstable-2026-04-20";
 
   src = fetchFromGitHub {
     owner = "nix-community";
     repo = "nix-index";
-    rev = "v${version}";
-    hash = "sha256-kOVmgST/D3zNOcGVu1ReuPuVrUx41iRK4rs59lqYX74=";
+    rev = "0f68b51886bde4014629e43d9be4b66cff450990";
+    hash = "sha256-polUDx4tWFmyxsn83XRrw9YQlDq/ggNY1hq6xw9NOoQ=";
   };
 
-  cargoHash = "sha256-0yrTPrxN/4TOALqpQ5GW7LXKisc8msx3DvEpg8uO+IQ=";
+  cargoHash = "sha256-2Ar7mj9r5eKdbXDC4+jSWG7HvGFTeowEPt2SBM6a6e4=";
 
   nativeBuildInputs = [ pkg-config ];
   buildInputs = [
@@ -40,7 +40,7 @@ rustPlatform.buildRustPackage rec {
   meta = {
     description = "Files database for nixpkgs";
     homepage = "https://github.com/nix-community/nix-index";
-    changelog = "https://github.com/nix-community/nix-index/blob/${src.rev}/CHANGELOG.md";
+    changelog = "https://github.com/nix-community/nix-index/blob/${finalAttrs.src.rev}/CHANGELOG.md";
     license = with lib.licenses; [ bsd3 ];
     maintainers = with lib.maintainers; [
       bennofs
@@ -48,4 +48,4 @@ rustPlatform.buildRustPackage rec {
     ];
     mainProgram = "nix-index";
   };
-}
+})

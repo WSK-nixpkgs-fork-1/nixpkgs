@@ -29,13 +29,13 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "bazaar";
-  version = "0.7.6";
+  version = "0.7.8";
 
   src = fetchFromGitHub {
     owner = "kolunmi";
     repo = "bazaar";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-kLCakA3HNzCYZ3yE5rK05qzhZehoQ74xRLMCQ2DzUDU=";
+    hash = "sha256-s3NKRh1xUcLXVGWm0oYY4fVX7t7+bZIZ2jAYe1W0LKA=";
   };
 
   nativeBuildInputs = [
@@ -65,6 +65,13 @@ stdenv.mkDerivation (finalAttrs: {
     webkitgtk_6_0
     libsecret
   ];
+
+  # bazaar needs bazaar-dl-worker in path
+  preFixup = ''
+    gappsWrapperArgs+=(
+      --prefix PATH : $out/bin
+    )
+  '';
 
   passthru = {
     updateScript = nix-update-script { };

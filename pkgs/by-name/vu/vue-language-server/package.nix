@@ -11,19 +11,19 @@
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "vue-language-server";
-  version = "3.2.2";
+  version = "3.2.6";
 
   src = fetchFromGitHub {
     owner = "vuejs";
     repo = "language-tools";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-oVIWRCnJkJK1CsgNp7l95uuILeXv2XuwwfGElGnOEyU=";
+    hash = "sha256-Igy7Tc2rWbLX7jeuQm8MYbgeKfPYA1a92E8B11CrUyo=";
   };
 
   pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs) pname version src;
-    fetcherVersion = 1;
-    hash = "sha256-lxRify3uJnqYH6btmXU9yaO8LJDGBZcyONLUHv2rLqg=";
+    fetcherVersion = 3;
+    hash = "sha256-koRJkT/JloptmtQKLprqms53TL/Q4XHaktIl/6PIasw=";
   };
 
   nativeBuildInputs = [
@@ -46,7 +46,7 @@ stdenv.mkDerivation (finalAttrs: {
     find packages.dontpruneme/**/node_modules -xtype l -delete
     mv packages.dontpruneme packages
 
-    find -type f \( -name "*.ts" -o -name "*.map" \) -exec rm -rf {} +
+    find -type f \( -name "*.ts" ! -name "*.d.ts" -o -name "*.map" \) -exec rm -rf {} +
 
     # https://github.com/pnpm/pnpm/issues/3645
     find node_modules packages/language-server/node_modules -xtype l -delete

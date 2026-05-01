@@ -21,13 +21,13 @@
 
 buildNpmPackage rec {
   pname = "bruno";
-  version = "3.0.2";
+  version = "3.3.0";
 
   src = fetchFromGitHub {
     owner = "usebruno";
     repo = "bruno";
     tag = "v${version}";
-    hash = "sha256-lvv1SJuUxNwukg/yi6mhgvVs8M/Eyf2H36NJN+6XKSE=";
+    hash = "sha256-YVZPXrYfOFd9lUdZ0rwWnbSDO91Bn1vZyO3AwnE2pZE=";
 
     postFetch = ''
       ${lib.getExe npm-lockfile-fix} $out/package-lock.json
@@ -36,7 +36,7 @@ buildNpmPackage rec {
 
   nodejs = nodejs_22;
 
-  npmDepsHash = "sha256-zb0oP4/L7449z83tpcT6W/6sXS4Urph3ELN9kUC32dA=";
+  npmDepsHash = "sha256-IH2AVyHwMZuyZOUsAP7qoxm5Em32hk90Tp7uvSE9bIE=";
   npmFlags = [ "--legacy-peer-deps" ];
 
   nativeBuildInputs = [
@@ -84,7 +84,7 @@ buildNpmPackage rec {
     patchShebangs packages/*/node_modules
   '';
 
-  ELECTRON_SKIP_BINARY_DOWNLOAD = 1;
+  env.ELECTRON_SKIP_BINARY_DOWNLOAD = 1;
 
   # remove giflib dependency
   npmRebuildFlags = [ "--ignore-scripts" ];

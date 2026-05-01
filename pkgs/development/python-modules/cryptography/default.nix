@@ -21,14 +21,14 @@
 
 buildPythonPackage rec {
   pname = "cryptography";
-  version = "46.0.3";
+  version = "46.0.6";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "pyca";
     repo = "cryptography";
     tag = version;
-    hash = "sha256-6t7f/BaMkA24MY05B7aYa0myxnCjrCsh1qk6RgAjeQc=";
+    hash = "sha256-b6wQnPEf18ViqQVch+Jg1w0Cn372QKxLknD9rL4JjxY=";
   };
 
   cargoDeps = rustPlatform.fetchCargoVendor {

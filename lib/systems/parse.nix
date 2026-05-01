@@ -47,13 +47,9 @@ let
 
   inherit (lib.types)
     enum
-    float
     isType
     mkOptionType
-    number
     setType
-    string
-    types
     ;
 
   setTypes =
@@ -288,6 +284,12 @@ rec {
         family = "m68k";
       };
 
+      sh4 = {
+        bits = 32;
+        significantByte = littleEndian;
+        family = "sh";
+      };
+
       powerpc = {
         bits = 32;
         significantByte = bigEndian;
@@ -386,6 +388,12 @@ rec {
         family = "or1k";
       };
 
+      arc = {
+        bits = 32;
+        significantByte = littleEndian;
+        family = "arc";
+      };
+
       loongarch64 = {
         bits = 64;
         significantByte = littleEndian;
@@ -453,19 +461,17 @@ rec {
       (b == armv5tel && isCompatible a armv6l)
 
       # ARMv6
-      (b == armv6l && isCompatible a armv6m)
-      (b == armv6m && isCompatible a armv7l)
+      (b == armv6m && isCompatible a armv6l)
+      (b == armv6l && isCompatible a armv7l)
 
       # ARMv7
       (b == armv7l && isCompatible a armv7a)
       (b == armv7l && isCompatible a armv7r)
-      (b == armv7l && isCompatible a armv7m)
+      (b == armv7m && isCompatible a armv7a)
+      (b == armv7m && isCompatible a armv7r)
 
       # ARMv8
-      (b == aarch64 && a == armv8a)
       (b == armv8a && isCompatible a aarch64)
-      (b == armv8r && isCompatible a armv8a)
-      (b == armv8m && isCompatible a armv8a)
 
       # PowerPC
       (b == powerpc && isCompatible a powerpc64)
@@ -475,14 +481,8 @@ rec {
       (b == mips && isCompatible a mips64)
       (b == mipsel && isCompatible a mips64el)
 
-      # RISCV
-      (b == riscv32 && isCompatible a riscv64)
-
       # SPARC
       (b == sparc && isCompatible a sparc64)
-
-      # WASM
-      (b == wasm32 && isCompatible a wasm64)
 
       # identity
       (b == a)
@@ -632,6 +632,10 @@ rec {
       };
       mmixware = {
         execFormat = unknown;
+        families = { };
+      };
+      uefi = {
+        execFormat = pe;
         families = { };
       };
     }
@@ -849,6 +853,7 @@ rec {
             "mmixware"
             "ghcjs"
             "mingw32"
+            "uefi"
           ]
           || hasPrefix "freebsd" (elemAt l 2)
           || hasPrefix "netbsd" (elemAt l 2)
@@ -973,6 +978,41 @@ rec {
       cpuName = if kernel.families ? darwin then darwinArch cpu else cpu.name;
     in
     "${cpuName}-${vendor.name}-${kernelName kernel}${optExecFormat}${optAbi}";
+
+  # This is a function from parsed platforms (like stdenv.hostPlatform.parsed)
+  # to parsed platforms.
+  mkMuslSystem =
+    parsed:
+    # The following line guarantees that the output of this function
+    # is a well-formed platform with no missing fields.
+    (
+      x:
+      lib.trivial.pipe x [
+        (x: removeAttrs x [ "_type" ])
+        mkSystem
+      ]
+    )
+      (
+        parsed
+        // {
+          abi =
+            {
+              gnu = abis.musl;
+              gnueabi = abis.musleabi;
+              gnueabihf = abis.musleabihf;
+              gnuabin32 = abis.muslabin32;
+              gnuabi64 = abis.muslabi64;
+              gnuabielfv2 = abis.musl;
+              gnuabielfv1 = abis.musl;
+              # The following entries ensure that this function is idempotent.
+              musleabi = abis.musleabi;
+              musleabihf = abis.musleabihf;
+              muslabin32 = abis.muslabin32;
+              muslabi64 = abis.muslabi64;
+            }
+            .${parsed.abi.name} or abis.musl;
+        }
+      );
 
   ################################################################################
 

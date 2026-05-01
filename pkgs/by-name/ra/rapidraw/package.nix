@@ -34,7 +34,7 @@
   gvfs,
   libheif,
   glib-networking,
-  nodejs_20,
+  nodejs_24,
   npmHooks,
   cargo-tauri,
   writableTmpDirAsHomeHook,
@@ -42,41 +42,34 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "rapidraw";
-  version = "1.4.11";
+  version = "1.5.4";
 
   src = fetchFromGitHub {
     owner = "CyberTimon";
     repo = "RapidRAW";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-Jd/t3PWvUaQuTHqd4A4vqAfzR2QpZ/j1352gLyuqRxQ=";
-    fetchSubmodules = true;
-
-    # darwin/linux hash mismatch in rawler submodule
-    # Same fix as is used in dnglab packaging
-    postFetch = ''
-      rm -rf $out/src-tauri/rawler/rawler/data/testdata/cameras/Canon/{"EOS REBEL T7i","EOS Rebel T7i"}
-    '';
+    hash = "sha256-T7qBa0CEVfvc6qWxdJe0pbJAN3VNrpP9EKaX2R+PtUw=";
   };
 
-  cargoHash = "sha256-ijyrq2BwNeJM8eM6yc5jmCicpLndhtKVlwHviMwpFS4=";
+  cargoHash = "sha256-kyJIHfrb3Tlm3IYQxU6N9mB9JxZWmMcBsPXHQmTwxAg=";
 
   npmDeps = fetchNpmDeps {
     inherit (finalAttrs) src;
-    hash = "sha256-jenSEANarab/oQnC80NoM1jWmvdeXF3bJ9I/vOGcBb0=";
+    hash = "sha256-1A6b63FjNvkAbu62dRXfMjTL1y2wr2gEsZkLqYvTk0w=";
   };
 
   nativeBuildInputs = [
     pkg-config
     makeWrapper
     wrapGAppsHook4
-    nodejs_20
+    nodejs_24
     npmHooks.npmConfigHook
     cargo-tauri.hook
     writableTmpDirAsHomeHook
   ];
 
   buildInputs = [
-    nodejs_20
+    nodejs_24
     glib-networking
     openssl
     gtk3
@@ -136,22 +129,35 @@ rustPlatform.buildRustPackage (finalAttrs: {
     ORT_STRATEGY = "system";
   };
 
-  postInstall = lib.optionalString stdenv.hostPlatform.isLinux ''
-    # Patch the .desktop file to set the Categories field
-    sed -i '/^Categories=/c\Categories=Graphics;Photography' "$out/share/applications/RapidRAW.desktop"
+  postInstall =
+    lib.optionalString stdenv.hostPlatform.isLinux ''
+      # Patch the .desktop file to set the Categories field
+      sed -i '/^Categories=/c\Categories=Graphics;Photography' "$out/share/applications/RapidRAW.desktop"
 
-    # Ensure the resources directory exists before linking
-    mkdir -p $out/lib/RapidRAW/resources
+      # Ensure the resources directory exists before linking
+      mkdir -p $out/lib/RapidRAW/resources
 
-    # link the .so file
-    ln -sf ${onnxruntime}/lib/libonnxruntime.so $out/lib/RapidRAW/resources/libonnxruntime.so
-  '';
+      # link the .so file
+      ln -sf ${onnxruntime}/lib/libonnxruntime.so $out/lib/RapidRAW/resources/libonnxruntime.so
+    ''
+    + lib.optionalString stdenv.hostPlatform.isDarwin ''
+      # The binary links against @rpath/libonnxruntime.*.dylib but has no LC_RPATH entries
+      install_name_tool -add_rpath "${onnxruntime}/lib" "$out/Applications/RapidRAW.app/Contents/MacOS/rapidraw"
+      # The app also dlopen()s libonnxruntime.dylib at a hardcoded path inside the bundle
+      mkdir -p "$out/Applications/RapidRAW.app/Contents/Resources/resources"
+      ln -sf ${onnxruntime}/lib/libonnxruntime.dylib "$out/Applications/RapidRAW.app/Contents/Resources/resources/libonnxruntime.dylib"
+    '';
 
-  postFixup = lib.optionalString stdenv.hostPlatform.isLinux ''
-    wrapGApp $out/bin/rapidraw \
-      --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath finalAttrs.buildInputs} \
-      --set ORT_STRATEGY "system"
-  '';
+  postFixup =
+    lib.optionalString stdenv.hostPlatform.isLinux ''
+      wrapGApp $out/bin/rapidraw \
+        --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath finalAttrs.buildInputs} \
+        --set ORT_STRATEGY "system"
+    ''
+    + lib.optionalString stdenv.hostPlatform.isDarwin ''
+      wrapGApp "$out/Applications/RapidRAW.app/Contents/MacOS/rapidraw" \
+        --set ORT_STRATEGY "system"
+    '';
 
   meta = {
     description = "Blazingly-fast, non-destructive, and GPU-accelerated RAW image editor built with performance in mind";

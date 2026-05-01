@@ -1,13 +1,9 @@
 {
-  stdenv,
   buildGoModule,
+  buildNpmPackage,
   fetchFromGitHub,
   lib,
   envoy,
-  yarnConfigHook,
-  yarnBuildHook,
-  fetchYarnDeps,
-  nodejs,
   nixosTests,
   pomerium-cli,
 }:
@@ -22,31 +18,22 @@ let
 in
 buildGoModule rec {
   pname = "pomerium";
-  version = "0.30.5";
+  version = "0.32.6";
   src = fetchFromGitHub {
     owner = "pomerium";
     repo = "pomerium";
     rev = "v${version}";
-    hash = "sha256-3SmcuLEWqsw/B10jTIG2TKGa7tyMLa/lpkD6Iq/Fm4g=";
+    hash = "sha256-VwmjuXlYsh2dGKf7ux8DyLZec7xMISuQ7SSb9+LwzfU=";
   };
 
-  vendorHash = "sha256-mOTjBH8VqsMdyW5jTIZ76bf55WnHw9XuUSh6zsBktt0=";
+  vendorHash = "sha256-b4H7gAMG7DXEbvkZFsoEZrKpuvPW0vkfv1qqBPBaGAM=";
 
-  ui = stdenv.mkDerivation {
+  ui = buildNpmPackage {
     pname = "pomerium-ui";
     inherit version;
     src = "${src}/ui";
 
-    offlineCache = fetchYarnDeps {
-      yarnLock = "${src}/ui/yarn.lock";
-      hash = "sha256-V2nSSMvTCK+SYmEhTbLMArIOmNs/AgB5xfhQGx3e/x8=";
-    };
-
-    nativeBuildInputs = [
-      yarnConfigHook
-      yarnBuildHook
-      nodejs
-    ];
+    npmDepsHash = "sha256-2fzINp3LBPHPJlzJnUggPWUZHrjuX9TYPD2XvioonSw=";
 
     installPhase = ''
       runHook preInstall

@@ -7,6 +7,7 @@
   boost,
   brotli,
   callPackage,
+  ceres-solver,
   cmake,
   colladaSupport ? true,
   config,
@@ -66,7 +67,7 @@
   pkg-config,
   potrace,
   pugixml,
-  python311Packages, # must use python3Packages instead of python3.pkgs, see https://github.com/NixOS/nixpkgs/issues/211340
+  python313Packages, # must use python3Packages instead of python3.pkgs, see https://github.com/NixOS/nixpkgs/issues/211340
   rocmPackages,
   rocmSupport ? config.rocmSupport,
   rubberband,
@@ -95,11 +96,10 @@ let
     (!stdenv.hostPlatform.isAarch64 && stdenv.hostPlatform.isLinux) || stdenv.hostPlatform.isDarwin;
   vulkanSupport = !stdenv.hostPlatform.isDarwin;
 
-  python3Packages = python311Packages;
+  python3Packages = python313Packages;
   python3 = python3Packages.python;
   pyPkgsOpenusd = python3Packages.openusd.override (old: {
     opensubdiv = old.opensubdiv.override { inherit cudaSupport; };
-    withOsl = false;
   });
 
   libdecor' = libdecor.overrideAttrs (old: {
@@ -118,16 +118,30 @@ in
 
 stdenv'.mkDerivation (finalAttrs: {
   pname = "blender";
-  version = "5.0.1";
+  version = "5.1.1";
 
   src = fetchzip {
     name = "source";
     url = "https://download.blender.org/source/blender-${finalAttrs.version}.tar.xz";
-    hash = "sha256-fNnQRfGfNc7rbk8npkcYtoAqRjJc6MaV4mqtSJxd0EM=";
+    hash = "sha256-iJolR8iS2go0doO96ibyseCeMunFL+XPoQ25NbX6oOA=";
   };
 
+  patches = [
+    # Blender actually wants a more recent version of eigen. However, the
+    # ceres-solver dependency propagates eigen 3 and appears to be incompatible
+    # with more recent versions.
+    ./eigen-3-compat.patch
+    # Required due to `-Werror=format-security` in nixpkgs
+    # https://projects.blender.org/blender/blender/commit/470127ede2448de50a6936b8484b3c382c76d596
+    ./fix-quite-clog-warning.patch
+  ]
   # Minimal backport of hiprt 3.x support from https://projects.blender.org/blender/blender/pulls/144889
-  patches = lib.optional rocmSupport ./hiprt-3-compat.patch;
+  ++ lib.optionals rocmSupport [
+    ./hiprt-3-compat.patch
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    ./darwin.patch
+  ];
 
   postPatch =
     (lib.optionalString stdenv.hostPlatform.isDarwin ''
@@ -157,8 +171,8 @@ stdenv'.mkDerivation (finalAttrs: {
     (lib.cmakeFeature "PYTHON_INCLUDE_DIR" "${python3}/include/${python3.libPrefix}")
     (lib.cmakeFeature "PYTHON_LIBPATH" "${python3}/lib")
     (lib.cmakeFeature "PYTHON_LIBRARY" "${python3.libPrefix}")
-    (lib.cmakeFeature "PYTHON_NUMPY_INCLUDE_DIRS" "${python3Packages.numpy_1}/${python3.sitePackages}/numpy/core/include")
-    (lib.cmakeFeature "PYTHON_NUMPY_PATH" "${python3Packages.numpy_1}/${python3.sitePackages}")
+    (lib.cmakeFeature "PYTHON_NUMPY_INCLUDE_DIRS" "${python3Packages.numpy}/${python3.sitePackages}/numpy/_core/include")
+    (lib.cmakeFeature "PYTHON_NUMPY_PATH" "${python3Packages.numpy}/${python3.sitePackages}")
     (lib.cmakeFeature "PYTHON_VERSION" "${python3.pythonVersion}")
 
     (lib.cmakeBool "WITH_BUILDINFO" false)
@@ -168,7 +182,8 @@ stdenv'.mkDerivation (finalAttrs: {
     (lib.cmakeBool "WITH_CYCLES_DEVICE_ONEAPI" false)
     (lib.cmakeBool "WITH_CYCLES_DEVICE_OPTIX" cudaSupport)
     (lib.cmakeBool "WITH_CYCLES_EMBREE" embreeSupport)
-    (lib.cmakeBool "WITH_CYCLES_OSL" false)
+    (lib.cmakeBool "WITH_CYCLES_OSL" true)
+    (lib.cmakeBool "WITH_SYSTEM_GLOG" true)
     (lib.cmakeBool "WITH_HYDRA" openUsdSupport)
     (lib.cmakeBool "WITH_INSTALL_PORTABLE" false)
     (lib.cmakeBool "WITH_JACK" jackaudioSupport)
@@ -207,6 +222,8 @@ stdenv'.mkDerivation (finalAttrs: {
   ]
   ++ lib.optionals stdenv.hostPlatform.isDarwin [
     (lib.cmakeFeature "LIBDIR" "/does-not-exist")
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isAarch64 [
     (lib.cmakeFeature "SSE2NEON_INCLUDE_DIR" "${sse2neon}/include")
   ];
 
@@ -239,6 +256,7 @@ stdenv'.mkDerivation (finalAttrs: {
   buildInputs = [
     alembic
     boost
+    ceres-solver
     ffmpeg_7
     fftw
     fftwFloat
@@ -268,6 +286,7 @@ stdenv'.mkDerivation (finalAttrs: {
     pugixml
     python3
     python3Packages.materialx
+    python3Packages.openshadinglanguage
     rubberband
     zlib
     zstd
@@ -296,9 +315,10 @@ stdenv'.mkDerivation (finalAttrs: {
         apple-sdk_15
         brotli
         llvmPackages.openmp
-        sse2neon
+        openxr-loader
       ]
   )
+  ++ lib.optionals stdenv.hostPlatform.isAarch64 [ sse2neon ]
   ++ lib.optionals cudaSupport [ cudaPackages.cuda_cudart ]
   ++ lib.optionals openUsdSupport [ pyPkgsOpenusd ]
   ++ lib.optionals waylandSupport [
@@ -324,7 +344,8 @@ stdenv'.mkDerivation (finalAttrs: {
     in
     [
       ps.materialx
-      ps.numpy_1
+      ps.numpy
+      ps.openshadinglanguage
       ps.requests
       ps.zstandard
     ]
@@ -429,7 +450,6 @@ stdenv'.mkDerivation (finalAttrs: {
   };
 
   meta = {
-    broken = stdenv.hostPlatform.isDarwin;
     description = "3D Creation/Animation/Publishing System";
     homepage = "https://www.blender.org";
     # They comment two licenses: GPLv2 and Blender License, but they

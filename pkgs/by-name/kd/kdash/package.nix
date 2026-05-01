@@ -9,15 +9,15 @@
   libxcb-util,
 }:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "kdash";
-  version = "0.6.2";
+  version = "1.1.1";
 
   src = fetchFromGitHub {
     owner = "kdash-rs";
     repo = "kdash";
-    rev = "v${version}";
-    sha256 = "sha256-fFpdWVoeWycnp/hRw2S+hYpnXYmCs+rLqcZdmSSMGwI=";
+    rev = "v${finalAttrs.version}";
+    sha256 = "sha256-yIBBWtdIvx9lMU9hoh0bsqYqXkSSBtfOMmUxM5UR+IQ=";
   };
 
   nativeBuildInputs = [
@@ -34,7 +34,7 @@ rustPlatform.buildRustPackage rec {
   # Fix for build failure with gcc15
   env.NIX_CFLAGS_COMPILE = "-std=gnu17";
 
-  cargoHash = "sha256-72DuM64wj8WW6soagodOFIeHvVn1CPpb1T3Y7GQYsbs=";
+  cargoHash = "sha256-eRXW3EBkNMClxLUKufhrz9WJVBY5UTA/JnabGJvAvF4=";
 
   meta = {
     description = "Simple and fast dashboard for Kubernetes";
@@ -43,4 +43,4 @@ rustPlatform.buildRustPackage rec {
     license = with lib.licenses; [ mit ];
     maintainers = with lib.maintainers; [ matthiasbeyer ];
   };
-}
+})

@@ -4,6 +4,7 @@
   python3,
   installShellFiles,
   nix-update-script,
+  versionCheckHook,
 }:
 
 let
@@ -23,16 +24,16 @@ let
   };
 in
 
-py.pkgs.buildPythonApplication rec {
+py.pkgs.buildPythonApplication (finalAttrs: {
   pname = "oci-cli";
-  version = "3.73.1";
+  version = "3.80.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "oracle";
     repo = "oci-cli";
-    tag = "v${version}";
-    hash = "sha256-kjqJldzPjuXYJoA1DU4Dn6Xd3BhLSlmn+OttTG1efSE=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-ss7nKT4dIyJxJNBK8HgAPXG0lS5MMZw7sw8hPjLqYUQ=";
   };
 
   nativeBuildInputs = [ installShellFiles ];
@@ -66,6 +67,8 @@ py.pkgs.buildPythonApplication rec {
     "prompt-toolkit"
     "pyOpenSSL"
     "terminaltables"
+    "certifi"
+    "pytz"
   ];
 
   # Propagating dependencies leaks them through $PYTHONPATH which causes issues
@@ -98,18 +101,22 @@ py.pkgs.buildPythonApplication rec {
     "oci_cli"
   ];
 
+  nativeInstallCheckInputs = [ versionCheckHook ];
+
   passthru.updateScript = nix-update-script { };
 
   meta = {
     description = "Command Line Interface for Oracle Cloud Infrastructure";
     homepage = "https://docs.cloud.oracle.com/iaas/Content/API/Concepts/cliconcepts.htm";
+    changelog = "https://github.com/oracle/oci-cli/releases/tag/v${finalAttrs.version}";
     license = with lib.licenses; [
       asl20 # or
       upl
     ];
+    mainProgram = "oci";
     maintainers = with lib.maintainers; [
       ilian
       FKouhai
     ];
   };
-}
+})

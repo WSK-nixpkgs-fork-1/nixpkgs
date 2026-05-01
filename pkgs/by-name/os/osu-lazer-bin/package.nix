@@ -10,23 +10,23 @@
 
 let
   pname = "osu-lazer-bin";
-  version = "2026.119.0";
+  version = "2026.425.0";
 
   src =
     {
       aarch64-darwin = fetchzip {
         url = "https://github.com/ppy/osu/releases/download/${version}-lazer/osu.app.Apple.Silicon.zip";
-        hash = "sha256-pM+dqCihHkUCu4xNZpZVIuP7UWwJ5a2DntA2S5PmxT4=";
+        hash = "sha256-ZXivLSEpC6A6LOclb2PF12YbTwDNcL9E3fW+oHTAoVQ=";
         stripRoot = false;
       };
       x86_64-darwin = fetchzip {
         url = "https://github.com/ppy/osu/releases/download/${version}-lazer/osu.app.Intel.zip";
-        hash = "sha256-wPFUH7Hy9sMPqCRoG8RMV6fZE6xtEKJGSBD7/XSTa34=";
+        hash = "sha256-FAxkNOmRu32z0cx1AMrLl00npGIRK9+jUwE3Efi8ENI=";
         stripRoot = false;
       };
       x86_64-linux = fetchurl {
         url = "https://github.com/ppy/osu/releases/download/${version}-lazer/osu.AppImage";
-        hash = "sha256-lx8lU9tNXD90rpaKlIyR0C4eSivfmVAJP7Wq+n3Ht08=";
+        hash = "sha256-JpuHeZdXHx5n93y87cUiuBFFXexIMx0gO2HMezXWy0A=";
       };
     }
     .${stdenvNoCC.system} or (throw "osu-lazer-bin: ${stdenvNoCC.system} is unsupported.");

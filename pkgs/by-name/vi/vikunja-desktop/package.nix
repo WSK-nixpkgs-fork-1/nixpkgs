@@ -3,11 +3,11 @@
   stdenv,
   makeWrapper,
   makeDesktopItem,
-  pnpm,
+  pnpm_10_29_2,
   pnpmConfigHook,
   nodejs,
   electron,
-  unstableGitUpdater,
+  nix-update-script,
   fetchFromGitHub,
   fetchPnpmDeps,
   vikunja,
@@ -15,12 +15,12 @@
 
 let
   executableName = "vikunja-desktop";
-  version = "1.0.0";
+  version = "2.2.2";
   src = fetchFromGitHub {
     owner = "go-vikunja";
     repo = "vikunja";
     rev = "v${version}";
-    hash = "sha256-IJ6985gLuI0O08xZq8NYoet02NPFqQQhDLND+nfmdbA=";
+    hash = "sha256-+Tqo9z+QXzcYNWZl+DoHaClkMokTa6a2S1FlazZBDyI=";
   };
 in
 stdenv.mkDerivation (finalAttrs: {
@@ -29,7 +29,6 @@ stdenv.mkDerivation (finalAttrs: {
   inherit version src;
 
   sourceRoot = "${finalAttrs.src.name}/desktop";
-  pnpmInstallFlags = [ "--shamefully-hoist" ];
 
   pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs)
@@ -37,10 +36,10 @@ stdenv.mkDerivation (finalAttrs: {
       version
       src
       sourceRoot
-      pnpmInstallFlags
       ;
-    fetcherVersion = 1;
-    hash = "sha256-BvQfRsV5hiOTkxK+W3qHvVQwMAGdLB3X+PwYBa6Bwl4=";
+    pnpm = pnpm_10_29_2;
+    fetcherVersion = 3;
+    hash = "sha256-/dPjUxD01G1H3nRZfW8x046x33OaiChYuiLhZYOPrTo=";
   };
 
   env = {
@@ -50,7 +49,7 @@ stdenv.mkDerivation (finalAttrs: {
   nativeBuildInputs = [
     makeWrapper
     nodejs
-    pnpm
+    pnpm_10_29_2
     pnpmConfigHook
     vikunja.passthru.frontend
   ];
@@ -94,9 +93,7 @@ stdenv.mkDerivation (finalAttrs: {
     true
   '';
 
-  passthru.updateScript = unstableGitUpdater {
-    url = "${src.meta.homepage}.git";
-  };
+  passthru.updateScript = nix-update-script { };
 
   # The desktop item properties should be kept in sync with data from upstream:
   desktopItem = makeDesktopItem {

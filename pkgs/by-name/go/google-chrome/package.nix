@@ -79,6 +79,11 @@
   bzip2,
   libcap,
 
+  # Fonts (See issue #463615)
+  makeFontsConf,
+  noto-fonts-cjk-sans,
+  noto-fonts-cjk-serif,
+
   # Necessary for USB audio devices.
   libpulseaudio,
   pulseSupport ? true,
@@ -179,11 +184,11 @@ let
 
   linux = stdenvNoCC.mkDerivation (finalAttrs: {
     inherit pname meta passthru;
-    version = "144.0.7559.132";
+    version = "147.0.7727.137";
 
     src = fetchurl {
       url = "https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_${finalAttrs.version}-1_amd64.deb";
-      hash = "sha256-5VuJaixlw9o+oD1bp6S3o2kR8KcolomSFyWpMZQydwM=";
+      hash = "sha256-2QKA8nk+O10cGr0gGOMSlLkxpO+WHFG1yul9a3VGq64=";
     };
 
     # With strictDeps on, some shebangs were not being patched correctly
@@ -214,6 +219,13 @@ let
 
     rpath = lib.makeLibraryPath deps + ":" + lib.makeSearchPathOutput "lib" "lib64" deps;
     binpath = lib.makeBinPath deps;
+
+    fontsConf = makeFontsConf {
+      fontDirectories = [
+        noto-fonts-cjk-sans
+        noto-fonts-cjk-serif
+      ];
+    };
 
     installPhase = ''
       runHook preInstall
@@ -266,6 +278,7 @@ let
         --prefix PATH            : "$binpath" \
         --suffix PATH            : "${lib.makeBinPath [ xdg-utils ]}" \
         --prefix XDG_DATA_DIRS   : "$XDG_ICON_DIRS:$GSETTINGS_SCHEMAS_PATH:${addDriverRunpath.driverLink}/share" \
+        --set FONTCONFIG_FILE "${finalAttrs.fontsConf}" \
         --set CHROME_WRAPPER  "google-chrome-$dist" \
         --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --enable-wayland-ime=true}}" \
         --add-flags "--simulate-outdated-no-au='Tue, 31 Dec 2099 23:59:59 GMT'" \
@@ -289,11 +302,11 @@ let
 
   darwin = stdenvNoCC.mkDerivation (finalAttrs: {
     inherit pname meta passthru;
-    version = "144.0.7559.97";
+    version = "147.0.7727.138";
 
     src = fetchurl {
-      url = "http://dl.google.com/release2/chrome/acs3ozv33k7hgpukzi2nuehve3aa_144.0.7559.97/GoogleChrome-144.0.7559.97.dmg";
-      hash = "sha256-uhNWvAnifxbNMPR9QiXSgpDK9tnim39q2bLMCM9Q93w=";
+      url = "http://dl.google.com/release2/chrome/ackheqvxll25dzx6s76qfgpa4oxa_147.0.7727.138/GoogleChrome-147.0.7727.138.dmg";
+      hash = "sha256-1WOkBxAs79ByJ3quXgh+ZR64ysIE2/2wMeIhl3sYh5o=";
     };
 
     dontPatch = true;
@@ -331,12 +344,8 @@ let
   passthru.updateScript = ./update.sh;
 
   meta = {
-    changelog = "https://chromereleases.googleblog.com/";
     description = "Freeware web browser developed by Google";
     homepage = "https://www.google.com/chrome/browser/";
-    knownVulnerabilities = lib.optionals stdenvNoCC.hostPlatform.isDarwin [
-      "Out of date, because the updater (pkgs/by-name/go/google-chrome/update.sh) has stopped working, and there does not seem to be another way to get stable URLs to particular Chrome versions."
-    ];
     license = lib.licenses.unfree;
     maintainers = with lib.maintainers; [
       iedame

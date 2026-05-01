@@ -225,7 +225,6 @@ with lib.maintainers;
     members = [
       mdarocha
       corngood
-      ggg
       raphaelr
       jamiemagee
       anpin
@@ -295,12 +294,12 @@ with lib.maintainers;
 
   gcc = {
     members = [
-      synthetica
       vcunat
       ericson2314
     ];
     scope = "Maintain GCC (GNU Compiler Collection) compilers";
     shortName = "GCC";
+    enableFeatureFreezePing = true;
   };
 
   geospatial = {
@@ -386,7 +385,6 @@ with lib.maintainers;
     members = [
       leona
       theCapypara
-      thiagokokada
       jamesward
     ];
     shortName = "Jetbrains";
@@ -486,14 +484,7 @@ with lib.maintainers;
   };
 
   lxc = {
-    members = [
-      aanderse
-      adamcstephens
-      megheaiulian
-      mkg20001
-    ];
-    scope = "All things linuxcontainers. Incus, LXC, and related packages.";
-    shortName = "lxc";
+    github = "lxc";
   };
 
   lxqt = {
@@ -574,7 +565,6 @@ with lib.maintainers;
     members = [
       eljamm
       ethancedwards8
-      OPNA2608
       phanirithvij
       prince213
       wegank
@@ -688,12 +678,17 @@ with lib.maintainers;
     members = [
       b-rodrigues
       bcdarwin
+      jamespeapen
       jbedo
       kupac
     ];
     scope = "Maintain the R programming language and related packages.";
     shortName = "R";
     enableFeatureFreezePing = true;
+  };
+
+  radicle = {
+    github = "radicle";
   };
 
   rocm = {
@@ -718,6 +713,10 @@ with lib.maintainers;
   sdl = {
     github = "sdl";
     enableFeatureFreezePing = true;
+  };
+
+  security-review = {
+    github = "security-review";
   };
 
   stdenv = {

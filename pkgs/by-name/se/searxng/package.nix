@@ -13,29 +13,19 @@ in
 python.pkgs.toPythonModule (
   python.pkgs.buildPythonApplication rec {
     pname = "searxng";
-    version = "0-unstable-2026-01-11";
+    version = "0-unstable-2026-04-11";
     pyproject = true;
 
     src = fetchFromGitHub {
       owner = "searxng";
       repo = "searxng";
-      rev = "cf74e1d9e9ad662aef450ddd79aedee43554dc3c";
-      hash = "sha256-hKnfZBPr8rJyZAYBtVXpyzXwBQqg2DPFwqzH08qCITs=";
+      rev = "9e08a6771f196a2d47803e9fcdc6994fa6457509";
+      hash = "sha256-I9ghd2mWlujfldeh5LXLSSh5X6CsHu5zlzL8JCcREqk=";
     };
 
     nativeBuildInputs = with python.pkgs; [ pythonRelaxDepsHook ];
 
-    pythonRelaxDeps = [
-      "certifi"
-      "flask"
-      "flask-babel"
-      "httpx-socks"
-      "lxml"
-      "markdown-it-py"
-      "msgspec"
-      "typer-slim"
-      "whitenoise"
-    ];
+    pythonRelaxDeps = true;
 
     preBuild =
       let
@@ -63,7 +53,7 @@ python.pkgs.toPythonModule (
       [
         babel
         certifi
-        fasttext-predict
+        cloudscraper
         flask
         flask-babel
         httpx
@@ -77,7 +67,7 @@ python.pkgs.toPythonModule (
         python-dateutil
         pyyaml
         sniffio
-        typer-slim
+        typer
         typing-extensions
         valkey
         whitenoise

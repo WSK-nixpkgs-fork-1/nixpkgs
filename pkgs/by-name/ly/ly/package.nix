@@ -17,13 +17,13 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "ly";
-  version = "1.3.1";
+  version = "1.3.2";
 
   src = fetchFromCodeberg {
     owner = "fairyglade";
     repo = "ly";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-BelsR/+sfm3qdEnyf4bbadyzuUVvVPrPEhdZaNPLxiE=";
+    hash = "sha256-P0yLiRIA0bDMiYfL6Kz2/OXh+nmnbHZnsCbcYGIGnbc=";
   };
 
   nativeBuildInputs = [
@@ -36,7 +36,7 @@ stdenv.mkDerivation (finalAttrs: {
   ]
   ++ (lib.optionals x11Support [ libxcb ]);
 
-  postPatch = ''
+  postConfigure = ''
     ln -s ${
       callPackage ./deps.nix {
         inherit zig;
@@ -47,6 +47,11 @@ stdenv.mkDerivation (finalAttrs: {
   zigBuildFlags = [
     "-Denable_x11_support=${lib.boolToString x11Support}"
   ];
+
+  postInstall = ''
+    install -Dm0644 res/config.ini "$out/etc/config.ini"
+    install -Dm0755 res/setup.sh "$out/etc/setup.sh"
+  '';
 
   doInstallCheck = true;
   nativeInstallCheckInputs = [ versionCheckHook ];
@@ -63,7 +68,9 @@ stdenv.mkDerivation (finalAttrs: {
     homepage = "https://codeberg.org/fairyglade/ly";
     license = lib.licenses.wtfpl;
     mainProgram = "ly";
-    maintainers = with lib.maintainers; [ yiyu ];
+    maintainers = with lib.maintainers; [
+      zacharyarnaise
+    ];
     platforms = lib.platforms.unix;
   };
 })

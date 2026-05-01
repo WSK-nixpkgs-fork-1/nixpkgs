@@ -6,16 +6,16 @@
   libkrb5,
 }:
 
-buildGoModule rec {
+buildGoModule (finalAttrs: {
   pname = "gitlab-shell";
-  version = "14.45.5";
+  version = "14.49.0";
 
   # nixpkgs-update: no auto update
   src = fetchFromGitLab {
     owner = "gitlab-org";
     repo = "gitlab-shell";
-    rev = "v${version}";
-    hash = "sha256-D3keb81A7gyZbmJmCZJpyYFC1+JijwwbMngurAPTSKs=";
+    rev = "v${finalAttrs.version}";
+    hash = "sha256-8PnFRwP5vctnOh6t45crxkoVF6Z03bfYry24KfFHCww=";
   };
 
   buildInputs = [
@@ -27,7 +27,7 @@ buildGoModule rec {
     ./remove-hardcoded-locations.patch
   ];
 
-  vendorHash = "sha256-e8AXSryVZeVG+0cG7M3QAVCLSTdJEXLH8ZkLvCtWatU=";
+  vendorHash = "sha256-JBKU134/Yyz49HWfU9Dw/EC4bI/o3Hs56Ou7wtzp5qM=";
 
   subPackages = [
     "cmd/gitlab-shell"
@@ -49,4 +49,4 @@ buildGoModule rec {
     teams = [ lib.teams.gitlab ];
     license = lib.licenses.mit;
   };
-}
+})

@@ -6,13 +6,13 @@
 }:
 vimUtils.buildVimPlugin {
   pname = "zig.vim";
-  version = "0-unstable-2026-01-24";
+  version = "0-unstable-2026-04-13";
 
   src = fetchFromCodeberg {
     owner = "ziglang";
     repo = "zig.vim";
-    rev = "2f53c35bee0d64a1d417d47c894a3cbb6663dff4";
-    hash = "sha256-vrtcUAp/YWpZtf6lyg2l0GR62YdHprAb8sAHzZ89F48=";
+    rev = "30a1634b3a4193290dc3aad8f84c53b353b1d80f";
+    hash = "sha256-2nr6csxVNDI/fRf0bsYcFKHWhvJe0vMkOT/J+4+EJaU=";
   };
 
   passthru.updateScript = nix-update-script {

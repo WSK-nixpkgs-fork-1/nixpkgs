@@ -3,7 +3,7 @@
   fetchFromGitHub,
   stdenv,
   nodejs_24,
-  pnpm_10,
+  pnpm_10_29_2,
   fetchPnpmDeps,
   pnpmConfigHook,
   buildGoModule,
@@ -14,12 +14,12 @@
 }:
 
 let
-  version = "1.0.0";
+  version = "2.3.0";
   src = fetchFromGitHub {
     owner = "go-vikunja";
     repo = "vikunja";
     rev = "v${version}";
-    hash = "sha256-IJ6985gLuI0O08xZq8NYoet02NPFqQQhDLND+nfmdbA=";
+    hash = "sha256-bdHiSFaN0vNQMhy6GPlpoFeYrk2CLvO7E30d8J/9GC0=";
   };
 
   frontend = stdenv.mkDerivation (finalAttrs: {
@@ -35,16 +35,16 @@ let
         src
         sourceRoot
         ;
-      pnpm = pnpm_10;
-      fetcherVersion = 1;
-      hash = "sha256-OmLFn5aKsXPSbW6AehjkuTJMgOMzDSaYo2XbPvU6WXo=";
+      pnpm = pnpm_10_29_2;
+      fetcherVersion = 3;
+      hash = "sha256-cDGeIrCxZtcomu3YxikutjXpVe3EeUZ/L3+3y9yx67s=";
     };
 
     nativeBuildInputs = [
       nodejs_24
       dart-sass
       pnpmConfigHook
-      pnpm_10
+      pnpm_10_29_2
     ];
 
     doCheck = true;
@@ -97,7 +97,7 @@ buildGoModule {
       mage
     ];
 
-  vendorHash = "sha256-PV6WlJlG839FtWUR6QONMuuBnmo+AA53xmUNbodQdzk=";
+  vendorHash = "sha256-4UMnfbwL2JFnw9KZDO5sq6XCSBUD5ejeqp6vaTbYWJc=";
 
   inherit frontend;
 
@@ -138,14 +138,18 @@ buildGoModule {
   passthru = {
     tests.vikunja = nixosTests.vikunja;
     frontend = frontend;
+    updateScript = ./update.sh;
   };
 
   meta = {
-    changelog = "https://kolaente.dev/vikunja/api/src/tag/v${version}/CHANGELOG.md";
+    changelog = "https://github.com/go-vikunja/vikunja/blob/v${version}/CHANGELOG.md";
     description = "Todo-app to organize your life";
     homepage = "https://vikunja.io/";
     license = lib.licenses.agpl3Plus;
-    maintainers = with lib.maintainers; [ leona ];
+    maintainers = with lib.maintainers; [
+      leona
+      adamcstephens
+    ];
     mainProgram = "vikunja";
     platforms = lib.platforms.linux;
   };

@@ -6,16 +6,33 @@
 }:
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "pay-respects";
-  version = "0.7.10";
+  version = "0.8.5";
 
   src = fetchFromCodeberg {
     owner = "iff";
     repo = "pay-respects";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-HRSSJPiHILV3YsyXw0vRNDNV6gR1wB2W0H396yU2wko=";
+    hash = "sha256-rI4cikbZ+J6SSs5l2WroM6862yDe8IFDqpmAV4Od5ng=";
   };
 
-  cargoHash = "sha256-jgeypBPHffZPu8mEJPn8d6eh691K7Jh5OvXdVBeuwF0=";
+  cargoHash = "sha256-IQMB5bYvP/1u6FItZ34GYkMBe1fVao5CK2OPGaikIbk=";
+
+  env = {
+    _DEF_PR_AI_API_KEY = "";
+    _DEF_PR_AI_URL = "";
+    _DEF_PR_AI_MODEL = "";
+  };
+
+  cargoBuildFlags = [
+    "-p pay-respects"
+    "-p pay-respects-module-runtime-rules"
+    "-p pay-respects-module-request-ai"
+  ];
+  cargoTestFlags = [
+    "-p pay-respects"
+    "-p pay-respects-module-runtime-rules"
+    "-p pay-respects-module-request-ai"
+  ];
 
   nativeInstallCheckInputs = [ versionCheckHook ];
   doInstallCheck = true;

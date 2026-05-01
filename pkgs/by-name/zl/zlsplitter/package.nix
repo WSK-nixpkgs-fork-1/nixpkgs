@@ -29,13 +29,13 @@
 
 clangStdenv.mkDerivation (finalAttrs: {
   pname = "zlsplitter";
-  version = "0.2.1";
+  version = "0.3.0";
 
   src = fetchFromGitHub {
     owner = "ZL-Audio";
     repo = "ZLSplitter";
     tag = finalAttrs.version;
-    hash = "sha256-6ICXL1jX6MMYf5VasTW9osJ2BNb6jqWfeAtmmEp6L/4=";
+    hash = "sha256-QNTSxvp4trbdm6wbl0u187LTjRMIp1tvoo06+m2z+8Y=";
     fetchSubmodules = true;
   };
 
@@ -66,25 +66,26 @@ clangStdenv.mkDerivation (finalAttrs: {
     libxkbcommon
   ];
 
-  # JUCE dlopen's these at runtime, crashes without them
-  NIX_LDFLAGS = lib.optionalString clangStdenv.hostPlatform.isLinux (toString [
-    "-lX11"
-    "-lXext"
-    "-lXcursor"
-    "-lXinerama"
-    "-lXrandr"
-  ]);
-
-  env.NIX_CFLAGS_COMPILE = lib.optionalString clangStdenv.hostPlatform.isLinux (toString [
-    # juce, compiled in this build as part of a Git submodule, uses `-flto` as
-    # a Link Time Optimization flag, and instructs the plugin compiled here to
-    # use this flag to. This breaks the build for us. Using _fat_ LTO allows
-    # successful linking while still providing LTO benefits. If our build of
-    # `juce` was used as a dependency, we could have patched that `-flto` line
-    # in our juce's source, but that is not possible because it is used as a
-    # Git Submodule.
-    "-ffat-lto-objects"
-  ]);
+  env = lib.optionalAttrs clangStdenv.hostPlatform.isLinux {
+    # JUCE dlopen's these at runtime, crashes without them
+    NIX_LDFLAGS = toString [
+      "-lX11"
+      "-lXext"
+      "-lXcursor"
+      "-lXinerama"
+      "-lXrandr"
+    ];
+    NIX_CFLAGS_COMPILE = toString [
+      # juce, compiled in this build as part of a Git submodule, uses `-flto` as
+      # a Link Time Optimization flag, and instructs the plugin compiled here to
+      # use this flag to. This breaks the build for us. Using _fat_ LTO allows
+      # successful linking while still providing LTO benefits. If our build of
+      # `juce` was used as a dependency, we could have patched that `-flto` line
+      # in our juce's source, but that is not possible because it is used as a
+      # Git Submodule.
+      "-ffat-lto-objects"
+    ];
+  };
 
   cmakeFlags = [
     # see: https://github.com/ZL-Audio/ZlEqualizer#clone-and-build

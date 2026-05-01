@@ -14,12 +14,12 @@
   gitUpdater,
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "libdrm";
   version = "2.4.131";
 
   src = fetchurl {
-    url = "https://dri.freedesktop.org/libdrm/libdrm-${version}.tar.xz";
+    url = "https://dri.freedesktop.org/libdrm/libdrm-${finalAttrs.version}.tar.xz";
     hash = "sha256-RbqZg7UciWQGo9ZU3oHTE7lTt25jkeJ5cHPVQ8X2F9U=";
   };
 
@@ -47,9 +47,7 @@ stdenv.mkDerivation rec {
     (lib.mesonEnable "intel" withIntel)
     (lib.mesonEnable "omap" stdenv.hostPlatform.isLinux)
     (lib.mesonEnable "valgrind" withValgrind)
-  ]
-  ++ lib.optionals stdenv.hostPlatform.isAarch [
-    "-Dtegra=enabled"
+    (lib.mesonEnable "tegra" stdenv.hostPlatform.isLinux)
   ]
   ++ lib.optionals (!stdenv.hostPlatform.isLinux) [
     "-Detnaviv=disabled"
@@ -85,4 +83,4 @@ stdenv.mkDerivation rec {
     platforms = lib.subtractLists lib.platforms.darwin lib.platforms.unix;
     maintainers = [ ];
   };
-}
+})

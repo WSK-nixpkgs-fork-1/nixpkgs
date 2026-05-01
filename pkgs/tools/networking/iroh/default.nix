@@ -1,5 +1,6 @@
 {
   lib,
+  lld,
   fetchFromGitHub,
   rustPlatform,
 }:
@@ -11,21 +12,25 @@ let
     }:
     rustPlatform.buildRustPackage rec {
       pname = name;
-      version = "0.95.1";
+      version = "0.98.1";
 
       src = fetchFromGitHub {
         owner = "n0-computer";
         repo = "iroh";
         rev = "v${version}";
-        hash = "sha256-YxifH/mH6x6b8J5xyG+/f18o9ngmiLVKvRaDgIv3ok8=";
+        hash = "sha256-rxEkFx2dAEA01CE8zqpCqM2PzxmyRhhSSl3d909pJKQ=";
       };
 
-      cargoHash = "sha256-MdJpGCLf90fTjbJKHCrLLZbLyb4gmQn4SsF5iCqNVVI=";
+      cargoHash = "sha256-zg15Vq9Abzia5GlmSMLcWN/P7lk9ekyhPyPfAbuu8Vs=";
 
       buildFeatures = cargoFeatures;
       cargoBuildFlags = [
         "--bin"
         name
+      ];
+
+      nativeBuildInputs = [
+        lld
       ];
 
       # Some tests require network access which is not available in nix build sandbox.

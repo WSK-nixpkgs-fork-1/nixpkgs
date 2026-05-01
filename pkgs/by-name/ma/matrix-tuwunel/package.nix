@@ -16,6 +16,7 @@
   enableJemalloc ? true,
   rust-jemalloc-sys,
   enableLiburing ? stdenv.hostPlatform.isLinux,
+  enableLdap ? true,
   liburing,
   nixosTests,
   writeTextFile,
@@ -88,16 +89,16 @@ let
 in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "matrix-tuwunel";
-  version = "1.4.9.1";
+  version = "1.6.0";
 
   src = fetchFromGitHub {
     owner = "matrix-construct";
     repo = "tuwunel";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-Hm0k6N8nSj3nRsppqledtXOKlnWBwG1SjpB4IE5R4vk=";
+    hash = "sha256-7w2+hltPj0mP3xcmHfjFvIqxwFkcf71bzm4TFiz745g=";
   };
 
-  cargoHash = "sha256-uXZyAXajWstZ8+fm9BC5ru2BVAXx+vYoe1GXivCOY/8=";
+  cargoHash = "sha256-DuHV4/a3B/Khq9/RgxFg5RfQ2svdKPv+QyuUqKGAveo=";
 
   nativeBuildInputs = [
     pkg-config
@@ -144,7 +145,8 @@ rustPlatform.buildRustPackage (finalAttrs: {
     "jemalloc"
     "jemalloc_conf"
   ]
-  ++ lib.optional enableLiburing "io_uring";
+  ++ lib.optional enableLiburing "io_uring"
+  ++ lib.optional enableLdap "ldap";
 
   nativeCheckInputs = [
     libredirect.hook

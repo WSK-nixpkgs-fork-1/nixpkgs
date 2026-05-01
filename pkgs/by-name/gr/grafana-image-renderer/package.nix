@@ -6,19 +6,19 @@
 
 buildGoModule (finalAttrs: {
   pname = "grafana-image-renderer";
-  version = "5.5.0";
+  version = "5.7.3";
 
   src = fetchFromGitHub {
     owner = "grafana";
     repo = "grafana-image-renderer";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-/ZvWE8FVK9EBXo1V0AD/rCc5ZyQFea1WiQrKg1JOwt4=";
+    hash = "sha256-CrJkBx2BMGlFtqXR174A5CVTH2GIZHTVxxwJjCi68pg=";
   };
 
-  vendorHash = "sha256-kGLvstSkucM0tN5l+Vp78IP9EwDx62kukAiOwYD4Vfs=";
+  vendorHash = "sha256-3nd0m0PltTiJX5e1tbQ7LSgUmDRXC8nRktOVAIgHOCU=";
 
   postPatch = ''
-    substituteInPlace go.mod --replace-fail 'go 1.25.6' 'go 1.25.5'
+    substituteInPlace go.mod --replace-fail 'go 1.26.1' 'go 1.25.7'
   '';
 
   subPackages = [ "." ];

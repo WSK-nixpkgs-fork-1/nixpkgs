@@ -11,16 +11,16 @@
   desktop-file-utils,
 }:
 
-python3Packages.buildPythonApplication rec {
+python3Packages.buildPythonApplication (finalAttrs: {
   pname = "censor";
-  version = "0.3.0";
+  version = "0.7.1";
   pyproject = false;
 
   src = fetchFromCodeberg {
     owner = "censor";
     repo = "Censor";
-    tag = "v${version}";
-    hash = "sha256-16Cy9yNOLvdVZ234kTB8fa585eI4f7yVnbMoPcHtGHk=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-wimLSoejojVBdHnuzLxOW4QssJZpK0GTp64oIvtSqBk=";
   };
 
   nativeBuildInputs = [
@@ -54,4 +54,4 @@ python3Packages.buildPythonApplication rec {
     maintainers = with lib.maintainers; [ onny ];
     mainProgram = "censor";
   };
-}
+})

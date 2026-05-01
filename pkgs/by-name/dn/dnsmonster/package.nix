@@ -1,20 +1,20 @@
 {
   lib,
   stdenv,
-  buildGoModule,
+  buildGo125Module,
   fetchFromGitHub,
   libpcap,
 }:
 
-buildGoModule (finalAttrs: {
+buildGo125Module (finalAttrs: {
   pname = "dnsmonster";
-  version = "1.2.9";
+  version = "1.2.5";
 
   src = fetchFromGitHub {
     owner = "mosajjal";
     repo = "dnsmonster";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-SDAD5OBactf0dynUmLgdrg+m0bZATh4wGW/NZ2gG+dI=";
+    hash = "sha256-Ae7SzImNHOOpaaVLFHdfLrwGhaHkvZBt+s/sRoHYwzk=";
   };
 
   vendorHash = "sha256-7rIBbaYr1dgC0ArcuwZelHKG5TLIQDV9JSBoYOcz+C0=";

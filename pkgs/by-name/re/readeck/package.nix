@@ -6,17 +6,18 @@
   nodejs_22,
   npmHooks,
   python3,
+  nix-update-script,
 }:
 
-buildGoModule rec {
+buildGoModule (finalAttrs: {
   pname = "readeck";
-  version = "0.21.5";
+  version = "0.22.2";
 
   src = fetchFromCodeberg {
     owner = "readeck";
     repo = "readeck";
-    tag = version;
-    hash = "sha256-9M9Bgl1CJ35x/Onlk5xUNCFkZKW40efF6qMOM+2/HR0=";
+    tag = finalAttrs.version;
+    hash = "sha256-0arC5t7FlW5+AyGF9FuIPc+aeF+CMKIzO1vLJ7aisQE=";
   };
 
   nativeBuildInputs = [
@@ -27,7 +28,7 @@ buildGoModule rec {
 
   npmRoot = "web";
 
-  NODE_PATH = "$npmDeps";
+  env.NODE_PATH = "$npmDeps";
 
   preBuild = ''
     make generate
@@ -47,7 +48,7 @@ buildGoModule rec {
 
   ldflags = [
     "-X"
-    "codeberg.org/readeck/readeck/configs.version=${version}"
+    "codeberg.org/readeck/readeck/configs.version=${finalAttrs.version}"
     "-X"
     "codeberg.org/readeck/readeck/configs.buildTimeStr=1970-01-01T08:00:00Z"
   ];
@@ -60,21 +61,23 @@ buildGoModule rec {
   };
 
   npmDeps = fetchNpmDeps {
-    src = "${src}/web";
-    hash = "sha256-znUKRaUdx6GXD2YL6hs0iveaAAHQ8H9n4NHZFi331+g=";
+    src = "${finalAttrs.src}/web";
+    hash = "sha256-80mh7fATUKf9G/JGsfHYHOLjr/je7g0uRdRGqBWapnY=";
   };
 
-  vendorHash = "sha256-2MB7v5oG/LcEKtgbFNxPXSI8TljpbqYUrI7pvu7m+e8=";
+  vendorHash = "sha256-4cLv7eYNzj+YzrinbEg7tT+JkEen+C5ypg3NTQOB6FM=";
+
+  passthru.updateScript = nix-update-script { };
 
   meta = {
     description = "Web application that lets you save the readable content of web pages you want to keep forever";
     mainProgram = "readeck";
     homepage = "https://readeck.org/";
-    changelog = "https://codeberg.org/readeck/readeck/releases/tag/${version}";
+    changelog = "https://codeberg.org/readeck/readeck/releases/tag/${finalAttrs.version}";
     license = lib.licenses.agpl3Only;
     maintainers = with lib.maintainers; [
       julienmalka
       linsui
     ];
   };
-}
+})

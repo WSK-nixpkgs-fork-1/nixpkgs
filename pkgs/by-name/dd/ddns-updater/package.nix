@@ -2,17 +2,18 @@
   buildGoModule,
   fetchFromGitHub,
   lib,
+  makeWrapper,
   nixosTests,
   nix-update-script,
 }:
-buildGoModule rec {
+buildGoModule (finalAttrs: {
   pname = "ddns-updater";
   version = "2.9.0";
 
   src = fetchFromGitHub {
     owner = "qdm12";
     repo = "ddns-updater";
-    rev = "v${version}";
+    rev = "v${finalAttrs.version}";
     hash = "sha256-Vvk3owtSpwstmC5UaVyUEY+FW25KA+nYp2dOqiP4HTs=";
   };
 
@@ -24,6 +25,13 @@ buildGoModule rec {
   ];
 
   subPackages = [ "cmd/ddns-updater" ];
+
+  nativeBuildInputs = [ makeWrapper ];
+
+  postInstall = ''
+    wrapProgram $out/bin/ddns-updater \
+      --set GODEBUG "netdns=go"
+  '';
 
   passthru = {
     tests = {
@@ -39,4 +47,4 @@ buildGoModule rec {
     maintainers = with lib.maintainers; [ delliott ];
     mainProgram = "ddns-updater";
   };
-}
+})

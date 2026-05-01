@@ -4,15 +4,13 @@
   callPackage,
   fetchFromGitHub,
   fetchPypi,
-  fetchpatch,
-  python313,
+  python314,
   replaceVars,
   ffmpeg-headless,
-  ffmpeg_7-headless,
   inetutils,
   nixosTests,
   home-assistant,
-  testers,
+  versionCheckHook,
 
   # Look up dependencies of specified components in component-packages.nix
   extraComponents ? [ ],
@@ -84,14 +82,6 @@ let
         '';
         propagatedBuildInputs = (oldAttrs.propagatedBuildInputs or [ ]) ++ [
           self.pytz
-        ];
-      });
-
-      imageio = super.imageio.overridePythonAttrs (oldAttrs: {
-        disabledTests = oldAttrs.disabledTests or [ ] ++ [
-          # broken by pyav pin
-          "test_keyframe_intervals"
-          "test_lagging_video_stream"
         ];
       });
 
@@ -233,16 +223,6 @@ let
         doCheck = false;
       });
 
-      wolf-comm = super.wolf-comm.overridePythonAttrs rec {
-        version = "0.0.23";
-        src = fetchFromGitHub {
-          owner = "janrothkegel";
-          repo = "wolf-comm";
-          tag = version;
-          hash = "sha256-LpehooW3vmohiyMwOQTFNLiNCsaLKelWQxQk8bl+y1k=";
-        };
-      };
-
       # internal python packages only consumed by home-assistant itself
       hass-web-proxy-lib = self.callPackage ./python-modules/hass-web-proxy-lib { };
       home-assistant-frontend = self.callPackage ./frontend.nix { };
@@ -254,7 +234,7 @@ let
     })
   ];
 
-  python = python313.override {
+  python = python314.override {
     self = python;
     packageOverrides = lib.composeManyExtensions (defaultOverrides ++ [ packageOverrides ]);
   };
@@ -273,7 +253,7 @@ let
   extraBuildInputs = extraPackages python.pkgs;
 
   # Don't forget to run update-component-packages.py after updating
-  hassVersion = "2026.2.0";
+  hassVersion = "2026.4.4";
 
 in
 python.pkgs.buildPythonApplication rec {
@@ -284,7 +264,7 @@ python.pkgs.buildPythonApplication rec {
   pyproject = true;
 
   # check REQUIRED_PYTHON_VER in homeassistant/const.py
-  disabled = python.pythonOlder "3.13";
+  disabled = python.pythonOlder "3.14";
 
   # don't try and fail to strip 6600+ python files, it takes minutes!
   dontStrip = true;
@@ -294,13 +274,13 @@ python.pkgs.buildPythonApplication rec {
     owner = "home-assistant";
     repo = "core";
     tag = version;
-    hash = "sha256-SZv5UVB62nwRjaemVZpxj8ZUpOzFGp/RsvOYm6uWiNc=";
+    hash = "sha256-x2BF1N1LDZAnryOkGy/Pru+mlw3CaOgnrmdQMg0uo7k=";
   };
 
   # Secondary source is pypi sdist for translations
   sdist = fetchPypi {
     inherit pname version;
-    hash = "sha256-ArCk9UrObDLmcmcS8/xT0ADPLzw/DUs3vKyX/fKCeU8=";
+    hash = "sha256-EPmX+3wAsvirvjDzQ0aUKGZbaNWh5mX+7iuCfZ2BUhI=";
   };
 
   build-system = with python.pkgs; [
@@ -316,6 +296,9 @@ python.pkgs.buildPythonApplication rec {
 
   # leave this in, so users don't have to constantly update their downstream patch handling
   patches = [
+    # https://github.com/home-assistant/core/pull/165143
+    ./pyjwt-2.11.patch
+
     # Follow symlinks in /var/lib/hass/www
     ./patches/static-follow-symlinks.patch
 
@@ -325,14 +308,6 @@ python.pkgs.buildPythonApplication rec {
     # Patch path to ffmpeg binary
     (replaceVars ./patches/ffmpeg-path.patch {
       ffmpeg = "${lib.getExe ffmpeg-headless}";
-    })
-
-    (fetchpatch {
-      # pytest 9 renames some snapshots
-      name = "revert-to-pytest-8.patch";
-      url = "https://github.com/home-assistant/core/commit/3f22dbaa2e1a7776185ec443bf26f90e90e55efa.patch";
-      revert = true;
-      hash = "sha256-rHXpmHUNCr+lhYqiOVrCSQTWvWJ+jHNwPJzUeFtDPIw=";
     })
   ];
 
@@ -350,6 +325,7 @@ python.pkgs.buildPythonApplication rec {
   dependencies = with python.pkgs; [
     # Only packages required in pyproject.toml
     aiodns
+    aiogithubapi
     aiohasupervisor
     aiohttp
     aiohttp-asyncmdnsresolver
@@ -373,6 +349,7 @@ python.pkgs.buildPythonApplication rec {
     home-assistant-bluetooth
     httpx
     ifaddr
+    infrared-protocols
     jinja2
     lru-dict
     orjson
@@ -426,6 +403,7 @@ python.pkgs.buildPythonApplication rec {
 
   nativeCheckInputs =
     requirementsTest
+    ++ [ versionCheckHook ]
     ++ (with python.pkgs; [
       # Used in tests/non_packaged_scripts/test_alexa_locales.py
       beautifulsoup4
@@ -472,6 +450,10 @@ python.pkgs.buildPythonApplication rec {
     "tests/test_test_fixtures.py::test_evict_faked_translations"
     "tests/helpers/test_backup.py::test_async_get_manager"
     "tests/helpers/test_trigger.py::test_platform_multiple_triggers[sync_action]"
+    # various failing after python-updates
+    "tests/helpers/test_entity_platform.py::test_platform_warn_slow_setup" # ValueError: not enough values to unpack (expected 2, got 0)
+    "tests/helpers/test_entity_component.py::test_set_scan_interval_via_config" # assert 10 == 30.0
+    "tests/helpers/test_entity_component.py::test_set_entity_namespace_via_config" # AssertionError: assert [] == ['test_domain...named_device']
   ];
 
   preCheck = ''
@@ -499,10 +481,6 @@ python.pkgs.buildPythonApplication rec {
     tests = {
       nixos = nixosTests.home-assistant;
       components = callPackage ./tests.nix { };
-      version = testers.testVersion {
-        package = home-assistant;
-        command = "hass --version";
-      };
       withoutCheckDeps = home-assistant.overridePythonAttrs {
         pname = "home-assistant-without-check-deps";
         doCheck = false;

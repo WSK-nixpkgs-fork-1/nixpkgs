@@ -2,24 +2,22 @@
   lib,
   stdenv,
   fetchFromGitLab,
-  autoconf,
-  gfortran,
   cmake,
+  gfortran,
   libzip,
-  pkg-config,
   lhapdf,
-  autoPatchelfHook,
+  patchelf,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "sherpa";
-  version = "3.0.3";
+  version = "3.0.4";
 
   src = fetchFromGitLab {
     owner = "sherpa-team";
     repo = "sherpa";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-bh5C0BYbuAkbPrp27P0oD0yoxd53ViRtmpUKfN7kZ90=";
+    hash = "sha256-iXVP0XwgEpBWZ3vHq+7F9RGx6akShSizBIGkPIOw/r0=";
   };
 
   postPatch = lib.optionalString (stdenv.hostPlatform.libc == "glibc") ''
@@ -27,19 +25,20 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   nativeBuildInputs = [
-    autoconf
-    gfortran
     cmake
-    pkg-config
+    gfortran
   ]
-  ++ lib.optionals stdenv.hostPlatform.isLinux [ autoPatchelfHook ];
+  ++ lib.optionals stdenv.hostPlatform.isLinux [ patchelf ];
 
   buildInputs = [
     libzip
     lhapdf
   ];
 
-  enableParallelBuilding = true;
+  cmakeFlags = [
+    # Needed to initialize a valid SHERPA_LIBRARY_PATH
+    "-DCMAKE_INSTALL_LIBDIR=lib"
+  ];
 
   preFixup =
     lib.optionalString stdenv.hostPlatform.isDarwin ''

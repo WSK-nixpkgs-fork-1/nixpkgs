@@ -12,14 +12,14 @@
 
 buildPythonPackage rec {
   pname = "actron-neo-api";
-  version = "0.4.1";
+  version = "0.5.5";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "kclif9";
     repo = "actronneoapi";
     tag = "v${version}";
-    hash = "sha256-pqBMtrLqGP61nmUE5H34nH969fON2KgyCrEmd3/2X8w=";
+    hash = "sha256-bBPhwiJQYDBEPZKA1Cq94X9LYAmBkOWCI+4afrQntmw=";
   };
 
   build-system = [
@@ -37,15 +37,6 @@ buildPythonPackage rec {
   nativeCheckInputs = [
     pytest-asyncio
     pytestCheckHook
-  ];
-
-  disabledTests = [
-    # test hangs
-    "test_poll_for_token_pending"
-    # AttributeError: property 'authorization_header' of 'ActronAirOAuth2DeviceCodeAuth' object has no setter
-    "test_lazy_token_refres"
-    # ActronAirAuthError: Refresh token is required to refresh the access token
-    "test_get_user_info"
   ];
 
   meta = {

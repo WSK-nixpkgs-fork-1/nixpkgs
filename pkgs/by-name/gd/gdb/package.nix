@@ -5,6 +5,7 @@
 
   # Build time
   fetchurl,
+  fetchpatch,
   pkg-config,
   perl,
   texinfo,
@@ -21,7 +22,7 @@
   dejagnu,
   sourceHighlight,
   libiconv,
-  xxHash,
+  xxhash,
 
   withTui ? true,
   ncurses,
@@ -75,7 +76,8 @@ stdenv.mkDerivation (finalAttrs: {
   postPatch =
     optionalString stdenv.hostPlatform.isDarwin ''
       substituteInPlace gdb/darwin-nat.c \
-        --replace-fail '#include "bfd/mach-o.h"' '#include "mach-o.h"'
+        --replace-fail '#include "bfd/mach-o.h"' '#include "mach-o.h"' \
+        --replace-fail '#include "inferior.h"' $'#include "inferior.h"\n#include "gdbsupport/common-inferior.h"'
     ''
     + optionalString stdenv.hostPlatform.isMusl ''
       substituteInPlace sim/erc32/erc32.c  --replace-fail sys/fcntl.h fcntl.h
@@ -86,6 +88,17 @@ stdenv.mkDerivation (finalAttrs: {
 
   patches = [
     ./debug-info-from-env.patch
+
+    (fetchurl {
+      name = "musl.patch";
+      url = "https://inbox.sourceware.org/gdb-patches/20260324164527.1446549-2-sunilkumar.dora@windriver.com/raw";
+      hash = "sha256-FC4DDVS4wtE/HXtbUqvkxu9+e7nE3DYi1zIuQP9yQO8=";
+    })
+    (fetchpatch {
+      name = "musl-aarch64.patch";
+      url = "https://sourceware.org/git/?p=binutils-gdb.git;a=patch;h=1ccc3f6a2e28fa1f3357826374cba165b3ba3ff7";
+      hash = "sha256-Q2oTo2b+9yNN3PSsxqgxV4/9/05uFE/JMLe1CPs9Y7I=";
+    })
   ]
   ++ optionals stdenv.hostPlatform.isDarwin [
     ./darwin-target-match.patch
@@ -107,7 +120,7 @@ stdenv.mkDerivation (finalAttrs: {
     zstd
     xz
     sourceHighlight
-    xxHash
+    xxhash
     dejagnu # for tests
   ]
   ++ optional withTui ncurses
@@ -159,7 +172,7 @@ stdenv.mkDerivation (finalAttrs: {
     # subset of the platform description.
     "--program-prefix=${targetPrefix}"
 
-    (enableFeature true "werror")
+    (enableFeature false "werror")
     (enableFeature true "64-bit-bfd")
     (enableFeature false "install-libbfd")
     (enableFeature withTui "tui")
@@ -182,12 +195,8 @@ stdenv.mkDerivation (finalAttrs: {
     (withFeature enableDebuginfod "debuginfod")
     (enableFeature (!stdenv.hostPlatform.isMusl) "nls")
   ]
+  ++ optional stdenv.hostPlatform.isStatic "--disable-inprocess-agent"
   ++ optional (!hostCpuOnly) "--enable-targets=all"
-  ++ [
-    (enableFeature (
-      !stdenv.hostPlatform.isStatic && !stdenv.hostPlatform.isLoongArch64
-    ) "inprocess-agent")
-  ]
   # Workaround for Apple Silicon, "--target" must be "faked", see eg: https://github.com/Homebrew/homebrew-core/pull/209753
   ++ optional (
     stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isAarch64

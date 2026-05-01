@@ -4,7 +4,6 @@
   aiohttp,
   aioresponses,
   aiosqlite,
-  async-timeout,
   attrs,
   buildPythonPackage,
   crccheck,
@@ -18,7 +17,6 @@
   pytest-asyncio_0,
   pytest-timeout,
   pytestCheckHook,
-  pythonOlder,
   setuptools,
   typing-extensions,
   voluptuous,
@@ -26,14 +24,14 @@
 
 buildPythonPackage rec {
   pname = "zigpy";
-  version = "0.91.5";
+  version = "1.2.2";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "zigpy";
     repo = "zigpy";
     tag = version;
-    hash = "sha256-nBinPaZfW04AFqtuHZ0FnIT3GS0Y5MgqSL09u1o1iCo=";
+    hash = "sha256-xCgQJYZJTjt81RC6rLb5hEyauJD3qxMK5TXTxTgXwT4=";
   };
 
   postPatch = ''
@@ -55,8 +53,7 @@ buildPythonPackage rec {
     pyserial-asyncio-fast
     typing-extensions
     voluptuous
-  ]
-  ++ lib.optionals (pythonOlder "3.11") [ async-timeout ];
+  ];
 
   nativeCheckInputs = [
     aioresponses
