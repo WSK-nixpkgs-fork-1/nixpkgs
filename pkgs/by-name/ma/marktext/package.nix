@@ -13,6 +13,7 @@
   libxkbfile,
   fontconfig,
   node-gyp-build,
+  node-gyp,
   ripgrep,
   pkg-config,
   libsecret,
@@ -64,6 +65,7 @@ stdenv.mkDerivation (finalAttrs: {
     libxkbfile
     fontconfig
     xorgproto
+    node-gyp
   ];
 
   postPatch = ''
