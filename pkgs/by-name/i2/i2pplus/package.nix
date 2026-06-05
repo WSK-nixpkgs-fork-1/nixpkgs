@@ -17,13 +17,13 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "i2pplus";
-  version = "0.9.68+";
+  version = "7c962ee";
 
   src = fetchzip {
     urls = [
-      "https://github.com/I2PPlus/i2pplus/archive/refs/tags/${finalAttrs.version}.tar.gz"
+      "https://github.com/I2PPlus/i2pplus/archive/${finalAttrs.version}.tar.gz"
     ];
-    hash = "sha256-uwYRfD1etdt70WiWIWuwlvPhXX5zVOyaO+ymPWllur4=";
+    hash = "sha256-UmbKY3qBJi4Og18/owkWnosLROhMqYVVQtiBCg6Gs6Y=";
   };
 
   strictDeps = true;
