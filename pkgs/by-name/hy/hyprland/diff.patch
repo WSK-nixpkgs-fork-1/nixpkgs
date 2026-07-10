@@ -11,3 +11,16 @@ index c88e1bce..42e21e76 100644
  		if (ret != 0) {
  			wlr_drm_conn_log(conn, test_only ? WLR_DEBUG : WLR_ERROR,
  				"liftoff_output_apply failed: %s", strerror(-ret));
+diff --git a/subprojects/wlroots-hyprland/backend/libinput/switch.c b/subprojects/wlroots-hyprland/backend/libinput/switch.c
+index abeec86d..9af6506b 100644
+--- a/subprojects/wlroots-hyprland/backend/libinput/switch.c
++++ b/subprojects/wlroots-hyprland/backend/libinput/switch.c
+@@ -36,6 +36,8 @@ void handle_switch_toggle(struct libinput_event *event,
+ 	case LIBINPUT_SWITCH_TABLET_MODE:
+ 		wlr_event.switch_type = WLR_SWITCH_TYPE_TABLET_MODE;
+ 		break;
++	case LIBINPUT_SWITCH_KEYPAD_SLIDE:
++		break;
+ 	}
+ 	switch (libinput_event_switch_get_switch_state(sevent)) {
+ 	case LIBINPUT_SWITCH_STATE_OFF:
