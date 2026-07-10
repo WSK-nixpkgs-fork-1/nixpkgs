@@ -14,7 +14,6 @@
   libxkbfile,
   fontconfig,
   node-gyp-build,
-  node-gyp,
   ripgrep,
   pkg-config,
   libsecret,
