@@ -1,176 +1,119 @@
 {
   lib,
+  stdenv,
   home-assistant,
+  writableTmpDirAsHomeHook,
 }:
 
 let
-  getComponentDeps = component: home-assistant.getPackages component home-assistant.python.pkgs;
+  getComponentDeps = component: home-assistant.getPackages component home-assistant.python3Packages;
+  inherit (lib) concatMap;
 
   # some components' tests have additional dependencies
-  extraCheckInputs = with home-assistant.python.pkgs; {
-    abode = getComponentDeps "camera";
-    agent_dvr = getComponentDeps "camera";
-    air_quality = getComponentDeps "camera" ++ getComponentDeps "conversation";
-    alexa = getComponentDeps "cloud" ++ getComponentDeps "frontend" ++ getComponentDeps "stream";
-    android_ip_webcam = getComponentDeps "camera";
+  extraCheckInputs = with home-assistant.python3Packages; {
+    alexa = concatMap getComponentDeps [
+      "cloud"
+      "frontend"
+      "stream"
+    ];
+    analytics = getComponentDeps "homeassistant_hardware";
     anthropic = getComponentDeps "ai_task" ++ getComponentDeps "openai_conversation";
     assist_pipeline = getComponentDeps "frontend";
     automation = getComponentDeps "frontend" ++ getComponentDeps "mobile_app";
-    axis = getComponentDeps "camera" ++ getComponentDeps "deconz";
-    blink = getComponentDeps "camera";
+    axis = getComponentDeps "deconz";
+    backup = getComponentDeps "homeassistant_hardware";
+    bluetooth = getComponentDeps "switchbot";
+    braviatv = getComponentDeps "ssdp";
     bthome = getComponentDeps "frontend";
-    buienradar = getComponentDeps "camera";
-    camera = getComponentDeps "conversation" ++ getComponentDeps "stream";
-    canary = getComponentDeps "camera";
-    climate = getComponentDeps "conversation";
-    color_extractor = getComponentDeps "camera" ++ getComponentDeps "conversation";
+    camera = getComponentDeps "stream";
     deconz = getComponentDeps "frontend";
-    demo = getComponentDeps "camera";
-    device_tracker = getComponentDeps "conversation";
-    dialogflow = getComponentDeps "assist_pipeline" ++ getComponentDeps "camera";
-    dlib_face_detect = getComponentDeps "image_processing";
-    dlib_face_identify = getComponentDeps "image_processing";
-    doorbird = getComponentDeps "camera";
-    dremel_3d_printer = getComponentDeps "camera";
-    elevenlabs = getComponentDeps "tts";
     elkm1 = getComponentDeps "frontend";
-    emulated_hue = getComponentDeps "conversation" ++ [
+    emulated_hue = [
       defusedxml
     ];
-    emulated_kasa = getComponentDeps "camera" ++ getComponentDeps "conversation";
-    environment_canada = getComponentDeps "camera";
-    esphome = getComponentDeps "camera";
-    fan = getComponentDeps "conversation";
-    fish_audio = getComponentDeps "tts";
-    foscam = getComponentDeps "camera";
-    freebox = getComponentDeps "camera";
-    fully_kiosk = getComponentDeps "camera";
+    esphome = getComponentDeps "homeassistant_hardware";
     gardena_bluetooth = getComponentDeps "husqvarna_automower_ble";
-    geofency = getComponentDeps "assist_pipeline" ++ getComponentDeps "camera";
     go2rtc = [
       tqdm
     ];
-    google_assistant = getComponentDeps "conversation";
-    google_assistant_sdk = getComponentDeps "conversation" ++ getComponentDeps "frontend";
-    google_cloud = getComponentDeps "tts";
+    google_assistant_sdk = getComponentDeps "frontend";
     google_drive = getComponentDeps "frontend";
     google_generative_ai_conversation = getComponentDeps "ai_task";
-    google_translate = getComponentDeps "tts";
     govee_ble = [
       ibeacon-ble
     ];
-    gpslogger = getComponentDeps "assist_pipeline" ++ getComponentDeps "camera";
-    group = getComponentDeps "camera" ++ getComponentDeps "conversation";
     hassio = getComponentDeps "frontend" ++ getComponentDeps "homeassistant_yellow";
-    hikvision = getComponentDeps "camera";
-    homeassistant = getComponentDeps "camera" ++ getComponentDeps "conversation";
     homeassistant_connect_zbt2 = getComponentDeps "zha";
     homeassistant_hardware = getComponentDeps "otbr" ++ getComponentDeps "zha";
     homeassistant_sky_connect = getComponentDeps "zha";
     homeassistant_yellow = getComponentDeps "zha";
-    homekit = getComponentDeps "conversation" ++ getComponentDeps "frontend";
-    homekit_controller = getComponentDeps "camera";
-    http = getComponentDeps "cloud" ++ getComponentDeps "frontend";
-    humidifier = getComponentDeps "conversation";
-    hyperion = getComponentDeps "camera";
-    ifttt = getComponentDeps "assist_pipeline" ++ getComponentDeps "camera";
-    image_processing = getComponentDeps "conversation";
+    homekit = getComponentDeps "frontend";
+    http = concatMap getComponentDeps [
+      "cloud"
+      "frontend"
+      "homeassistant_hardware"
+    ];
     intelliclima = getComponentDeps "intellifire";
-    intent = getComponentDeps "conversation";
-    light = getComponentDeps "conversation";
-    local_file = getComponentDeps "camera";
-    locative = getComponentDeps "assist_pipeline" ++ getComponentDeps "camera";
     logbook = getComponentDeps "alexa";
     lovelace = getComponentDeps "frontend" ++ [
       pychromecast
     ];
     lutron_caseta = getComponentDeps "frontend";
-    mailgun = getComponentDeps "assist_pipeline" ++ getComponentDeps "camera";
-    marytts = getComponentDeps "tts";
-    media_player = getComponentDeps "camera" ++ getComponentDeps "conversation";
-    microsoft = getComponentDeps "tts";
-    microsoft_face_detect = getComponentDeps "conversation";
-    microsoft_face_identify = getComponentDeps "conversation";
+    mastodon = concatMap getComponentDeps [
+      "stream"
+    ];
+    matter = getComponentDeps "homeassistant_hardware";
     miele = getComponentDeps "cloud";
-    mjpeg = getComponentDeps "camera";
     mobile_app = getComponentDeps "frontend";
     mopeka = getComponentDeps "switchbot";
-    motioneye = getComponentDeps "camera";
-    mqtt = getComponentDeps "camera";
-    nest = getComponentDeps "camera" ++ [
+    mqtt = getComponentDeps "homeassistant_hardware";
+    nest = [
       av
     ];
-    number = getComponentDeps "conversation";
-    ntfy = getComponentDeps "camera" ++ getComponentDeps "tts";
-    octoprint = getComponentDeps "camera";
     ollama = getComponentDeps "ai_task";
-    onboarding = getComponentDeps "tts" ++ [
+    onboarding = [
       pymetno
       radios
       rpi-bad-power
-    ];
-    onvif = getComponentDeps "camera";
+    ]
+    ++ getComponentDeps "homeassistant_hardware"
+    ++ getComponentDeps "usb";
     open_router = getComponentDeps "ai_task";
-    openai_conversation = getComponentDeps "camera";
-    openalpr_cloud = getComponentDeps "camera" ++ getComponentDeps "conversation";
-    prosegur = getComponentDeps "camera";
-    prusalink = getComponentDeps "camera";
-    push = getComponentDeps "camera";
+    osoenergy = [
+      # loguru wants to write into HOME
+      writableTmpDirAsHomeHook
+    ];
     raspberry_pi = [
       rpi-bad-power
     ];
     reolink = getComponentDeps "stream";
-    ring = getComponentDeps "camera";
-    roku = getComponentDeps "camera";
     rss_feed_template = [
       defusedxml
     ];
     script = getComponentDeps "frontend" ++ getComponentDeps "mobile_app";
-    sensor = getComponentDeps "camera" ++ getComponentDeps "conversation";
     shelly = getComponentDeps "frontend" ++ getComponentDeps "switchbot";
-    sighthound = getComponentDeps "conversation" ++ getComponentDeps "image_processing";
-    skybell = getComponentDeps "camera";
-    sleep_as_android = getComponentDeps "assist_pipeline" ++ getComponentDeps "camera";
     songpal = [
       isal
     ];
     sonos = getComponentDeps "frontend";
     swiss_public_transport = getComponentDeps "cookidoo";
-    switch = getComponentDeps "camera" ++ getComponentDeps "conversation";
-    switch_as_x = getComponentDeps "camera" ++ getComponentDeps "conversation";
-    synology_dsm = getComponentDeps "camera";
     system_log = [
       isal
     ];
-    tasmota = getComponentDeps "camera";
-    todo = getComponentDeps "conversation";
-    traccar = getComponentDeps "assist_pipeline" ++ getComponentDeps "camera";
-    trafikverket_camera = getComponentDeps "camera";
-    tts = getComponentDeps "conversation";
-    tuya = getComponentDeps "camera";
-    twilio = getComponentDeps "assist_pipeline" ++ getComponentDeps "camera";
-    unifiprotect = getComponentDeps "camera";
-    universal = getComponentDeps "camera" ++ getComponentDeps "conversation";
-    uvc = getComponentDeps "camera";
-    vivotek = getComponentDeps "camera";
-    voicerss = getComponentDeps "tts";
-    weather = getComponentDeps "conversation";
-    websocket_api = getComponentDeps "camera" ++ getComponentDeps "conversation";
+    unifi_discovery = getComponentDeps "unifiprotect";
     xiaomi_miio = [
       arrow
     ];
-    yandextts = getComponentDeps "tts";
     yolink = getComponentDeps "cloud";
     zeroconf = getComponentDeps "shelly";
     zha = getComponentDeps "deconz" ++ getComponentDeps "frontend";
-    zoneminder = getComponentDeps "camera";
-    zwave_js = getComponentDeps "frontend";
+    zwave_js = getComponentDeps "frontend" ++ getComponentDeps "homeassistant_hardware";
   };
 
   extraDisabledTestPaths = {
-    hypontech = [
-      # outdated snapshot
-      "tests/components/hypontech/test_sensor.py::test_sensors"
+    bluetooth = [
+      # [2026.7.1] Fails to replace HCI device after advertisement became stale
+      "tests/components/bluetooth/test_manager.py::test_switching_adapters_based_on_stale_with_discovered_interval"
     ];
     influxdb = [
       # These tests fail because they check for the number of warnings in the
@@ -192,21 +135,6 @@ let
       "tests/components/minecraft_server/test_init.py"
       "tests/components/minecraft_server/test_sensor.py"
     ];
-    modem_callerid = [
-      # aioserial mock produces wrong state
-      "tests/components/modem_callerid/test_init.py::test_setup_entry"
-    ];
-    nzbget = [
-      # type assertion fails due to introduction of parameterized type
-      "tests/components/nzbget/test_config_flow.py::test_user_form"
-      "tests/components/nzbget/test_config_flow.py::test_user_form_show_advanced_options"
-      "tests/components/nzbget/test_config_flow.py::test_user_form_cannot_connect"
-      "tests/components/nzbget/test_init.py::test_async_setup_raises_entry_not_ready"
-    ];
-    overseerr = [
-      # imports broken future module
-      "tests/components/overseerr/test_event.py"
-    ];
     systemmonitor = [
       # sandbox doesn't grant access to /sys/class/power_supply
       "tests/components/systemmonitor/test_config_flow.py::test_add_and_remove_processes"
@@ -214,37 +142,39 @@ let
   };
 
   extraDisabledTests = {
-    conversation = [
-      # intent fixture mismatch
+    bsblan = [
+      # [2026.7.1] outdated snapshot
+      "test_diagnostics"
+    ];
+    conversation = lib.optionals stdenv.hostPlatform.isAarch64 [
+      # intent fixture mismatch on aarch64
       "test_error_no_device_on_floor"
     ];
-    ecovacs = [
-      # Translation not found for vacuum
-      "test_raise_segment_changed_issue"
+    homeassistant_connect_zbt2 = [
+      # [2026.6.1] AssertionError: assert <ConfigEntryState.LOADED: 'loaded'> is <ConfigEntryState.SETUP_RETRY: 'setup_retry'>
+      "test_usb_device_reactivity"
     ];
-    roborock = [
-      # Translation not found for vacuum
-      "test_clean_segments_mixed_maps"
-      "test_segments_changed_issue"
+    homeassistant = [
+      # disabled via nixos-was-never-supported.patch
+      "test_deprecated_installation_issue_core"
     ];
-    sensor = [
-      # Failed: Translation not found for sensor
-      "test_validate_unit_change_convertible"
-      "test_validate_statistics_unit_change_no_device_class"
-      "test_validate_statistics_state_class_removed"
-      "test_validate_statistics_state_class_removed_issue_cleaned_up"
-      "test_validate_statistics_unit_change_no_conversion"
-      "test_validate_statistics_unit_change_equivalent_units_2"
-      "test_update_statistics_issues"
-      "test_validate_statistics_mean_type_changed"
+    opendisplay = [
+      # [2026.6.0] Failed: Description not found for placeholder `reason` in component.opendisplay.exceptions.device_not_found.message
+      # https://github.com/home-assistant/core/pull/172909
+      "test_upload_image_device_not_in_range"
     ];
-    shell_command = [
-      # tries to retrieve file from github
-      "test_non_text_stdout_capture"
+    smlight = [
+      # [2026.7.1] outdated snapshot
+      "test_entry_diagnostics"
     ];
-    vacuum = [
-      # Translation not found for vacuum
-      "test_segments_changed_issue"
+    teslemetry = [
+      # [2026.6.4] http://github.com/home-assistant/core/commit/a33a92982af19e682a0d0fa7bec0cb16929c00d1
+      "test_sensors"
+      "test_sensors_streaming"
+    ];
+    yardian = [
+      # [2026.6.1] failing snapshot
+      "test_all_entities"
     ];
     zeroconf = [
       # multicast socket bind, not possible in the sandbox
@@ -252,36 +182,34 @@ let
     ];
   };
 in
-lib.listToAttrs (
-  map (
-    component:
-    lib.nameValuePair component (
-      home-assistant.overridePythonAttrs (old: {
-        pname = "homeassistant-test-${component}";
-        pyproject = false;
+lib.genAttrs home-assistant.supportedComponentsWithTests (
+  component:
+  home-assistant.overridePythonAttrs (old: {
+    pname = "homeassistant-test-${component}";
+    pyproject = false;
 
-        dontBuild = true;
-        dontInstall = true;
+    dontBuild = true;
+    dontInstall = true;
 
-        nativeCheckInputs =
-          old.requirementsTest
-          ++ home-assistant.getPackages component home-assistant.python.pkgs
-          ++ extraCheckInputs.${component} or [ ];
+    nativeCheckInputs =
+      old.requirementsTest
+      ++ home-assistant.getPackages component home-assistant.python3Packages
+      ++ extraCheckInputs.${component} or [ ];
 
-        disabledTests = extraDisabledTests.${component} or [ ];
-        disabledTestPaths = extraDisabledTestPaths.${component} or [ ];
+    disabledTests = extraDisabledTests.${component} or [ ];
+    disabledTestPaths = extraDisabledTestPaths.${component} or [ ];
 
-        # components are more often racy than the core
-        dontUsePytestXdist = true;
+    # components are more often racy than the core
+    dontUsePytestXdist = true;
 
-        enabledTestPaths = [ "tests/components/${component}" ];
+    enabledTestPaths = [ "tests/components/${component}" ];
 
-        meta = old.meta // {
-          broken = lib.elem component [ ];
-          # upstream only tests on Linux, so do we.
-          platforms = lib.platforms.linux;
-        };
-      })
-    )
-  ) home-assistant.supportedComponentsWithTests
+    pytestFlags = [ "-vvv" ];
+
+    meta = old.meta // {
+      broken = lib.elem component [ ];
+      # upstream only tests on Linux, so do we.
+      platforms = lib.platforms.linux;
+    };
+  })
 )

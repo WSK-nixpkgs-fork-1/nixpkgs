@@ -11,20 +11,20 @@
   writeShellApplication,
 }:
 let
-  version = "0.1.3";
+  version = "0.1.5";
 
   src = fetchFromGitHub {
-    owner = "elixir-lang";
+    owner = "expert-lsp";
     repo = "expert";
     tag = "v${version}";
-    hash = "sha256-CGWWbzrBjCbz9S8f1nCLx2x6j4MFgsSd5XjgrxhuvzE=";
+    hash = "sha256-QpL58+rzXCl8jT/8sbvDmDZtcWz0+ZKg47XC33EwFyE=";
   };
 
   engineDeps = fetchMixDeps {
     pname = "mix-deps-expert-engine";
 
     inherit src version;
-    hash = "sha256-relCdTBialz4Z/BpXZxmuhSYrvJqLINg/AVGfEhuDGo=";
+    hash = "sha256-4l0Tc/6sOcjGVQtzEOG6QP/ss8rqh+AOnwxuJsuCZCk=";
 
     preConfigure = ''
       cd apps/engine
@@ -38,7 +38,7 @@ mixRelease rec {
   mixFodDeps = fetchMixDeps {
     pname = "mix-deps-${pname}";
     inherit src version;
-    hash = "sha256-Rx5O77UEIDKcCz967h/8z1MAdaw0syzvLG5JOSaqgLE=";
+    hash = "sha256-q6OOealif+LClT0HlJTojDtvMk4MEtI/EjQHbLntiP8=";
 
     preConfigure = ''
       cd apps/expert
@@ -84,8 +84,8 @@ mixRelease rec {
   };
 
   meta = {
-    homepage = "https://github.com/elixir-lang/expert";
-    changelog = "https://github.com/elixir-lang/expert/blob/v${version}/CHANGELOG.md";
+    homepage = "https://github.com/expert-lsp/expert";
+    changelog = "https://github.com/expert-lsp/expert/blob/v0.1.1/CHANGELOG.md";
     description = "Official Elixir Language Server Protocol implementation";
     longDescription = ''
       Expert is the official language server implementation for the Elixir programming language.

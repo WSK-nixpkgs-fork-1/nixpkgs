@@ -7,7 +7,9 @@
   fontconfig,
   glib,
   harfbuzz,
+  makeFontsConf,
   pango,
+  twemoji-color-font,
 
   # build-system
   flit-core,
@@ -32,7 +34,7 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "weasyprint";
-  version = "68.0";
+  version = "69.0";
   pyproject = true;
 
   __darwinAllowLocalNetworking = true;
@@ -41,7 +43,7 @@ buildPythonPackage (finalAttrs: {
     owner = "Kozea";
     repo = "WeasyPrint";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-kAJgSQz1RKrPwzO7I5xHXyXcXYJtvca9izjrAgTy3ek=";
+    hash = "sha256-kd5ei3dBty8VL0ATPz8LZFP+UTUq7yTjuDtO1s/fdxg=";
   };
 
   patches = [
@@ -99,11 +101,14 @@ buildPythonPackage (finalAttrs: {
     "test_woff_simple"
     # AssertionError
     "test_2d_transform"
-    # Reported upstream: https://github.com/Kozea/WeasyPrint/issues/2666
-    "test_text_stroke"
   ];
 
   env.FONTCONFIG_FILE = "${fontconfig.out}/etc/fonts/fonts.conf";
+
+  # Test include some emoji characters that require a custom fontconfig configuration to be found.
+  preCheck = ''
+    export FONTCONFIG_FILE=${makeFontsConf { fontDirectories = [ twemoji-color-font ]; }}
+  '';
 
   # Set env variable explicitly for Darwin, but allow overriding when invoking directly
   makeWrapperArgs = [ "--set-default FONTCONFIG_FILE ${finalAttrs.env.FONTCONFIG_FILE}" ];

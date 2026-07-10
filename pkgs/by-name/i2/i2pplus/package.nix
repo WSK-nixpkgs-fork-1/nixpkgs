@@ -17,13 +17,13 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "i2pplus";
-  version = "7c962ee";
+  version = "cf4ef4d";
 
   src = fetchzip {
     urls = [
       "https://github.com/I2PPlus/i2pplus/archive/${finalAttrs.version}.tar.gz"
     ];
-    hash = "sha256-UmbKY3qBJi4Og18/owkWnosLROhMqYVVQtiBCg6Gs6Y=";
+    hash = "sha256-mOJic21nYsbZ/uCltsAg8jjVnAKf74tvm6Z4k3CCEEA=";
   };
 
   strictDeps = true;
@@ -56,8 +56,8 @@ stdenv.mkDerivation (finalAttrs: {
     pushd core/c/jbigi
     ./build_jbigi.sh dynamic
     popd
-    export JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF8"
-    SOURCE_DATE_EPOCH=0 ant preppkg-unix
+    export JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF8 -Dbuild.root=$TMPDIR/build-i2p/"
+    SOURCE_DATE_EPOCH=0 ant preppkg-unix -Dbuild.root=$TMPDIR/build-i2p/
   '';
 
   installPhase = ''

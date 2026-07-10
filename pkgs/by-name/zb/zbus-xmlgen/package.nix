@@ -8,14 +8,14 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "zbus_xmlgen";
-  version = "5.3.0";
+  version = "5.4.0";
 
   src = fetchCrate {
     inherit (finalAttrs) pname version;
-    hash = "sha256-lFgYGzc0+VIwiXZrKKc+cVwj2U8Y1mg4BMIuG0S/8+g=";
+    hash = "sha256-qfn1DZjRrOStoEHt5HOekW9N2K6S0M/w+iWZ42OPaME=";
   };
 
-  cargoHash = "sha256-//0cJF47E58tkubXRrJcUcqHkhzp3zdshxj9VQ5Zrgw=";
+  cargoHash = "sha256-ECxn6C6Qrv7xPp+MJR9IIJAEO+Xp83udy9Zv/QlUCrE=";
 
   nativeBuildInputs = [ makeBinaryWrapper ];
   nativeCheckInputs = [ rustfmt ];

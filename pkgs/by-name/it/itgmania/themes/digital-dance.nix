@@ -6,13 +6,13 @@
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "digital-dance";
-  version = "1.1.3-unstable-2026-04-19";
+  version = "1.1.4-unstable-2026-06-30";
 
   src = fetchFromCodeberg {
     owner = "JNero";
     repo = "Digital-Dance-ITGMania";
-    rev = "bfce7a6d719189a3eec1577b54256941e8d602a5";
-    hash = "sha256-yrXdU73Jokm+nMMi8mtxdEL5+xuFj4sHIW+/nulcJJI=";
+    rev = "90087bfd1182d1240f22e48fb348df52f784e799";
+    hash = "sha256-iZ3N1+epG8EF8H9KViI3fgtHeayxmWaumxkOOK9qK0c=";
   };
 
   postInstall = ''

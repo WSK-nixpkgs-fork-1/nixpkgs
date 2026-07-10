@@ -3,36 +3,30 @@
   fetchFromGitHub,
   cmake,
   curl,
-  gettext,
-  hidapi,
+  glslang,
+  libevdev,
   libGL,
   libGLU,
-  libevdev,
-  mkLibretroCore,
-  pcre,
-  pkg-config,
-  sfml,
-  udev,
+  libx11,
+  libxcb,
   libxcb-util,
-  libxxf86vm,
-  libxrandr,
+  libxext,
   libxi,
   libxinerama,
-  libxext,
-  libx11,
-  libsm,
-  libpthread-stubs,
-  libxcb,
+  libxrandr,
+  mkLibretroCore,
+  pkg-config,
+  udev,
 }:
 mkLibretroCore {
   core = "dolphin";
-  version = "0-unstable-2026-04-08";
+  version = "0-unstable-2026-06-28";
 
   src = fetchFromGitHub {
     owner = "libretro";
     repo = "dolphin";
-    rev = "0cd3bb89c29535db9b7552fc86871867ccf5b471";
-    hash = "sha256-cSiJO/EvspNvHopo/RLfuz8ONpbXk2NrrSDhkiAm7/s=";
+    rev = "894fdda35688f3ac33c680ef6fe17ce965a16bf1";
+    hash = "sha256-Dkvv8EgQjLjyt0muSVF0Cnex/3xUcZXvWTzgUw61Sv0=";
     fetchSubmodules = true;
   };
 
@@ -41,25 +35,20 @@ mkLibretroCore {
     curl
     pkg-config
   ];
+
   extraBuildInputs = [
-    gettext
-    hidapi
+    glslang
     libGL
     libGLU
     libevdev
-    pcre
-    sfml
-    udev
-    libsm
     libx11
+    libxcb
+    libxcb-util
     libxext
     libxi
     libxinerama
     libxrandr
-    libxxf86vm
-    libpthread-stubs
-    libxcb
-    libxcb-util
+    udev
   ];
 
   makefile = "Makefile";

@@ -13,16 +13,16 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "prek";
-  version = "0.3.10";
+  version = "0.4.4";
 
   src = fetchFromGitHub {
     owner = "j178";
     repo = "prek";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-boyeL8JIEahDh7veCb/h0YZj7IwVrraXjQZul459sMM=";
+    hash = "sha256-PAEmRQ5Vro83fkegOWsdY59U7WAQxBPSEalzxZV6K4o=";
   };
 
-  cargoHash = "sha256-hmaZP6tZpBH1MsgO/WIt75/98E4cHfdpLTfhEgP8Rvw=";
+  cargoHash = "sha256-EmlR6Lmt5XR0uS/y3FqY5yGNeVBSdtLtEGH9jZLcP2o=";
 
   nativeBuildInputs = [
     installShellFiles
