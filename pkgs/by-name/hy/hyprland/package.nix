@@ -1,89 +1,125 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, pkg-config
-, makeWrapper
-, meson
-, cmake
-, ninja
-, binutils
-, cairo
-, git
-, hyprcursor
-, hyprland-protocols
-, hyprlang
-, jq
-, libGL
-, libdrm
-, libexecinfo
-, libinput
-, libxcb
-, libxkbcommon
-, mesa
-, libgbm
-, lcms
-, vulkan-loader
-, glslang
-#, vulkan-headers
-#, vulkan-extension-layer
-#, vulkan-validation-layers
-#, vulkan-utility-libraries
-, pango
-, pciutils
-, python3
-, systemd
-, tomlplusplus
-, wayland
-, wayland-protocols
-, wayland-scanner
-, xcbutilwm
-, xwayland
-, hwdata
-, seatd
-, libdisplay-info
-, libliftoff
-, xorg
-, debug ? false
-, enableXWayland ? true
-, legacyRenderer ? false
-, withSystemd ? lib.meta.availableOn stdenv.hostPlatform systemd
-, wrapRuntimeDeps ? true
-  # deprecated flags
-, nvidiaPatches ? false
-, hidpiXWayland ? false
-, enableNvidiaPatches ? false
+{
+  lib,
+  gcc15Stdenv,
+  stdenvAdapters,
+  fetchFromGitHub,
+  pkg-config,
+  makeWrapper,
+  cmake,
+  aquamarine,
+  binutils,
+  cairo,
+  epoll-shim,
+  glaze,
+  glslang,
+  hyprcursor,
+  hyprgraphics,
+  hyprland-qtutils,
+  hyprlang,
+  hyprutils,
+  hyprwire,
+  hyprwayland-scanner,
+  lcms2,
+  libGL,
+  libdrm,
+  libexecinfo,
+  libgbm,
+  libinput,
+  libuuid,
+  libxkbcommon,
+  lua5_5,
+  muparser,
+  pango,
+  pciutils,
+  pkgconf,
+  python3,
+  re2,
+  systemd,
+  tomlplusplus,
+  uwsm,
+  wayland,
+  wayland-protocols,
+  wayland-scanner,
+  libxcb-wm,
+  libxcb-errors,
+  libxdmcp,
+  libxcursor,
+  libxcb,
+  xwayland,
+  debug ? false,
+  enableXWayland ? true,
+  withSystemd ? lib.meta.availableOn gcc15Stdenv.hostPlatform systemd,
+  wrapRuntimeDeps ? true,
 }:
-assert lib.assertMsg (!nvidiaPatches) "The option `nvidiaPatches` has been removed.";
-assert lib.assertMsg (!enableNvidiaPatches) "The option `enableNvidiaPatches` has been removed.";
-assert lib.assertMsg (!hidpiXWayland) "The option `hidpiXWayland` has been removed. Please refer https://wiki.hyprland.org/Configuring/XWayland";
+let
+  inherit (builtins)
+    foldl'
+    ;
+  inherit (lib.attrsets) mapAttrsToList;
+  inherit (lib.lists)
+    concatLists
+    optionals
+    ;
+  inherit (lib.strings)
+    makeBinPath
+    optionalString
+    cmakeBool
+    ;
+  inherit (lib.trivial)
+    importJSON
+    ;
 
-stdenv.mkDerivation (finalAttrs: {
-  pname = "hyprland" + lib.optionalString debug "-debug";
-  version = "0.39.1";
+  info = importJSON ./info.json;
+
+  # possibility to add more adapters in the future, such as keepDebugInfo,
+  # which would be controlled by the `debug` flag
+  # Condition on darwin to avoid breaking eval for darwin in CI,
+  # even though darwin is not supported anyway.
+  adapters = lib.optionals (!gcc15Stdenv.targetPlatform.isDarwin) [
+    stdenvAdapters.useMoldLinker
+  ];
+
+  customStdenv = foldl' (acc: adapter: adapter acc) gcc15Stdenv adapters;
+in
+customStdenv.mkDerivation (finalAttrs: {
+  pname = "hyprland" + optionalString debug "-debug";
+  version = "0.55.4";
+
   src = fetchFromGitHub {
     owner = "hyprwm";
     repo = "hyprland";
     fetchSubmodules = true;
-    rev = "v${finalAttrs.version}";
-    hash = "sha256-7L5rqQRYH2iyyP5g3IdXJSlATfgnKhuYMf65E48MVKw=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-IuT0HnOr/0rAw+GXr+OwWx89FjA4Og1FqP7vywEwRJM=";
   };
-
-  patches = [ ./diff.patch ];
 
   postPatch = ''
     # Fix hardcoded paths to /usr installation
-    sed -i "s#/usr#$out#" src/render/OpenGL.cpp
+    substituteInPlace src/render/types.hpp \
+      --replace-fail /usr $out
 
-    # Generate version.h
-    cp src/version.h.in src/version.h
-    substituteInPlace src/version.h \
-      --replace-fail "@HASH@" '${finalAttrs.src.rev}' \
-      --replace-fail "@BRANCH@" "" \
-      --replace-fail "@MESSAGE@" "" \
-      --replace-fail "@DATE@" "2024-04-16" \
-      --replace-fail "@TAG@" "" \
-      --replace-fail "@DIRTY@" ""
+    # Remove extra @PREFIX@ to fix pkg-config paths
+    substituteInPlace hyprland.pc.in \
+      --replace-fail  "@PREFIX@/" ""
+    substituteInPlace example/hyprland.desktop.in \
+      --replace-fail  "@PREFIX@/" ""
+    substituteInPlace systemd/hyprland-uwsm.desktop \
+      --replace-fail "Exec=uwsm " "Exec=${lib.getExe uwsm} " \
+      --replace-fail "TryExec=uwsm" "TryExec=${lib.getExe uwsm}"
   '';
+
+  # variables used by CMake, and shown in `hyprctl version`
+  env = {
+    GIT_BRANCH = info.branch;
+    # The amount of commits altogether. Not really worth getting that info from
+    # GitHub's API, so we set a dummy value.
+    GIT_COMMITS = "-1";
+    GIT_COMMIT_DATE = info.date;
+    GIT_DIRTY = "clean";
+    GIT_COMMIT_HASH = info.commit_hash;
+    GIT_COMMIT_MESSAGE = info.commit_message;
+    GIT_TAG = info.tag;
+  };
 
   depsBuildBuild = [
     # to find wayland-scanner when cross-compiling
@@ -91,14 +127,13 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   nativeBuildInputs = [
-    hwdata
-    jq
+    hyprwayland-scanner
+    hyprwire
     makeWrapper
-    meson
-    ninja
+    cmake
     pkg-config
     wayland-scanner
-    cmake # for subproject udis86
+    # for udis86
     python3
   ];
 
@@ -108,70 +143,86 @@ stdenv.mkDerivation (finalAttrs: {
     "dev"
   ];
 
-  buildInputs = [
-    cairo
-    git
-    hyprcursor
-    hyprland-protocols
-    hyprlang
-    libGL
-    libdrm
-    libinput
-    libxkbcommon
-    mesa
-    libgbm
-    lcms
-    wayland
-    wayland-protocols
-    pango
-    pciutils
-    tomlplusplus
-    # for subproject wlroots-hyprland
-    vulkan-loader
-    glslang
-    #vulkan-headers
-    #vulkan-extension-layer
-    #vulkan-validation-layers
-    #vulkan-utility-libraries
-    seatd
-    libliftoff
-    libdisplay-info
-    xorg.xcbutilerrors
-    xorg.xcbutilrenderutil
-  ]
-  ++ lib.optionals stdenv.hostPlatform.isMusl [ libexecinfo ]
-  ++ lib.optionals enableXWayland [ libxcb xcbutilwm xwayland ]
-  ++ lib.optionals withSystemd [ systemd ];
-
-  mesonBuildType =
-    if debug
-    then "debug"
-    else "release";
-
-  mesonAutoFeatures = "enabled";
-
-  mesonFlags = [
-    (lib.mesonEnable "xwayland" enableXWayland)
-    (lib.mesonEnable "legacy_renderer" legacyRenderer)
-    (lib.mesonEnable "systemd" withSystemd)
-    (lib.mesonOption "wlroots-hyprland:renderers" "auto")
+  buildInputs = concatLists [
+    [
+      aquamarine
+      cairo
+      glaze
+      glslang
+      hyprcursor.dev
+      hyprgraphics
+      hyprlang
+      hyprutils
+      lcms2
+      libGL
+      libdrm
+      libgbm
+      libinput
+      libuuid
+      libxcursor
+      libxkbcommon
+      lua5_5
+      muparser
+      pango
+      pciutils
+      re2
+      tomlplusplus
+      wayland
+      wayland-protocols
+    ]
+    (optionals customStdenv.hostPlatform.isBSD [ epoll-shim ])
+    (optionals customStdenv.hostPlatform.isMusl [ libexecinfo ])
+    (optionals enableXWayland [
+      libxcb
+      libxcb-errors
+      libxcb-wm
+      libxdmcp
+      xwayland
+    ])
+    (optionals withSystemd [ systemd ])
   ];
 
+  cmakeBuildType = if debug then "Debug" else "RelWithDebInfo";
+
+  dontStrip = debug;
+  separateDebugInfo = !debug;
+  strictDeps = true;
+
+  cmakeFlags = mapAttrsToList cmakeBool {
+    "BUILT_WITH_NIX" = true;
+    "NO_XWAYLAND" = !enableXWayland;
+    "NO_SYSTEMD" = !withSystemd;
+    "CMAKE_DISABLE_PRECOMPILE_HEADERS" = true;
+    "NO_UWSM" = !withSystemd;
+    "TRACY_ENABLE" = false;
+  };
+
   postInstall = ''
-    ${lib.optionalString wrapRuntimeDeps ''
+    ${optionalString wrapRuntimeDeps ''
       wrapProgram $out/bin/Hyprland \
-        --suffix PATH : ${lib.makeBinPath [binutils pciutils stdenv.cc]}
+        --suffix PATH : ${
+          makeBinPath [
+            binutils
+            hyprland-qtutils
+            pciutils
+            pkgconf
+          ]
+        }
     ''}
   '';
 
-  passthru.providedSessions = [ "hyprland" ];
+  passthru = {
+    providedSessions = [ "hyprland" ] ++ optionals withSystemd [ "hyprland-uwsm" ];
+    updateScript = ./update.sh;
+  };
 
-  meta = with lib; {
+  meta = {
     homepage = "https://github.com/hyprwm/Hyprland";
-    description = "A dynamic tiling Wayland compositor that doesn't sacrifice on its looks";
-    license = licenses.bsd3;
-    maintainers = with maintainers; [ wozeparrot fufexan ];
+    changelog = "https://github.com/hyprwm/Hyprland/releases/tag/${finalAttrs.src.tag}";
+    description = "Dynamic tiling Wayland compositor that doesn't sacrifice on its looks";
+    license = lib.licenses.bsd3;
+    teams = [ lib.teams.hyprland ];
     mainProgram = "Hyprland";
-    platforms = lib.platforms.linux;
+    platforms = lib.platforms.linux ++ lib.platforms.freebsd;
   };
 })
