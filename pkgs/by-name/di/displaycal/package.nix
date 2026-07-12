@@ -1,6 +1,6 @@
 {
   lib,
-  python3,
+  python313,
   fetchPypi,
   wrapGAppsHook3,
   gtk3,
@@ -13,7 +13,7 @@
   argyllcms,
 }:
 
-python3.pkgs.buildPythonApplication (finalAttrs: {
+python313.pkgs.buildPythonApplication (finalAttrs: {
   pname = "displaycal";
   version = "3.9.17";
   pyproject = true;
@@ -29,9 +29,9 @@ python3.pkgs.buildPythonApplication (finalAttrs: {
     gtk3
   ];
 
-  build-system = with python3.pkgs; [ setuptools ];
+  build-system = with python313.pkgs; [ setuptools ];
 
-  dependencies = with python3.pkgs; [
+  dependencies = with python313.pkgs; [
     build
     certifi
     wxpython
