@@ -16,10 +16,10 @@ let
       music-assistant-frontend = prev.callPackage ./frontend.nix { };
 
       music-assistant-models = final.music-assistant-models.overridePythonAttrs (oldAttrs: {
-        version = "1.1.129";
+        version = "1.1.129.post1";
 
         src = oldAttrs.src.override {
-          hash = "sha256-6gVHlFTt/bsj4nUGPS6HDUQ7zczpfos75U6l4Yk9W6k=";
+          hash = "sha256-86BmUmduNcSbEHxK+/he78b5fAM/XBhnNEc28Uv74GI=";
         };
       });
     }
@@ -40,7 +40,7 @@ assert
 
 pythonPackages.buildPythonApplication (finalAttrs: {
   pname = "music-assistant";
-  version = "2.9.4";
+  version = "2.9.13";
   pyproject = true;
   __structuredAttrs = true;
 
@@ -48,7 +48,7 @@ pythonPackages.buildPythonApplication (finalAttrs: {
     owner = "music-assistant";
     repo = "server";
     tag = finalAttrs.version;
-    hash = "sha256-PiSBghhlxknijRqghkO8wn1CB2XqaJrjrvGNvZUlNbo=";
+    hash = "sha256-HCqd8++PKdbuzyeztkcLUXhTivTLJEl749VD2oCsHZA=";
   };
 
   patches = [
@@ -146,6 +146,7 @@ pythonPackages.buildPythonApplication (finalAttrs: {
       gql
       ifaddr
       librosa
+      markdownify
       mashumaro
       modern-colorthief
       music-assistant-frontend
@@ -184,7 +185,7 @@ pythonPackages.buildPythonApplication (finalAttrs: {
   nativeCheckInputs =
     with pythonPackages;
     [
-      pytestCheckHook
+      pytest9_0CheckHook
       writableTmpDirAsHomeHook
     ]
     ++ lib.concatAttrValues finalAttrs.passthru.optional-dependencies
@@ -194,6 +195,7 @@ pythonPackages.buildPythonApplication (finalAttrs: {
       "dlna"
       "fastmcp_server"
       "jellyfin"
+      "heos"
       "mpd"
       "msx_bridge"
       "opensubsonic"
@@ -202,6 +204,8 @@ pythonPackages.buildPythonApplication (finalAttrs: {
       "snapcast"
       "sonic_analysis"
       "sonic_similarity"
+      "sonos"
+      "sonos_s1"
       "tidal"
       "wiim"
       "ytmusic"
@@ -226,6 +230,7 @@ pythonPackages.buildPythonApplication (finalAttrs: {
     "tests/providers/kion_music"
     "tests/providers/nicovideo"
     "tests/providers/qqmusic"
+    "tests/providers/siriusxm"
     "tests/providers/yandex_music"
     "tests/providers/yandex_ynison"
     "tests/providers/zvuk_music"

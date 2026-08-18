@@ -352,13 +352,6 @@ assertNoAdditions {
     };
   });
 
-  bitbake = super.bitbake.overrideAttrs (old: {
-    sourceRoot = "source/contrib/vim";
-    meta = old.meta // {
-      license = lib.licenses.gpl2Only;
-    };
-  });
-
   blink-calc = super.blink-calc.overrideAttrs {
     dependencies = [ self.blink-cmp ];
   };
@@ -894,6 +887,12 @@ assertNoAdditions {
     };
   });
 
+  cocci-syntax = super.cocci-syntax.overrideAttrs (old: {
+    meta = old.meta // {
+      license = lib.licenses.vim;
+    };
+  });
+
   codecompanion-history-nvim = super.codecompanion-history-nvim.overrideAttrs {
     dependencies = with self; [
       # transitive dependency for codecompanion-nvim
@@ -1021,6 +1020,27 @@ assertNoAdditions {
         url = "https://github.com/zbirenbaum/copilot-cmp/commit/06430ebf99834ebc5d86c63816e409f4cb51fe79.patch";
         sha256 = "sha256-YOJPFC+qbyURFU58tAiAqbamQLmi7ovnJGkOeOTUPH0=";
       })
+    ];
+  };
+
+  copilot-lua = super.copilot-lua.overrideAttrs {
+    # Avoid copying the bundled 500MB language server into the plugin output.
+    preInstall = ''
+      rm -rf copilot/js
+    '';
+
+    postInstall = ''
+      mkdir -p $target/copilot
+      ln -s ${copilot-language-server}/share/copilot-language-server $target/copilot/js
+
+      substituteInPlace $target/lua/copilot/lsp/nodejs.lua \
+        --replace-fail "copilot/js/language-server.js" "copilot/js/main.js"
+      sed -i 's/version = "[^"]*"/version = "${copilot-language-server.version}"/' $target/lua/copilot/util.lua
+    '';
+
+    runtimeDeps = [
+      copilot-language-server
+      nodejs
     ];
   };
 
@@ -2005,6 +2025,14 @@ assertNoAdditions {
   });
 
   jupytext-nvim = super.jupytext-nvim.overrideAttrs (old: {
+    # `vim.health.report_*` was removed in neovim 0.11, which makes
+    # `:checkhealth jupytext` error out. Upstream is inactive and has several
+    # open PRs for this, e.g.
+    # https://github.com/GCBallesteros/jupytext.nvim/pull/40
+    postPatch = ''
+      substituteInPlace lua/jupytext/health.lua \
+        --replace-fail "vim.health.report_" "vim.health."
+    '';
     passthru = old.passthru // {
       python3Dependencies = ps: [ ps.jupytext ];
     };
@@ -2389,6 +2417,10 @@ assertNoAdditions {
   };
 
   lualine-lsp-progress = super.lualine-lsp-progress.overrideAttrs {
+    dependencies = [ self.lualine-nvim ];
+  };
+
+  lualine-so-fancy-nvim = super.lualine-so-fancy-nvim.overrideAttrs {
     dependencies = [ self.lualine-nvim ];
   };
 
@@ -3098,6 +3130,10 @@ assertNoAdditions {
     dependencies = [ self.nui-nvim ];
   };
 
+  none-ls-extras-nvim = super.none-ls-extras-nvim.overrideAttrs {
+    dependencies = [ self.none-ls-nvim ];
+  };
+
   none-ls-nvim = super.none-ls-nvim.overrideAttrs {
     dependencies = [ self.plenary-nvim ];
   };
@@ -3316,6 +3352,7 @@ assertNoAdditions {
   };
 
   nvim-jdtls = super.nvim-jdtls.overrideAttrs (old: {
+    runtimeDeps = [ python3 ];
     meta = old.meta // {
       license = lib.licenses.gpl3Only;
     };
@@ -3597,7 +3634,6 @@ assertNoAdditions {
       snacks-nvim
       telescope-nvim
     ];
-    dependencies = [ self.plenary-nvim ];
     nvimSkipModules = [
       # Issue reproduction file
       "minimal"
@@ -4109,6 +4145,10 @@ assertNoAdditions {
       license = lib.licenses.mit;
     };
   });
+
+  slang-server-nvim = super.slang-server-nvim.overrideAttrs {
+    dependencies = [ self.nui-nvim ];
+  };
 
   slimline-nvim = super.slimline-nvim.overrideAttrs {
     nvimSkipModules = [

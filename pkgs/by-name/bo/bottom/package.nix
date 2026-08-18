@@ -12,16 +12,16 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "bottom";
-  version = "0.14.3";
+  version = "0.14.7";
 
   src = fetchFromGitHub {
     owner = "ClementTsang";
     repo = "bottom";
     tag = finalAttrs.version;
-    hash = "sha256-DJ1Vw1YG4CXhXUwFh2pGyH6lqLw1oHG18AEXlC4xvZk=";
+    hash = "sha256-EXbj/T3wt4gph1FZ71iK0rdRZMewY3EHpOMWsCFUnc0=";
   };
 
-  cargoHash = "sha256-SUR1O5Sm3CFxjkxkPWih7gnvf7L04D+x5SUFXvA/KgQ=";
+  cargoHash = "sha256-2Erh+pgZPZEmvFAtWNPqKVkQx3/hznC82M5a36cWfZY=";
 
   nativeBuildInputs = [
     autoAddDriverRunpath

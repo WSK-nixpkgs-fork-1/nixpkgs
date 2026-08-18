@@ -34,6 +34,7 @@
 
 let
   inherit (stdenv) hostPlatform;
+  rustc = rustPlatform.callPackage ({ rustc }: rustc) { };
 
   accelIsValid = builtins.elem acceleration [
     null
@@ -73,14 +74,14 @@ let
 in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "mistral-rs";
-  version = "0.9.0";
+  version = "0.9.1";
   __structuredAttrs = true;
 
   src = fetchFromGitHub {
     owner = "EricLBuehler";
     repo = "mistral.rs";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-3p/e7UZ8BLwT+dpb61NmzX2Z1QxxEgkgjlNzv5lWybM=";
+    hash = "sha256-5W/CBFw28xBC7GnbpQ9jxRAdxXBtTdsD3X/YNR6z6iI=";
   };
 
   patches = [
@@ -94,6 +95,26 @@ rustPlatform.buildRustPackage (finalAttrs: {
         --replace-fail \
           "lto = true" \
           "lto = false"
+
+    ''
+    # LLVM 21 cannot select the VPDPBUSD intrinsic because its argument types are incorrect.
+    # Fixed by https://github.com/rust-lang/llvm-project/commit/94e2c19f86a699d7a19ff0f4130b696699189c8d.
+    + lib.optionalString (hostPlatform.isx86_64 && lib.versionOlder rustc.llvm.version "22") ''
+      substituteInPlace "$cargoDepsCopy/source-git-0/candle-core-0.11.0/src/quantized/mod.rs" \
+        --replace-fail \
+          '#[cfg(target_arch = "x86_64")]' \
+          '#[cfg(any())]' \
+        --replace-fail \
+          '#[cfg(not(any(target_arch = "aarch64", target_arch = "x86_64")))]' \
+          '#[cfg(not(target_arch = "aarch64"))]'
+
+      substituteInPlace "$cargoDepsCopy/source-git-0/candle-core-0.11.0/src/quantized/repack.rs" \
+        --replace-fail \
+          '#[cfg(target_arch = "x86_64")]' \
+          '#[cfg(any())]' \
+        --replace-fail \
+          '#[cfg(not(any(target_arch = "aarch64", target_arch = "x86_64")))]' \
+          '#[cfg(not(target_arch = "aarch64"))]'
     ''
     # Prevent build scripts from attempting to clone cutlass (which would fail in the sandbox anyway).
     # Instead, we provide cutlass in buildInputs.
@@ -109,7 +130,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
           ""
     '';
 
-  cargoHash = "sha256-TULJ3mEAWp1ktPDPeBbUJGHhsEuo5T2qh3/JpS+8+ds=";
+  cargoHash = "sha256-VivnZNtIjnu1JOKaE7nEIse8300oB9oqGP0aly+9/OQ=";
 
   nativeBuildInputs = [
     pkg-config
@@ -220,6 +241,8 @@ rustPlatform.buildRustPackage (finalAttrs: {
   # When started, mistralrs tries to load libcuda.so from the driver which is not available in the sandbox
   # mistralrs: error while loading shared libraries: libcuda.so.1: cannot open shared object file: No such file or directory
   doInstallCheck = !cudaSupport;
+
+  __darwinAllowLocalNetworking = true;
 
   passthru = {
     tests = {
